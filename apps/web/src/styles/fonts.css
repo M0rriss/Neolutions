@@ -1,2 +1,3 @@
-/* Inter Variable autoalojada; el paquete ya declara font-display: swap. */
+/* Fuentes autoalojadas; ambos paquetes declaran font-display: swap. */
 @import "@fontsource-variable/inter/wght.css";
+@import "@fontsource-variable/familjen-grotesk/wght.css";

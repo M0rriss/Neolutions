@@ -1,6 +1,5 @@
 ---
 import Container from "@/components/ui/Container.astro";
-import SectionHeading from "@/components/ui/SectionHeading.astro";
 import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
 import { processSection } from "@/data/home";
 import { processSteps } from "@/data/process";
@@ -11,142 +10,173 @@ interface Props {
 const { service } = Astro.props;
 ---
 
-<section class="section section--deep">
+<section class="process" id="g-process">
   <Container>
-    <div class="reveal">
-      <SectionHeading eyebrow={processSection.eyebrow} title={processSection.title} />
-    </div>
-    <ol class="steps reveal">
-      {processSteps.map((step, index) => (
-        <li class="step">
-          <span class="number" aria-hidden="true">
-            {index + 1}
-          </span>
-          <p class="label">{step.label}</p>
-          <h3>{step.title}</h3>
-          <p class="text">{step.text}</p>
-        </li>
-      ))}
-    </ol>
-    <div class="actions cta">
-      <WhatsAppButton size="lg" service={service} origen="proceso" />
+    <div class="layout">
+      <div class="copy">
+        <p class="eyebrow">{processSection.eyebrow}</p>
+        <h2 class="metal">{processSection.title}</h2>
+        <div class="actions">
+          <WhatsAppButton size="lg" service={service} origen="proceso" />
+        </div>
+      </div>
+      <div class="steps">
+        <span class="rail" aria-hidden="true">
+          <span class="fill" data-rail-fill></span>
+        </span>
+        <ol class="list">
+          {processSteps.map((step, index) => (
+            <li class="step" data-step>
+              <span class="number" aria-hidden="true">
+                {index + 1}
+              </span>
+              <p class="label">{step.label}</p>
+              <h3>{step.title}</h3>
+              <p class="text">{step.text}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
     </div>
   </Container>
 </section>
 
 <style>
+  .process {
+    position: relative;
+    padding-block: var(--section-padding-y);
+  }
+
+  .layout {
+    display: grid;
+    gap: var(--space-7);
+    align-items: center;
+  }
+
+  .copy {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+  }
+
+  .eyebrow {
+    color: var(--color-accent-400);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    font-weight: var(--weight-medium);
+  }
+
+  .actions {
+    width: 100%;
+  }
+
   .steps {
     position: relative;
+  }
+
+  .list {
     display: grid;
     gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  /* El "cable" que une los pasos, con una señal que lo recorre */
-  .steps::before {
-    content: "";
+  .rail {
     position: absolute;
-    top: var(--space-5);
-    bottom: var(--space-5);
-    left: calc(var(--control-lg) / 2);
-    width: 1px;
-    background: var(--color-border-strong);
-  }
-
-  .steps::after {
-    content: "";
-    position: absolute;
-    top: var(--space-5);
-    left: calc(var(--control-lg) / 2 - 2px);
-    width: 5px;
-    height: 5px;
+    top: var(--space-2);
+    bottom: var(--space-2);
+    left: 0;
+    width: var(--space-6);
+    overflow: hidden;
     border-radius: var(--radius-pill);
-    background: var(--color-accent-400);
-    box-shadow: var(--shadow-accent);
-    animation: signal-y 7s linear infinite;
+    background: var(--color-accent-100);
   }
 
-  @keyframes signal-y {
-    to {
-      top: calc(100% - var(--space-5));
-    }
+  .fill {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(transparent, var(--color-accent-500));
+    transform-origin: top;
   }
 
   .step {
     position: relative;
     display: grid;
     gap: var(--space-1);
-    padding-left: calc(var(--control-lg) + var(--space-4));
-    min-height: var(--control-lg);
+    padding-left: calc(var(--space-6) + var(--space-4));
   }
 
   .number {
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: var(--control-lg);
-    height: var(--control-lg);
-    border: 2px solid var(--color-accent-500);
+    width: var(--space-6);
+    height: var(--space-6);
     border-radius: var(--radius-pill);
-    background: var(--color-brand-900);
-    font-size: var(--text-xl);
+    background: var(--color-text);
+    color: var(--color-text-on-accent);
+    font-size: var(--text-sm);
     font-weight: var(--weight-bold);
   }
 
   .label {
     color: var(--color-accent-400);
-    font-size: var(--text-xs);
+    font-size: var(--text-sm);
     font-weight: var(--weight-semibold);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
 
   h3 {
+    font-family: var(--font-display);
     font-size: var(--text-xl);
     font-weight: var(--weight-semibold);
   }
 
   .text {
     color: var(--color-text-muted);
-  }
-
-  .cta {
-    margin-top: var(--space-7);
+    font-size: var(--text-sm);
   }
 
   @media (min-width: 1024px) {
+    .process {
+      display: flex;
+      align-items: center;
+      min-height: 100svh;
+    }
+
+    .layout {
+      grid-template-columns: 21rem minmax(0, 1fr) 22rem;
+    }
+
+    .copy {
+      grid-column: 1;
+    }
+
     .steps {
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--space-5);
+      grid-column: 3;
     }
 
-    .steps::before {
-      top: calc(var(--control-lg) / 2);
-      right: var(--space-8);
-      bottom: auto;
-      left: var(--control-lg);
-      width: auto;
-      height: 1px;
+    .list {
+      gap: var(--space-7);
     }
 
-    .steps::after {
-      top: calc(var(--control-lg) / 2 - 2px);
-      left: var(--control-lg);
-      animation-name: signal-x;
+    /* Sin globo detrás (páginas de servicio) la columna central sobra */
+    :global(body:not(:has(.globe-stage))) .layout {
+      grid-template-columns: minmax(0, 1fr) 24rem;
     }
 
-    @keyframes signal-x {
-      to {
-        left: calc(100% - var(--space-8));
-      }
-    }
-
-    .step {
-      padding-top: calc(var(--control-lg) + var(--space-4));
-      padding-left: 0;
+    :global(body:not(:has(.globe-stage))) .steps {
+      grid-column: 2;
     }
   }
 </style>

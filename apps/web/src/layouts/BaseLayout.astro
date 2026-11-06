@@ -90,6 +90,8 @@ const structured = [organizationJsonLd(base), ...jsonLd];
         });
       });
 
+      import("@/lib/motion/init");
+
       const items = document.querySelectorAll(".reveal");
       if ("IntersectionObserver" in window) {
         const observer = new IntersectionObserver(

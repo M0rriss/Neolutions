@@ -7,6 +7,13 @@ export const hero = {
   consoleLabel: "Servicios",
 } as const;
 
+export const statsSection = { title: "Tecnología cerca de tu negocio" } as const;
+
+export const gridSection = {
+  title: "Todo lo que necesitas, con un solo equipo",
+  more: "Ver más",
+} as const;
+
 export const servicesSection = {
   eyebrow: "Servicios",
   title: "Todo lo que tu negocio necesita en tecnología",

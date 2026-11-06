@@ -26,6 +26,7 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
         eyebrow={servicesSection.eyebrow}
         title={servicesSection.title}
         subtitle={servicesSection.subtitle}
+        align="center"
       />
     </div>
 
@@ -46,7 +47,13 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
       ))}
     </div>
 
-    <div id="tabla-servicios" role="tabpanel" aria-labelledby="filtro-todos" data-filter-panel>
+    <div
+      class="panel-beam board"
+      id="tabla-servicios"
+      role="tabpanel"
+      aria-labelledby="filtro-todos"
+      data-filter-panel
+    >
       <table class="table" role="table" aria-label="Servicios de Neolutions">
         <thead role="rowgroup">
           <tr role="row">
@@ -166,11 +173,16 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
 </script>
 
 <style>
+  .board {
+    padding: var(--space-3);
+  }
+
   .filters {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: var(--space-2);
-    margin-bottom: var(--space-5);
+    margin-bottom: var(--space-7);
   }
 
   .filter {
@@ -329,7 +341,7 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
     .table {
       display: table;
       border-collapse: separate;
-      border-spacing: 0 var(--space-3);
+      border-spacing: 0;
     }
 
     thead {
@@ -371,25 +383,20 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
     .row td {
       display: table-cell;
       padding: var(--space-3);
-      border-block: 1px solid var(--color-border);
-      background: var(--color-brand-700);
+      border-bottom: 1px solid var(--color-border);
+      background: transparent;
       vertical-align: middle;
       transition: border-color var(--transition-fast);
     }
 
     .row:hover th,
     .row:hover td {
-      border-color: var(--color-border-strong);
+      background: var(--color-accent-100);
     }
 
-    .row > :first-child {
-      border-left: 1px solid var(--color-border);
-      border-radius: var(--radius-md) 0 0 var(--radius-md);
-    }
-
-    .row > :last-child {
-      border-right: 1px solid var(--color-border);
-      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    .row:last-child th,
+    .row:last-child td {
+      border-bottom: 0;
     }
 
     .cell-service {

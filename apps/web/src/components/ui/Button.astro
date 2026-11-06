@@ -27,7 +27,7 @@ const Tag = href ? "a" : "button";
     gap: var(--space-2);
     min-width: var(--control-md);
     border: 1px solid transparent;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-pill);
     font-weight: var(--weight-semibold);
     line-height: var(--leading-snug);
     text-align: center;
@@ -53,18 +53,19 @@ const Tag = href ? "a" : "button";
   }
 
   .btn--primary {
-    background: var(--color-accent-500);
+    background: var(--gradient-gloss);
+    box-shadow: 0 0 22px -6px var(--color-accent-400);
     color: var(--color-text-on-accent);
   }
 
   .btn--primary:hover {
-    background: var(--color-accent-400);
+    background: var(--gradient-gloss);
     box-shadow: var(--shadow-accent);
   }
 
   .btn--secondary {
-    border-color: var(--color-text);
-    background: transparent;
+    border-color: var(--color-border-strong);
+    background: var(--color-glass);
     color: var(--color-text);
   }
 

@@ -10,7 +10,9 @@ const { eyebrow, title, subtitle, align = "left" } = Astro.props;
 
 <header class:list={["heading", `heading--${align}`]}>
   {eyebrow && <p class="eyebrow">{eyebrow}</p>}
-  <h2>{title}</h2>
+  <h2 class="metal" data-split>
+    {title}
+  </h2>
   {subtitle && <p class="subtitle">{subtitle}</p>}
 </header>
 
@@ -36,8 +38,9 @@ const { eyebrow, title, subtitle, align = "left" } = Astro.props;
   }
 
   h2 {
+    font-family: var(--font-display);
     font-size: var(--text-4xl);
-    font-weight: var(--weight-bold);
+    font-weight: var(--weight-medium);
   }
 
   .subtitle {

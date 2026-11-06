@@ -1,10 +1,13 @@
 /* Tokens de Neolutions. Fuente: docs/frontend/11-design-system.md */
 :root {
   /* Marca */
-  --color-brand-900: #1a1030;
-  --color-brand-800: #2a1b4a;
-  --color-brand-700: #362560;
-  --color-brand-600: #45317a;
+  --color-brand-900: #05060d;
+  --color-brand-800: #080912;
+  --color-brand-700: #10121d;
+  --color-brand-600: #1c1f30;
+  --color-glass: rgba(16, 18, 29, 0.62);
+  --color-violet-400: #a78bfa;
+  --color-violet-glow: rgba(139, 92, 246, 0.22);
 
   --color-accent-500: #00a999;
   --color-accent-400: #1fc4b3;
@@ -35,6 +38,9 @@
 
   /* Tipografía */
   --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Familjen Grotesk Variable", "Inter Variable", system-ui, sans-serif;
+  --gradient-metal: linear-gradient(180deg, #ffffff 15%, #aeb4c0 95%);
+  --gradient-gloss: linear-gradient(100deg, #ffffff 30%, #bfe9e3 100%);
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;

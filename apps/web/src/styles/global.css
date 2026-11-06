@@ -84,6 +84,58 @@ a {
   outline-offset: 3px;
 }
 
+/* Título con degradado metálico */
+.metal {
+  background: var(--gradient-metal);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Panel con haz de luz en el borde superior */
+.panel-beam {
+  position: relative;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(var(--color-accent-100), transparent 28%), var(--color-brand-700);
+  box-shadow: 0 -30px 90px -30px var(--color-accent-500);
+}
+
+.panel-beam::before {
+  content: "";
+  position: absolute;
+  inset: -1px var(--space-5) auto;
+  height: 3px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, transparent, var(--color-accent-400), transparent);
+}
+
+.panel-beam--violet {
+  background: linear-gradient(var(--color-violet-glow), transparent 40%), var(--color-brand-700);
+  box-shadow: 0 -30px 90px -30px var(--color-violet-400);
+}
+
+.panel-beam--violet::before {
+  background: linear-gradient(90deg, transparent, var(--color-violet-400), transparent);
+}
+
+main {
+  position: relative;
+}
+
+body:has(.globe-stage) .section--deep {
+  background: transparent;
+}
+
+body:has(.globe-stage) .card {
+  background: var(--color-glass);
+}
+
+footer {
+  position: relative;
+  z-index: 1;
+}
+
 /* Utilidades mínimas */
 .sr-only {
   position: absolute;

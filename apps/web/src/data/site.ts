@@ -15,5 +15,5 @@ export const site = {
   area: "Lima y Callao",
   schedule: "TODO: horario de atención",
   legal: { businessName: "", ruc: "" }, // TODO: completar cuando existan
-  announcement: { enabled: true },
+  announcement: { enabled: false },
 } as const;

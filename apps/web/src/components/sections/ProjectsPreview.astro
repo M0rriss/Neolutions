@@ -1,0 +1,58 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import Card from "@/components/ui/Card.astro";
+import Container from "@/components/ui/Container.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+
+const projects = (await getCollection("proyectos", ({ data }) => data.published)).slice(0, 3);
+---
+
+{projects.length > 0 && (
+  <section class="section">
+    <Container>
+      <SectionHeading eyebrow="Proyectos" title="Trabajos realizados" />
+      <div class="grid">
+        {projects.map((project) => (
+          <Card>
+            <Image
+              src={project.data.cover}
+              alt={project.data.title}
+              widths={[360, 720]}
+              sizes="(min-width: 1024px) 33vw, 100vw"
+              loading="lazy"
+            />
+            <h3>{project.data.title}</h3>
+            <p>{project.data.service}</p>
+            <p>{project.data.problem}</p>
+            <p>{project.data.result}</p>
+          </Card>
+        ))}
+      </div>
+    </Container>
+  </section>
+)}
+
+<style>
+  .grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  h3 {
+    margin-top: var(--space-3);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-semibold);
+  }
+
+  p {
+    margin-top: var(--space-2);
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

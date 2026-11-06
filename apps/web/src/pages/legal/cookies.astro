@@ -1,0 +1,21 @@
+---
+import { legalUpdated } from "@/data/legal";
+import LegalLayout from "@/layouts/LegalLayout.astro";
+---
+
+<LegalLayout
+  title="Política de cookies"
+  description="Qué cookies usa el sitio de Neolutions Tecnology y cómo desactivarlas."
+  updated={legalUpdated}
+>
+  <h2>Qué cookies usamos</h2>
+  <p>
+    Si aceptas, usamos cookies de analítica (Google Analytics) para medir las visitas y el píxel de
+    Meta para medir nuestros anuncios. Estas cookies solo se activan después de tu consentimiento.
+  </p>
+  <h2>Cómo desactivarlas</h2>
+  <p>
+    Puedes elegir "Solo necesarias" en el aviso de cookies o borrar las cookies desde la
+    configuración de tu navegador.
+  </p>
+</LegalLayout>

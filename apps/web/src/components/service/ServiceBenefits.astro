@@ -1,0 +1,49 @@
+---
+import Card from "@/components/ui/Card.astro";
+import Container from "@/components/ui/Container.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+
+interface Props {
+  benefits: { title: string; text: string }[];
+}
+const { benefits } = Astro.props;
+---
+
+<section class="section section--deep">
+  <Container>
+    <div class="reveal">
+      <SectionHeading title="Beneficios para tu negocio" />
+    </div>
+    <div class="grid reveal">
+      {benefits.map((benefit) => (
+        <Card>
+          <h3>{benefit.title}</h3>
+          <p>{benefit.text}</p>
+        </Card>
+      ))}
+    </div>
+  </Container>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  h3 {
+    margin-bottom: var(--space-2);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-semibold);
+  }
+
+  p {
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    }
+  }
+</style>

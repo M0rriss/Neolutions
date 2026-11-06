@@ -1,0 +1,83 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+type Props = {
+  variant?: "primary" | "secondary" | "ghost";
+  size?: "md" | "lg";
+  href?: string;
+  class?: string;
+  [key: `data-${string}`]: string | undefined;
+} & Omit<HTMLAttributes<"a">, "class" | "href"> &
+  Pick<HTMLAttributes<"button">, "type" | "disabled">;
+
+const { variant = "primary", size = "md", href, class: className, ...rest } = Astro.props;
+const Tag = href ? "a" : "button";
+---
+
+<Tag href={href} class:list={["btn", `btn--${variant}`, `btn--${size}`, className]} {...rest}>
+  <slot />
+  <slot name="icon" />
+</Tag>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-width: var(--control-md);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-snug);
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background-color var(--transition-fast),
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast),
+      color var(--transition-fast);
+  }
+
+  .btn--md {
+    min-height: var(--control-md);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+  }
+
+  .btn--lg {
+    min-height: var(--control-lg);
+    padding: var(--space-3) var(--space-5);
+    font-size: var(--text-base);
+  }
+
+  .btn--primary {
+    background: var(--color-accent-500);
+    color: var(--color-text-on-accent);
+  }
+
+  .btn--primary:hover {
+    background: var(--color-accent-400);
+    box-shadow: var(--shadow-accent);
+  }
+
+  .btn--secondary {
+    border-color: var(--color-text);
+    background: transparent;
+    color: var(--color-text);
+  }
+
+  .btn--secondary:hover {
+    background: var(--color-border);
+  }
+
+  .btn--ghost {
+    background: transparent;
+    color: var(--color-accent-400);
+  }
+
+  .btn--ghost:hover {
+    color: var(--color-text);
+  }
+</style>

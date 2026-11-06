@@ -1,0 +1,186 @@
+---
+import IconChevronDown from "@/components/ui/icons/IconChevronDown.astro";
+import IconClose from "@/components/ui/icons/IconClose.astro";
+import IconMenu from "@/components/ui/icons/IconMenu.astro";
+import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
+import { mainNav } from "@/data/navigation";
+import { site } from "@/data/site";
+import { getServices } from "@/lib/services";
+
+const services = await getServices();
+const items = mainNav.filter((item) => item.enabled);
+---
+
+<button class="toggle" type="button" aria-label="Abrir menú" aria-haspopup="dialog" data-menu-open>
+  <IconMenu />
+</button>
+
+<dialog class="panel" aria-label="Menú" data-menu>
+  <div class="top">
+    <span class="title">Menú</span>
+    <button class="toggle" type="button" aria-label="Cerrar menú" data-menu-close>
+      <IconClose />
+    </button>
+  </div>
+  <nav aria-label="Móvil">
+    <ul class="links">
+      {items.map((item) =>
+        "hasMenu" in item ? (
+          <li>
+            <details class="sub">
+              <summary>
+                {item.label}
+                <span class="chevron">
+                  <IconChevronDown size={20} />
+                </span>
+              </summary>
+              <ul class="sublinks">
+                <li>
+                  <a href="/servicios">Ver todos los servicios</a>
+                </li>
+                {services.map((service) => (
+                  <li>
+                    <a href={`/servicios/${service.id}`}>{service.data.title}</a>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          </li>
+        ) : (
+          <li>
+            <a class="link" href={item.href}>
+              {item.label}
+            </a>
+          </li>
+        ),
+      )}
+    </ul>
+  </nav>
+  <div class="bottom">
+    <div class="actions">
+      <WhatsAppButton size="lg" origen="menu" />
+    </div>
+    <p class="social">
+      <a href={site.social.tiktok} target="_blank" rel="noopener">
+        TikTok
+      </a>
+      <a href={site.social.facebook} target="_blank" rel="noopener">
+        Facebook
+      </a>
+    </p>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>("[data-menu]");
+  if (dialog) {
+    document.querySelector("[data-menu-open]")?.addEventListener("click", () => dialog.showModal());
+    dialog.querySelector("[data-menu-close]")?.addEventListener("click", () => dialog.close());
+    // Escape lo resuelve <dialog>; aquí se cierra al tocar un enlace.
+    dialog.addEventListener("click", (event) => {
+      if (event.target instanceof Element && event.target.closest("a")) dialog.close();
+    });
+  }
+</script>
+
+<style>
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-md);
+    height: var(--control-md);
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .panel {
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: var(--space-3) var(--container-padding-x) var(--space-5);
+    border: 0;
+    background: var(--color-brand-800);
+    color: var(--color-text);
+  }
+
+  .panel[open] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .title {
+    color: var(--color-text-subtle);
+    font-size: var(--text-sm);
+  }
+
+  nav {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .link,
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--control-lg);
+    color: var(--color-text);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-semibold);
+    text-decoration: none;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .chevron {
+    display: flex;
+    transition: transform var(--transition-fast);
+  }
+
+  details[open] .chevron {
+    transform: rotate(180deg);
+  }
+
+  .sublinks a {
+    display: flex;
+    align-items: center;
+    min-height: var(--control-md);
+    padding-left: var(--space-3);
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .bottom {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .social {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-5);
+  }
+
+  .social a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-md);
+  }
+</style>

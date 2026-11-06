@@ -1,0 +1,78 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Card from "@/components/ui/Card.astro";
+import Container from "@/components/ui/Container.astro";
+import Icon from "@/components/ui/Icon.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+import { getServices } from "@/lib/services";
+
+interface Props {
+  current: CollectionEntry<"servicios">;
+}
+
+const { current } = Astro.props;
+const others = (await getServices()).filter((service) => service.id !== current.id);
+// Primero los del mismo bloque; después, los siguientes en orden.
+const related = [
+  ...others.filter((service) => service.data.group === current.data.group),
+  ...others.filter((service) => service.data.group !== current.data.group),
+].slice(0, 3);
+---
+
+<section class="section section--deep">
+  <Container>
+    <div class="reveal">
+      <SectionHeading title="Otros servicios" />
+    </div>
+    <div class="grid reveal">
+      {related.map((service) => (
+        <Card>
+          <span class="icon">
+            <Icon name={service.data.icon} size={28} />
+          </span>
+          <h3>
+            <a href={`/servicios/${service.id}`}>{service.data.title}</a>
+          </h3>
+          <p>{service.data.tagline}</p>
+        </Card>
+      ))}
+    </div>
+  </Container>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .icon {
+    display: flex;
+    margin-bottom: var(--space-3);
+    color: var(--color-accent-400);
+  }
+
+  h3 {
+    margin-bottom: var(--space-1);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-semibold);
+  }
+
+  a {
+    color: var(--color-text);
+  }
+
+  a:hover {
+    color: var(--color-accent-400);
+  }
+
+  p {
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

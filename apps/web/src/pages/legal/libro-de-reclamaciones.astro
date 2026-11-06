@@ -1,0 +1,16 @@
+---
+import ReclamoForm from "@/components/islands/ReclamoForm";
+import { legalUpdated } from "@/data/legal";
+import LegalLayout from "@/layouts/LegalLayout.astro";
+---
+
+<LegalLayout
+  title="Libro de Reclamaciones"
+  description="Registra aquí tu reclamo o queja en el Libro de Reclamaciones virtual de Neolutions Tecnology."
+  updated={legalUpdated}
+>
+  <p>
+    Conforme al Código de Protección y Defensa del Consumidor, registra aquí tu reclamo o queja.
+  </p>
+  <ReclamoForm client:load />
+</LegalLayout>

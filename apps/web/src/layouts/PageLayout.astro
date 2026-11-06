@@ -1,0 +1,30 @@
+---
+import AnnouncementBar from "@/components/layout/AnnouncementBar.astro";
+import Footer from "@/components/layout/Footer.astro";
+import Header from "@/components/layout/Header.astro";
+import WhatsAppFloat from "@/components/layout/WhatsAppFloat.astro";
+import CookieBanner from "@/components/islands/CookieBanner";
+import BaseLayout, { type Props as BaseProps } from "./BaseLayout.astro";
+
+type Props = BaseProps & {
+  /** Slug del servicio para el mensaje del botón flotante */
+  service?: string;
+};
+
+const { service, ...base } = Astro.props;
+// Sin identificadores no hay analítica ni banner, y la página no carga React.
+const showCookieBanner = Boolean(
+  import.meta.env.PUBLIC_GA4_ID || import.meta.env.PUBLIC_META_PIXEL_ID,
+);
+---
+
+<BaseLayout {...base}>
+  <AnnouncementBar />
+  <Header />
+  <main id="contenido">
+    <slot />
+  </main>
+  <Footer />
+  <WhatsAppFloat service={service} />
+  {showCookieBanner && <CookieBanner client:idle />}
+</BaseLayout>

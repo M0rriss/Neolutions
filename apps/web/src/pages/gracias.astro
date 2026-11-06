@@ -1,0 +1,25 @@
+---
+import PageHero from "@/components/sections/PageHero.astro";
+import Button from "@/components/ui/Button.astro";
+import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
+import PageLayout from "@/layouts/PageLayout.astro";
+---
+
+<PageLayout
+  title="Solicitud recibida"
+  description="Recibimos tu solicitud. Te escribiremos pronto."
+  noindex
+  pageEvent="lead_submitted"
+>
+  <PageHero
+    title="¡Recibimos tu solicitud!"
+    text="Te escribiremos pronto. Si es urgente, escríbenos directo por WhatsApp."
+  >
+    <div class="actions">
+      <WhatsAppButton size="lg" origen="gracias" />
+      <Button variant="secondary" size="lg" href="/">
+        Ir al inicio
+      </Button>
+    </div>
+  </PageHero>
+</PageLayout>

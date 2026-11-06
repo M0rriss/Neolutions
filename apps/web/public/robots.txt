@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /gracias
+
+# TODO: reemplazar por el dominio definitivo
+Sitemap: https://TODO-dominio.pe/sitemap-index.xml

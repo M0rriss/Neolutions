@@ -1,0 +1,234 @@
+---
+import Container from "@/components/ui/Container.astro";
+import IconBook from "@/components/ui/icons/IconBook.astro";
+import { legalNav, mainNav } from "@/data/navigation";
+import { site } from "@/data/site";
+import { shouldShow } from "@/lib/format";
+import { getServices } from "@/lib/services";
+import { whatsappLink } from "@/lib/whatsapp";
+import Logo from "./Logo.astro";
+
+const services = await getServices();
+const company = mainNav.filter((item) => item.enabled && !["/", "/servicios"].includes(item.href));
+const columns = [
+  {
+    title: "Servicios",
+    links: services.map((s) => ({ label: s.data.title, href: `/servicios/${s.id}` })),
+  },
+  { title: "Empresa", links: company.map(({ label, href }) => ({ label, href })) },
+  { title: "Legal", links: legalNav.map(({ label, href }) => ({ label, href })) },
+];
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <Container>
+    <div class="grid">
+      <div class="brand">
+        <a class="logo" href="/" aria-label="Neolutions, ir al inicio">
+          <Logo />
+        </a>
+        <p class="tagline">{site.tagline}</p>
+        <p class="social">
+          <a href={site.social.tiktok} target="_blank" rel="noopener">
+            TikTok
+          </a>
+          <a href={site.social.facebook} target="_blank" rel="noopener">
+            Facebook
+          </a>
+        </p>
+      </div>
+
+      {columns.map((column) => (
+        <details class="column" open data-footer-column>
+          <summary>{column.title}</summary>
+          <ul class="links">
+            {column.links.map((link) => (
+              <li>
+                <a href={link.href}>{link.label}</a>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ))}
+
+      <div class="contact">
+        <h2>Contacto</h2>
+        <p>
+          <a
+            href={whatsappLink()}
+            target="_blank"
+            rel="noopener"
+            data-track="whatsapp_click"
+            data-origen="footer"
+          >
+            WhatsApp {site.whatsapp.display}
+          </a>
+        </p>
+        <p>{site.area}</p>
+        {shouldShow(site.schedule) && (
+          <p class:list={{ todo: site.schedule.startsWith("TODO") }}>{site.schedule}</p>
+        )}
+      </div>
+    </div>
+
+    <div class="bottom">
+      <p>
+        © {year} {site.name}. Todos los derechos reservados.
+      </p>
+      {site.legal.businessName && site.legal.ruc && (
+        <p>
+          {site.legal.businessName} · RUC {site.legal.ruc}
+        </p>
+      )}
+      <a class="book" href="/legal/libro-de-reclamaciones">
+        <IconBook size={20} />
+        Libro de Reclamaciones
+      </a>
+    </div>
+  </Container>
+</footer>
+
+<script>
+  // Plegadas en celular y abiertas desde 768px; sin JS quedan abiertas y accesibles.
+  const narrow = window.matchMedia("(max-width: 767px)");
+  const columns = document.querySelectorAll<HTMLDetailsElement>("[data-footer-column]");
+  const sync = () => columns.forEach((column) => (column.open = !narrow.matches));
+  sync();
+  narrow.addEventListener("change", sync);
+</script>
+
+<style>
+  .footer {
+    padding-block: var(--space-8) var(--space-9);
+    background: var(--color-brand-900);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .brand {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    justify-items: start;
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-md);
+    text-decoration: none;
+  }
+
+  .social {
+    display: flex;
+    gap: var(--space-4);
+  }
+
+  a {
+    color: var(--color-text-muted);
+    transition: color var(--transition-fast);
+  }
+
+  a:hover {
+    color: var(--color-accent-400);
+  }
+
+  .social a,
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-md);
+    text-decoration: none;
+  }
+
+  summary,
+  h2 {
+    color: var(--color-text);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    min-height: var(--control-md);
+    cursor: pointer;
+  }
+
+  .links {
+    padding-bottom: var(--space-2);
+  }
+
+  .contact {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+  }
+
+  .bottom {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: var(--space-7);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--color-border);
+    font-size: var(--text-xs);
+  }
+
+  .book {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-md);
+    text-decoration: none;
+  }
+
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-6);
+    }
+
+    .brand,
+    .contact {
+      grid-column: span 3;
+    }
+
+    .contact {
+      grid-column: auto;
+    }
+
+    summary {
+      cursor: default;
+      pointer-events: none;
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .bottom {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: 1.5fr repeat(4, 1fr);
+    }
+
+    .brand {
+      grid-column: auto;
+    }
+  }
+</style>

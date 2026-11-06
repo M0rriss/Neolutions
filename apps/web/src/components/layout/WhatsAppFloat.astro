@@ -1,0 +1,101 @@
+---
+import { getEntry } from "astro:content";
+import IconWhatsApp from "@/components/ui/icons/IconWhatsApp.astro";
+import { whatsappLink } from "@/lib/whatsapp";
+
+interface Props {
+  service?: string;
+}
+
+const { service } = Astro.props;
+const entry = service ? await getEntry("servicios", service) : undefined;
+---
+
+<a
+  class="float"
+  href={whatsappLink({ service: entry?.data })}
+  target="_blank"
+  rel="noopener"
+  aria-label="Cotiza gratis por WhatsApp"
+  data-float
+  data-track="whatsapp_click"
+  data-origen="flotante"
+  data-servicio={service}
+>
+  <IconWhatsApp size={28} />
+  <span class="tooltip" aria-hidden="true">
+    Cotiza gratis por WhatsApp
+  </span>
+</a>
+
+<script>
+  const button = document.querySelector("[data-float]");
+  const update = () => button?.classList.toggle("is-visible", window.scrollY > 300);
+  update();
+  window.addEventListener("scroll", update, { passive: true });
+</script>
+
+<style>
+  .float {
+    position: fixed;
+    right: var(--space-5);
+    bottom: var(--space-5);
+    z-index: var(--z-float);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--float-size);
+    height: var(--float-size);
+    border-radius: var(--radius-pill);
+    background: var(--color-accent-500);
+    color: var(--color-text-on-accent);
+    box-shadow: var(--shadow-accent);
+    transition:
+      opacity var(--transition-base),
+      transform var(--transition-base),
+      bottom var(--transition-base),
+      background-color var(--transition-fast);
+  }
+
+  .float:hover {
+    background: var(--color-accent-400);
+  }
+
+  :global(.js) .float:not(.is-visible) {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(var(--space-3));
+  }
+
+  /* Sube por encima del banner de cookies */
+  :global(html[data-cookie-banner]) .float {
+    bottom: var(--cookie-banner-height, var(--space-9));
+  }
+
+  .tooltip {
+    display: none;
+  }
+
+  @media (hover: hover) and (min-width: 1024px) {
+    .tooltip {
+      position: absolute;
+      right: calc(100% + var(--space-3));
+      display: block;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm);
+      background: var(--color-brand-900);
+      color: var(--color-text);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-fast);
+    }
+
+    .float:hover .tooltip,
+    .float:focus-visible .tooltip {
+      opacity: 1;
+    }
+  }
+</style>

@@ -1,0 +1,165 @@
+.form {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 100%;
+}
+
+.field {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.input {
+  width: 100%;
+  min-height: var(--control-md);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-brand-800);
+  color: var(--color-text);
+}
+
+.input option {
+  background: var(--color-brand-800);
+  color: var(--color-text);
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: var(--text-sm);
+}
+
+.check {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  font-size: var(--text-sm);
+}
+
+.check input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: var(--space-1) 0 0;
+  accent-color: var(--color-accent-500);
+}
+
+.trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.submit,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--control-lg);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.submit {
+  border: 0;
+  background: var(--color-accent-500);
+  color: var(--color-text-on-accent);
+}
+
+.submit:hover:not(:disabled) {
+  background: var(--color-accent-400);
+}
+
+.submit:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.secondary {
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+}
+
+.alert {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+}
+
+/* Variante clara: Libro de Reclamaciones */
+.light .input {
+  border-color: var(--color-text-subtle);
+  background: var(--color-text);
+  color: var(--color-text-dark);
+}
+
+.light .input option {
+  background: var(--color-text);
+  color: var(--color-text-dark);
+}
+
+.light .error {
+  color: var(--color-danger-on-light);
+}
+
+.light .input[aria-invalid="true"] {
+  border-color: var(--color-danger-on-light);
+}
+
+.fieldset {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+  margin: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-on-light);
+  border-radius: var(--radius-md);
+}
+
+.legend {
+  padding-inline: var(--space-2);
+  font-weight: var(--weight-bold);
+}
+
+.hint {
+  font-size: var(--text-sm);
+}
+
+.notice {
+  padding: var(--space-3) var(--space-4);
+  border: 1px dashed var(--color-danger-on-light);
+  border-radius: var(--radius-sm);
+  color: var(--color-danger-on-light);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.summary {
+  display: grid;
+  gap: var(--space-3);
+}
+
+@media print {
+  .noPrint {
+    display: none;
+  }
+}

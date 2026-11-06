@@ -1,0 +1,39 @@
+---
+import { legalUpdated } from "@/data/legal";
+import { site } from "@/data/site";
+import LegalLayout from "@/layouts/LegalLayout.astro";
+---
+
+<LegalLayout
+  title="Política de privacidad"
+  description="Cómo Neolutions Tecnology trata tus datos personales según la Ley 29733."
+  updated={legalUpdated}
+>
+  <p>
+    Esta política explica cómo {site.name} trata tus datos personales, de acuerdo con la Ley 29733,
+    Ley de Protección de Datos Personales del Perú.
+  </p>
+  <h2>Responsable</h2>
+  <p>
+    {site.name}. Contacto: WhatsApp {site.whatsapp.display}. TODO: razón social, RUC, domicilio y
+    correo para ejercer derechos.
+  </p>
+  <h2>Datos que recogemos</h2>
+  <p>
+    Cuando llenas el formulario de contacto recogemos tu nombre, tu celular, el servicio que te
+    interesa y tu mensaje. En el Libro de Reclamaciones recogemos los datos que ese formato
+    solicita.
+  </p>
+  <h2>Finalidad</h2>
+  <p>
+    Usamos tus datos para responder tu solicitud, preparar tu cotización y atender tus reclamos o
+    quejas.
+  </p>
+  <h2>Plazo de conservación</h2>
+  <p>TODO: definir cuánto tiempo se conservan los datos.</p>
+  <h2>Tus derechos (ARCO)</h2>
+  <p>
+    Puedes ejercer tus derechos de acceso, rectificación, cancelación y oposición escribiéndonos.
+    TODO: definir el canal y el plazo de respuesta.
+  </p>
+</LegalLayout>

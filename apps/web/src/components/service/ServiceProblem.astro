@@ -1,0 +1,34 @@
+---
+import Container from "@/components/ui/Container.astro";
+
+interface Props {
+  problem: string;
+}
+const { problem } = Astro.props;
+---
+
+<section class="section section--deep">
+  <Container narrow>
+    <div class="reveal">
+      <p class="eyebrow">El problema</p>
+      <p class="problem">{problem}</p>
+    </div>
+  </Container>
+</section>
+
+<style>
+  .eyebrow {
+    margin-bottom: var(--space-3);
+    color: var(--color-accent-400);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .problem {
+    font-size: var(--text-3xl);
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-snug);
+  }
+</style>

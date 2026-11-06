@@ -1,0 +1,129 @@
+---
+import Container from "@/components/ui/Container.astro";
+import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
+import { mainNav } from "@/data/navigation";
+import Logo from "./Logo.astro";
+import MobileMenu from "./MobileMenu.astro";
+import ServicesMenu from "./ServicesMenu.astro";
+
+const items = mainNav.filter((item) => item.enabled);
+const current = Astro.url.pathname.replace(/\/$/, "") || "/";
+---
+
+<header class="header" data-header>
+  <Container>
+    <div class="bar">
+      <a class="brand" href="/" aria-label="Neolutions, ir al inicio">
+        <Logo />
+      </a>
+      <nav class="nav" aria-label="Principal">
+        <ul>
+          {items.map((item) => (
+            <li>
+              {"hasMenu" in item ? (
+                <ServicesMenu />
+              ) : (
+                <a
+                  class="link"
+                  href={item.href}
+                  aria-current={current === item.href ? "page" : undefined}
+                >
+                  {item.label}
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <div class="cta">
+        <WhatsAppButton origen="header" />
+      </div>
+      <div class="mobile">
+        <MobileMenu />
+      </div>
+    </div>
+  </Container>
+</header>
+
+<script>
+  const header = document.querySelector("[data-header]");
+  const update = () => header?.classList.toggle("is-scrolled", window.scrollY > 8);
+  update();
+  window.addEventListener("scroll", update, { passive: true });
+</script>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    border-bottom: 1px solid transparent;
+    transition:
+      background-color var(--transition-base),
+      border-color var(--transition-base);
+  }
+
+  .header.is-scrolled {
+    border-bottom-color: var(--color-border);
+    background: var(--color-brand-800);
+    backdrop-filter: blur(12px);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    height: var(--header-height);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-md);
+    text-decoration: none;
+  }
+
+  .nav,
+  .cta {
+    display: none;
+  }
+
+  ul {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-md);
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .link:hover,
+  .link[aria-current="page"] {
+    color: var(--color-text);
+  }
+
+  @media (min-width: 1024px) {
+    .nav,
+    .cta {
+      display: block;
+    }
+
+    .mobile {
+      display: none;
+    }
+  }
+</style>

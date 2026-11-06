@@ -1,0 +1,172 @@
+---
+import FinalCta from "@/components/sections/FinalCta.astro";
+import PageHero from "@/components/sections/PageHero.astro";
+import Card from "@/components/ui/Card.astro";
+import Container from "@/components/ui/Container.astro";
+import Icon from "@/components/ui/Icon.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+import { about } from "@/data/about";
+import PageLayout from "@/layouts/PageLayout.astro";
+import { isPending, shouldShow } from "@/lib/format";
+
+const initials = (name: string) =>
+  name
+    .split(" ")
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join("");
+---
+
+<PageLayout title={about.title} description={about.description}>
+  <PageHero eyebrow={about.eyebrow} title={about.headline} text={about.intro} />
+
+  <section class="section section--deep">
+    <Container narrow>
+      <div class="reveal">
+        <SectionHeading title={about.whoHeading} />
+        <p class="lead">{about.who}</p>
+      </div>
+    </Container>
+  </section>
+
+  <section class="section">
+    <Container>
+      <div class="two reveal">
+        <Card>
+          <h2 class="card-title">Misión</h2>
+          <p class="muted">{about.mission}</p>
+        </Card>
+        <Card>
+          <h2 class="card-title">Visión</h2>
+          <p class="muted">{about.vision}</p>
+        </Card>
+      </div>
+    </Container>
+  </section>
+
+  <section class="section section--deep">
+    <Container>
+      <div class="reveal">
+        <SectionHeading title="Nuestros valores" />
+      </div>
+      <ul class="values reveal">
+        {about.values.map((value) => (
+          <li class="value">
+            <span class="value-icon">
+              <Icon name={value.icon} size={28} />
+            </span>
+            <h3>{value.title}</h3>
+            {shouldShow(value.text) && (
+              <p class:list={["muted", { todo: isPending(value.text) }]}>{value.text}</p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </Container>
+  </section>
+
+  <section class="section">
+    <Container>
+      <div class="reveal">
+        <SectionHeading title="Nuestro equipo" />
+      </div>
+      <ul class="team reveal">
+        {about.team.map((member) => (
+          <li>
+            <Card>
+              <div class="member">
+                {member.photo ? (
+                  <img src={member.photo} alt={member.name} width="96" height="96" />
+                ) : (
+                  <span class="avatar" aria-hidden="true">
+                    {initials(member.name)}
+                  </span>
+                )}
+                <h3>{member.name}</h3>
+                <p class="muted">{member.role}</p>
+                {shouldShow(member.quote) && (
+                  <p class:list={{ todo: isPending(member.quote) }}>{member.quote}</p>
+                )}
+              </div>
+            </Card>
+          </li>
+        ))}
+      </ul>
+    </Container>
+  </section>
+
+  <FinalCta />
+</PageLayout>
+
+<style>
+  .lead {
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+  }
+
+  .muted {
+    color: var(--color-text-muted);
+  }
+
+  .two {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .card-title {
+    margin-bottom: var(--space-3);
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-bold);
+  }
+
+  .values {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: var(--space-5);
+  }
+
+  .value {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+  }
+
+  .value-icon {
+    color: var(--color-accent-400);
+  }
+
+  h3 {
+    font-size: var(--text-xl);
+    font-weight: var(--weight-semibold);
+  }
+
+  .team {
+    display: grid;
+    gap: var(--space-4);
+    max-width: 24rem;
+  }
+
+  .member {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--space-9);
+    height: var(--space-9);
+    border-radius: var(--radius-pill);
+    background: var(--color-accent-100);
+    color: var(--color-accent-400);
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-bold);
+  }
+
+  @media (min-width: 768px) {
+    .two {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

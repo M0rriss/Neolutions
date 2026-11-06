@@ -1,0 +1,65 @@
+---
+import PageHero from "@/components/sections/PageHero.astro";
+import Container from "@/components/ui/Container.astro";
+import PageLayout from "./PageLayout.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  updated: string;
+}
+const { title, description, updated } = Astro.props;
+---
+
+<PageLayout title={title} description={description}>
+  <PageHero title={title} />
+  <section class="legal">
+    <Container narrow>
+      <p class="notice" role="note">
+        TODO: revisar con abogado antes de publicar.
+      </p>
+      <p class="updated">Última actualización: {updated}</p>
+      <div class="body">
+        <slot />
+      </div>
+    </Container>
+  </section>
+</PageLayout>
+
+<style>
+  .legal {
+    padding-block: var(--space-7);
+    background: var(--color-surface-light);
+    color: var(--color-text-dark);
+  }
+
+  .notice {
+    margin-bottom: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border: 1px dashed var(--color-danger-on-light);
+    border-radius: var(--radius-sm);
+    color: var(--color-danger-on-light);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+  }
+
+  .updated {
+    margin-bottom: var(--space-5);
+    font-size: var(--text-sm);
+  }
+
+  .body :global(h2) {
+    margin-block: var(--space-6) var(--space-3);
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-bold);
+  }
+
+  .body :global(p),
+  .body :global(ul) {
+    margin-block: var(--space-3);
+  }
+
+  .body :global(a) {
+    color: var(--color-link-on-light);
+  }
+</style>

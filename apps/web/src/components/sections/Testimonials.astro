@@ -1,0 +1,52 @@
+---
+import { getCollection } from "astro:content";
+import Card from "@/components/ui/Card.astro";
+import Container from "@/components/ui/Container.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+
+const items = (await getCollection("testimonios", ({ data }) => data.published)).slice(0, 3);
+---
+
+{items.length > 0 && (
+  <section class="section section--deep">
+    <Container>
+      <SectionHeading eyebrow="Testimonios" title="Lo que dicen nuestros clientes" />
+      <div class="grid">
+        {items.map((item) => (
+          <Card>
+            <blockquote>{item.data.quote}</blockquote>
+            <p class="name">{item.data.name}</p>
+            <p class="business">{item.data.business}</p>
+          </Card>
+        ))}
+      </div>
+    </Container>
+  </section>
+)}
+
+<style>
+  .grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  blockquote {
+    margin: 0 0 var(--space-4);
+    font-size: var(--text-lg);
+  }
+
+  .name {
+    font-weight: var(--weight-semibold);
+  }
+
+  .business {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

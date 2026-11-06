@@ -1,0 +1,133 @@
+---
+import Card from "@/components/ui/Card.astro";
+import Container from "@/components/ui/Container.astro";
+import Icon from "@/components/ui/Icon.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+import IconArrowRight from "@/components/ui/icons/IconArrowRight.astro";
+import IconCheck from "@/components/ui/icons/IconCheck.astro";
+import { groupsSection } from "@/data/home";
+import { serviceGroups } from "@/data/serviceGroups";
+import { getServices } from "@/lib/services";
+import { whatsappLink } from "@/lib/whatsapp";
+
+const services = await getServices();
+---
+
+<section class="section">
+  <Container>
+    <div class="reveal">
+      <SectionHeading eyebrow={groupsSection.eyebrow} title={groupsSection.title} />
+    </div>
+    <div class="grid">
+      {serviceGroups.map((group) => (
+        <div class="reveal">
+          <Card>
+            <div class="inner">
+              <span class="icon">
+                <Icon name={group.icon} size={32} />
+              </span>
+              <h3>{group.title}</h3>
+              <p class="text">{group.description}</p>
+              <ul class="links">
+                {services
+                  .filter((service) => service.data.group === group.id)
+                  .map((service) => (
+                    <li>
+                      <a href={`/servicios/${service.id}`}>
+                        <span class="check">
+                          <IconCheck size={18} />
+                        </span>
+                        {service.data.title}
+                      </a>
+                    </li>
+                  ))}
+              </ul>
+              <a
+                class="quote"
+                href={whatsappLink({ message: group.whatsappMessage })}
+                target="_blank"
+                rel="noopener"
+                aria-label={`${groupsSection.quote}: ${group.title}`}
+                data-track="whatsapp_click"
+                data-origen="bloque"
+              >
+                {groupsSection.quote}
+                <IconArrowRight size={18} />
+              </a>
+            </div>
+          </Card>
+        </div>
+      ))}
+    </div>
+  </Container>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .reveal {
+    display: grid;
+  }
+
+  .inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    height: 100%;
+  }
+
+  .icon {
+    color: var(--color-accent-400);
+  }
+
+  h3 {
+    font-size: var(--text-xl);
+    font-weight: var(--weight-semibold);
+  }
+
+  .text {
+    color: var(--color-text-muted);
+  }
+
+  .links {
+    flex: 1;
+    margin-block: var(--space-2);
+  }
+
+  .links a {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-md);
+    color: var(--color-text);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .links a:hover {
+    color: var(--color-accent-400);
+  }
+
+  .check {
+    display: flex;
+    color: var(--color-accent-400);
+  }
+
+  .quote {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-md);
+    font-weight: var(--weight-semibold);
+    text-decoration: none;
+  }
+
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

@@ -1,0 +1,70 @@
+---
+import Container from "@/components/ui/Container.astro";
+import IconArrowRight from "@/components/ui/icons/IconArrowRight.astro";
+import { site } from "@/data/site";
+import { whatsappLink } from "@/lib/whatsapp";
+---
+
+{site.announcement.enabled && (
+  <aside class="bar" aria-label="Aviso">
+    <Container>
+      <a
+        class="link"
+        href={whatsappLink()}
+        target="_blank"
+        rel="noopener"
+        data-track="whatsapp_click"
+        data-origen="barra"
+      >
+        <span class="mobile">Cotiza gratis por WhatsApp</span>
+        <span class="desktop">
+          Cotización gratis y sin compromiso · <strong>Escríbenos por WhatsApp</strong>
+        </span>
+        <IconArrowRight size={16} />
+      </a>
+    </Container>
+  </aside>
+)}
+
+<style>
+  .bar {
+    min-height: var(--announcement-height);
+    display: flex;
+    align-items: center;
+    background: var(--color-brand-900);
+    font-size: var(--text-sm);
+  }
+
+  .link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: var(--announcement-height);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .link:hover strong {
+    color: var(--color-accent-400);
+  }
+
+  strong {
+    font-weight: var(--weight-semibold);
+    transition: color var(--transition-fast);
+  }
+
+  .desktop {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .mobile {
+      display: none;
+    }
+
+    .desktop {
+      display: inline;
+    }
+  }
+</style>

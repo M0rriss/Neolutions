@@ -1,0 +1,7 @@
+{
+  "name": "@neolutions/design-tokens",
+  "version": "0.0.1",
+  "private": true,
+  "main": "tokens.css",
+  "exports": { ".": "./tokens.css", "./tokens.css": "./tokens.css" }
+}

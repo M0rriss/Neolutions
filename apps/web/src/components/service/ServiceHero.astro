@@ -1,0 +1,134 @@
+---
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+import Container from "@/components/ui/Container.astro";
+import Icon from "@/components/ui/Icon.astro";
+import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
+
+interface Props {
+  servicio: CollectionEntry<"servicios">;
+}
+
+const { servicio } = Astro.props;
+const { data, id } = servicio;
+---
+
+<section class="hero">
+  <Container>
+    <nav aria-label="Migas de pan">
+      <ol class="crumbs">
+        <li>
+          <a href="/">Inicio</a>
+        </li>
+        <li>
+          <a href="/servicios">Servicios</a>
+        </li>
+        <li aria-current="page">{data.title}</li>
+      </ol>
+    </nav>
+    <div class="grid">
+      <div class="copy">
+        <p class="eyebrow">
+          <span class="icon">
+            <Icon name={data.icon} size={20} />
+          </span>
+          {data.title}
+        </p>
+        <h1>{data.headline}</h1>
+        <p class="text">{data.description}</p>
+        <div class="actions">
+          <WhatsAppButton size="lg" service={id} origen="servicio" />
+        </div>
+      </div>
+      {data.image && (
+        <Image
+          class="image"
+          src={data.image}
+          alt={data.title}
+          widths={[480, 960]}
+          sizes="(min-width: 1024px) 45vw, 100vw"
+          loading="eager"
+          fetchpriority="high"
+        />
+      )}
+    </div>
+  </Container>
+</section>
+
+<style>
+  .hero {
+    margin-top: calc(-1 * var(--header-height));
+    padding-block: calc(var(--header-height) + var(--space-5)) var(--space-7);
+    background:
+      radial-gradient(50rem 30rem at 90% 0%, var(--color-accent-100), transparent 65%),
+      var(--color-brand-800);
+  }
+
+  .crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-6);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .crumbs li:not(:last-child)::after {
+    content: "›";
+    margin-left: var(--space-2);
+  }
+
+  .crumbs a {
+    color: var(--color-text-muted);
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--space-6);
+    align-items: center;
+  }
+
+  .copy {
+    display: grid;
+    gap: var(--space-4);
+    max-width: var(--container-narrow);
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-accent-400);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .icon {
+    display: flex;
+  }
+
+  h1 {
+    font-size: var(--text-5xl);
+    font-weight: var(--weight-bold);
+    letter-spacing: -0.02em;
+  }
+
+  .text {
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+  }
+
+  .hero :global(.image) {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-lg);
+  }
+
+  @media (min-width: 1024px) {
+    .grid:has(:global(.image)) {
+      grid-template-columns: 55fr 45fr;
+    }
+  }
+</style>

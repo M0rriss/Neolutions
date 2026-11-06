@@ -1,0 +1,52 @@
+---
+import { getCollection, render } from "astro:content";
+import Accordion from "@/components/ui/Accordion.astro";
+import Container from "@/components/ui/Container.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+import { isPending, shouldShow } from "@/lib/format";
+import { faqJsonLd, jsonLdString } from "@/lib/seo";
+
+interface Props {
+  /** "general" o el slug de un servicio */
+  scope?: string;
+  deep?: boolean;
+}
+
+const { scope = "general", deep = false } = Astro.props;
+
+const entries = (
+  await getCollection("faq", ({ data, body }) => {
+    return data.published && data.scope === scope && shouldShow(body);
+  })
+).sort((a, b) => a.data.order - b.data.order);
+
+const items = await Promise.all(
+  entries.map(async (entry) => ({ entry, Content: (await render(entry)).Content })),
+);
+// Las respuestas pendientes jamás entran a los datos estructurados.
+const structured = faqJsonLd(
+  entries
+    .filter((entry) => !isPending(entry.body))
+    .map((entry) => ({ question: entry.data.question, answer: (entry.body ?? "").trim() })),
+);
+---
+
+{items.length > 0 && (
+  <section class:list={["section", { "section--deep": deep }]}>
+    <Container narrow>
+      <div class="reveal">
+        <SectionHeading title="Preguntas frecuentes" />
+      </div>
+      <div class="reveal">
+        {items.map(({ entry, Content }) => (
+          <Accordion question={entry.data.question}>
+            <div class:list={{ todo: isPending(entry.body) }}>
+              <Content />
+            </div>
+          </Accordion>
+        ))}
+      </div>
+    </Container>
+    <script is:inline type="application/ld+json" set:html={jsonLdString(structured)} />
+  </section>
+)}

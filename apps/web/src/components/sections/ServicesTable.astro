@@ -1,0 +1,437 @@
+---
+import Badge from "@/components/ui/Badge.astro";
+import Container from "@/components/ui/Container.astro";
+import Icon from "@/components/ui/Icon.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
+import IconArrowRight from "@/components/ui/icons/IconArrowRight.astro";
+import { servicesSection } from "@/data/home";
+import { serviceGroups } from "@/data/serviceGroups";
+import { getServices, groupTitle } from "@/lib/services";
+
+interface Props {
+  /** En /servicios no hace falta el enlace a sí misma */
+  showAllLink?: boolean;
+}
+
+const { showAllLink = true } = Astro.props;
+const services = await getServices();
+const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
+---
+
+<section class="section" id="servicios">
+  <Container>
+    <div class="reveal">
+      <SectionHeading
+        eyebrow={servicesSection.eyebrow}
+        title={servicesSection.title}
+        subtitle={servicesSection.subtitle}
+      />
+    </div>
+
+    <div class="filters" role="tablist" aria-label="Filtrar servicios" data-filters>
+      {filters.map((filter, index) => (
+        <button
+          class="filter"
+          type="button"
+          role="tab"
+          id={`filtro-${filter.id}`}
+          aria-controls="tabla-servicios"
+          aria-selected={index === 0 ? "true" : "false"}
+          tabindex={index === 0 ? 0 : -1}
+          data-filter={filter.id}
+        >
+          {filter.title}
+        </button>
+      ))}
+    </div>
+
+    <div id="tabla-servicios" role="tabpanel" aria-labelledby="filtro-todos" data-filter-panel>
+      <table class="table" role="table" aria-label="Servicios de Neolutions">
+        <thead role="rowgroup">
+          <tr role="row">
+            <th role="columnheader" scope="col">
+              Servicio
+            </th>
+            <th role="columnheader" scope="col" class="col-audience">
+              Para quién
+            </th>
+            <th role="columnheader" scope="col">
+              Incluye
+            </th>
+            <th role="columnheader" scope="col" class="col-group">
+              Bloque
+            </th>
+            <th role="columnheader" scope="col">
+              Estado
+            </th>
+            <th role="columnheader" scope="col">
+              <span class="sr-only">Acción</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody role="rowgroup">
+          {services.map((service) => (
+            <tr class="row" role="row" data-group={service.data.group}>
+              <th class="cell-service" role="rowheader" scope="row">
+                <span class="icon">
+                  <Icon name={service.data.icon} size={22} />
+                </span>
+                <span class="name">
+                  <span class="title">{service.data.title}</span>
+                  <span class="tagline">{service.data.tagline}</span>
+                </span>
+              </th>
+              <td class="cell-audience col-audience" role="cell">
+                {service.data.audienceShort}
+              </td>
+              <td class="cell-includes" role="cell">
+                {service.data.includesShort}
+              </td>
+              <td class="cell-badge col-group" role="cell">
+                <Badge>{groupTitle(service.data.group)}</Badge>
+              </td>
+              <td class="cell-badge" role="cell">
+                {service.data.available && <Badge variant="status">Disponible</Badge>}
+              </td>
+              <td class="cell-action" role="cell">
+                <div class="row-actions">
+                  <WhatsAppButton service={service.id} label="Cotizar" origen="tabla" />
+                  <a
+                    class="more"
+                    href={`/servicios/${service.id}`}
+                    aria-label={`Ver más sobre ${service.data.title}`}
+                  >
+                    Ver más
+                  </a>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <p class="note">{servicesSection.note}</p>
+    {showAllLink && (
+      <a class="all" href="/servicios">
+        {servicesSection.all}
+        <IconArrowRight size={18} />
+      </a>
+    )}
+  </Container>
+</section>
+
+<script>
+  const tablist = document.querySelector<HTMLElement>("[data-filters]");
+  const panel = document.querySelector<HTMLElement>("[data-filter-panel]");
+
+  if (tablist && panel) {
+    const tabs = [...tablist.querySelectorAll<HTMLButtonElement>("[role=tab]")];
+    const rows = [...panel.querySelectorAll<HTMLElement>("[data-group]")];
+
+    const select = (tab: HTMLButtonElement) => {
+      for (const item of tabs) {
+        const active = item === tab;
+        item.setAttribute("aria-selected", String(active));
+        item.tabIndex = active ? 0 : -1;
+      }
+      panel.setAttribute("aria-labelledby", tab.id);
+      const filter = tab.dataset.filter;
+      for (const row of rows) {
+        row.hidden = filter !== "todos" && row.dataset.group !== filter;
+      }
+    };
+
+    tablist.addEventListener("click", (event) => {
+      const tab = event.target instanceof Element && event.target.closest("[role=tab]");
+      if (tab) select(tab as HTMLButtonElement);
+    });
+
+    tablist.addEventListener("keydown", (event) => {
+      const index = tabs.indexOf(document.activeElement as HTMLButtonElement);
+      const moves: Record<string, number> = {
+        ArrowRight: (index + 1) % tabs.length,
+        ArrowLeft: (index - 1 + tabs.length) % tabs.length,
+        Home: 0,
+        End: tabs.length - 1,
+      };
+      const next = moves[event.key];
+      if (index < 0 || next === undefined) return;
+      event.preventDefault();
+      tabs[next].focus();
+      select(tabs[next]);
+    });
+  }
+</script>
+
+<style>
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-5);
+  }
+
+  .filter {
+    min-height: var(--control-md);
+    padding-inline: var(--space-4);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    cursor: pointer;
+    transition:
+      background-color var(--transition-fast),
+      color var(--transition-fast);
+  }
+
+  .filter:hover {
+    color: var(--color-text);
+  }
+
+  .filter[aria-selected="true"] {
+    border-color: var(--color-accent-500);
+    background: var(--color-accent-500);
+    color: var(--color-text-on-accent);
+  }
+
+  .table {
+    display: block;
+    width: 100%;
+  }
+
+  thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  tbody {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  /* Celular: cada fila es una tarjeta apilada */
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-brand-700);
+    transition: border-color var(--transition-fast);
+  }
+
+  .row:hover {
+    border-color: var(--color-border-strong);
+  }
+
+  .row[hidden] {
+    display: none;
+  }
+
+  .row th,
+  .row td {
+    display: block;
+    padding: 0;
+    text-align: left;
+    font-weight: var(--weight-regular);
+  }
+
+  .cell-service {
+    display: flex !important;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+  }
+
+  .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: var(--icon-circle);
+    height: var(--icon-circle);
+    border-radius: var(--radius-pill);
+    background: var(--color-accent-100);
+    color: var(--color-accent-400);
+  }
+
+  .name {
+    display: grid;
+  }
+
+  .title {
+    font-weight: var(--weight-semibold);
+    line-height: var(--leading-snug);
+  }
+
+  .tagline {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: var(--leading-snug);
+  }
+
+  .cell-audience {
+    display: none !important;
+  }
+
+  .cell-includes {
+    width: 100%;
+    order: 1;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .cell-action {
+    width: 100%;
+    order: 2;
+  }
+
+  .row-actions {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .more {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--control-md);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+  }
+
+  .note {
+    margin-top: var(--space-5);
+    color: var(--color-text-subtle);
+    font-size: var(--text-sm);
+  }
+
+  .all {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-md);
+    margin-top: var(--space-3);
+    font-weight: var(--weight-semibold);
+    text-decoration: none;
+  }
+
+  /* Tableta: tabla real, sin las dos columnas que no caben */
+  @media (min-width: 768px) {
+    .table {
+      display: table;
+      border-collapse: separate;
+      border-spacing: 0 var(--space-3);
+    }
+
+    thead {
+      position: static;
+      display: table-header-group;
+      width: auto;
+      height: auto;
+      clip-path: none;
+    }
+
+    thead th {
+      padding: 0 var(--space-3);
+      color: var(--color-text-subtle);
+      font-size: var(--text-xs);
+      font-weight: var(--weight-medium);
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .col-audience,
+    .col-group {
+      display: none !important;
+    }
+
+    tbody {
+      display: table-row-group;
+    }
+
+    .row {
+      display: table-row;
+    }
+
+    .row[hidden] {
+      display: none;
+    }
+
+    .row th,
+    .row td {
+      display: table-cell;
+      padding: var(--space-3);
+      border-block: 1px solid var(--color-border);
+      background: var(--color-brand-700);
+      vertical-align: middle;
+      transition: border-color var(--transition-fast);
+    }
+
+    .row:hover th,
+    .row:hover td {
+      border-color: var(--color-border-strong);
+    }
+
+    .row > :first-child {
+      border-left: 1px solid var(--color-border);
+      border-radius: var(--radius-md) 0 0 var(--radius-md);
+    }
+
+    .row > :last-child {
+      border-right: 1px solid var(--color-border);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    }
+
+    .cell-service {
+      display: table-cell !important;
+      width: auto;
+      min-width: 15rem;
+    }
+
+    .cell-service .icon {
+      float: left;
+      margin-right: var(--space-3);
+    }
+
+    .cell-badge {
+      white-space: nowrap;
+    }
+
+    .row-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      white-space: nowrap;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .col-audience {
+      display: table-cell !important;
+    }
+
+    .col-group {
+      display: table-cell !important;
+      max-width: 9rem;
+    }
+
+    .cell-audience {
+      color: var(--color-text-muted);
+      font-size: var(--text-sm);
+    }
+
+    .col-group :global(span) {
+      white-space: normal;
+    }
+  }
+</style>

@@ -1,0 +1,28 @@
+---
+import Faq from "@/components/sections/Faq.astro";
+import FinalCta from "@/components/sections/FinalCta.astro";
+import Hero from "@/components/sections/Hero.astro";
+import Process from "@/components/sections/Process.astro";
+import ProjectsPreview from "@/components/sections/ProjectsPreview.astro";
+import ServiceGroups from "@/components/sections/ServiceGroups.astro";
+import ServicesTable from "@/components/sections/ServicesTable.astro";
+import Testimonials from "@/components/sections/Testimonials.astro";
+import WhyUs from "@/components/sections/WhyUs.astro";
+import { site } from "@/data/site";
+import PageLayout from "@/layouts/PageLayout.astro";
+---
+
+<PageLayout
+  title={site.tagline}
+  description="Soporte técnico, redes, cámaras, páginas web, apps y sistemas a medida para pequeños negocios en Lima y Callao. Cotización gratis por WhatsApp."
+>
+  <Hero />
+  <ServicesTable />
+  <Process />
+  <ServiceGroups />
+  <WhyUs />
+  <ProjectsPreview />
+  <Testimonials />
+  <Faq />
+  <FinalCta />
+</PageLayout>

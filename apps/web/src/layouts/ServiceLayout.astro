@@ -1,0 +1,54 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Faq from "@/components/sections/Faq.astro";
+import FinalCta from "@/components/sections/FinalCta.astro";
+import Process from "@/components/sections/Process.astro";
+import RelatedServices from "@/components/service/RelatedServices.astro";
+import ServiceAudience from "@/components/service/ServiceAudience.astro";
+import ServiceBenefits from "@/components/service/ServiceBenefits.astro";
+import ServiceHero from "@/components/service/ServiceHero.astro";
+import ServiceIncludes from "@/components/service/ServiceIncludes.astro";
+import ServiceProblem from "@/components/service/ServiceProblem.astro";
+import { breadcrumbJsonLd, serviceJsonLd } from "@/lib/seo";
+import PageLayout from "./PageLayout.astro";
+
+interface Props {
+  servicio: CollectionEntry<"servicios">;
+}
+
+const { servicio } = Astro.props;
+const { data, id } = servicio;
+const base = Astro.site ?? Astro.url;
+const path = `/servicios/${id}`;
+
+const jsonLd = [
+  serviceJsonLd({ name: data.title, description: data.seoDescription, path }, base),
+  breadcrumbJsonLd(
+    [
+      { name: "Inicio", path: "/" },
+      { name: "Servicios", path: "/servicios" },
+      { name: data.title, path },
+    ],
+    base,
+  ),
+];
+---
+
+<PageLayout
+  title={data.seoTitle}
+  description={data.seoDescription}
+  jsonLd={jsonLd}
+  service={id}
+  pageEvent="service_view"
+  pageService={id}
+>
+  <ServiceHero servicio={servicio} />
+  <ServiceProblem problem={data.problem} />
+  <ServiceIncludes items={data.includes} />
+  <ServiceBenefits benefits={data.benefits} />
+  <ServiceAudience audience={data.audience} />
+  <Process service={id} />
+  <Faq scope={id} />
+  <RelatedServices current={servicio} />
+  <FinalCta service={id} />
+</PageLayout>

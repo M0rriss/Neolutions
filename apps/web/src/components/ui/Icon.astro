@@ -1,0 +1,40 @@
+---
+import IconSupport from "./icons/IconSupport.astro";
+import IconNetwork from "./icons/IconNetwork.astro";
+import IconCamera from "./icons/IconCamera.astro";
+import IconWeb from "./icons/IconWeb.astro";
+import IconMobile from "./icons/IconMobile.astro";
+import IconAutomation from "./icons/IconAutomation.astro";
+import IconSearch from "./icons/IconSearch.astro";
+import IconShield from "./icons/IconShield.astro";
+import IconHeart from "./icons/IconHeart.astro";
+import IconStar from "./icons/IconStar.astro";
+import IconEye from "./icons/IconEye.astro";
+import IconSpark from "./icons/IconSpark.astro";
+
+const map = {
+  support: IconSupport,
+  network: IconNetwork,
+  camera: IconCamera,
+  web: IconWeb,
+  mobile: IconMobile,
+  automation: IconAutomation,
+  search: IconSearch,
+  shield: IconShield,
+  heart: IconHeart,
+  star: IconStar,
+  eye: IconEye,
+  spark: IconSpark,
+};
+
+interface Props {
+  name: keyof typeof map;
+  size?: number;
+  class?: string;
+}
+
+const { name, ...rest } = Astro.props;
+const Component = map[name];
+---
+
+<Component {...rest} />

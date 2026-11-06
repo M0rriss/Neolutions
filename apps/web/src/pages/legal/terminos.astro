@@ -1,0 +1,26 @@
+---
+import { legalUpdated } from "@/data/legal";
+import { site } from "@/data/site";
+import LegalLayout from "@/layouts/LegalLayout.astro";
+---
+
+<LegalLayout
+  title="Términos y condiciones"
+  description="Condiciones de los servicios y cotizaciones de Neolutions Tecnology."
+  updated={legalUpdated}
+>
+  <h2>Alcance de los servicios</h2>
+  <p>
+    {site.name} ofrece soporte técnico, cableado estructurado, cámaras de seguridad, páginas web,
+    apps móviles, sistemas y automatización, y SEO y SEM. El alcance de cada trabajo es el que
+    figura en su cotización.
+  </p>
+  <h2>Cotizaciones</h2>
+  <p>Las cotizaciones son gratis y sin compromiso. TODO: definir su vigencia.</p>
+  <h2>Garantías</h2>
+  <p>TODO: definir condiciones de garantía.</p>
+  <h2>Formas de pago</h2>
+  <p>TODO: definir formas de pago.</p>
+  <h2>Plazos</h2>
+  <p>El plazo de cada trabajo se indica en la cotización.</p>
+</LegalLayout>

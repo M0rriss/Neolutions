@@ -1,0 +1,11 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# @astrojs/check falla si @emnapi/core y @emnapi/runtime no van en la misma versión
+# (pnpm resolvía core 1.x con runtime 2.0-beta). Revisar al actualizar @astrojs/check.
+overrides:
+  "@emnapi/core": 1.11.3
+  "@emnapi/runtime": 1.11.3
+  # GHSA-g3hv-75wg-m249: minimatch vulnerable, llega por @typescript-eslint (solo desarrollo).
+  minimatch: ^11.0.1

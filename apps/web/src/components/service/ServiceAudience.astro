@@ -1,0 +1,33 @@
+---
+import Badge from "@/components/ui/Badge.astro";
+import Container from "@/components/ui/Container.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+
+interface Props {
+  audience: string[];
+}
+const { audience } = Astro.props;
+---
+
+<section class="section">
+  <Container>
+    <div class="reveal">
+      <SectionHeading title="Para quién es" />
+    </div>
+    <ul class="list reveal">
+      {audience.map((item) => (
+        <li>
+          <Badge>{item}</Badge>
+        </li>
+      ))}
+    </ul>
+  </Container>
+</section>
+
+<style>
+  .list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+</style>

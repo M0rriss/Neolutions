@@ -1,0 +1,44 @@
+---
+import { getEntry } from "astro:content";
+import Button from "./Button.astro";
+import IconWhatsApp from "./icons/IconWhatsApp.astro";
+import { whatsappLink } from "@/lib/whatsapp";
+
+interface Props {
+  /** Slug del servicio: el mensaje sale de su .md */
+  service?: string;
+  /** Mensaje directo, para casos sin servicio (bloques) */
+  message?: string;
+  label?: string;
+  size?: "md" | "lg";
+  /** hero, tabla, flotante, cta-final, header, servicio */
+  origen: string;
+  class?: string;
+}
+
+const {
+  service,
+  message,
+  label = "Cotiza gratis por WhatsApp",
+  size = "md",
+  origen,
+  class: className,
+} = Astro.props;
+
+const entry = service ? await getEntry("servicios", service) : undefined;
+const href = whatsappLink({ message, service: entry?.data });
+---
+
+<Button
+  href={href}
+  size={size}
+  target="_blank"
+  rel="noopener"
+  class={className}
+  data-track="whatsapp_click"
+  data-origen={origen}
+  data-servicio={service}
+>
+  <IconWhatsApp slot="icon" size={20} />
+  {label}
+</Button>

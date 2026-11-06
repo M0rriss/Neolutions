@@ -1,0 +1,55 @@
+---
+import Container from "@/components/ui/Container.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+import IconCheck from "@/components/ui/icons/IconCheck.astro";
+
+interface Props {
+  items: string[];
+}
+const { items } = Astro.props;
+---
+
+<section class="section">
+  <Container>
+    <div class="reveal">
+      <SectionHeading title="Qué incluye" />
+    </div>
+    <ul class="list reveal">
+      {items.map((item) => (
+        <li>
+          <span class="check">
+            <IconCheck size={20} />
+          </span>
+          {item}
+        </li>
+      ))}
+    </ul>
+  </Container>
+</section>
+
+<style>
+  .list {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  li {
+    display: flex;
+    gap: var(--space-3);
+    font-size: var(--text-lg);
+  }
+
+  .check {
+    display: flex;
+    flex: none;
+    margin-top: var(--space-1);
+    color: var(--color-accent-400);
+  }
+
+  @media (min-width: 768px) {
+    .list {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-4) var(--space-6);
+    }
+  }
+</style>

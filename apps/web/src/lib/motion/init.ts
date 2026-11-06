@@ -54,6 +54,44 @@ function initProcess() {
   });
 }
 
+/** Barras de partículas que crecen: el cierre de cada página. */
+function drawBars() {
+  document.querySelectorAll<HTMLCanvasElement>("[data-bars]").forEach((canvas) => {
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    const ratio = Math.min(window.devicePixelRatio, 2);
+    const { width, height } = canvas.getBoundingClientRect();
+    canvas.width = width * ratio;
+    canvas.height = height * ratio;
+    context.scale(ratio, ratio);
+    context.fillStyle = getComputedStyle(document.documentElement).getPropertyValue(
+      "--color-accent-400",
+    );
+    context.shadowColor = context.fillStyle;
+    context.shadowBlur = 8;
+    const BARS = 6;
+    const slot = width / BARS;
+    for (let bar = 0; bar < BARS; bar += 1) {
+      const top = height * (0.72 - (bar / (BARS - 1)) * 0.68) + (bar % 2 ? height * 0.07 : 0);
+      const body = height * 0.34;
+      const center = slot * (bar + 0.5);
+      const half = Math.min(slot * 0.2, 14);
+      for (let i = 0; i < 1500; i += 1) {
+        const wick = Math.random() < 0.16;
+        const y = top + Math.random() * (body + (wick ? 50 : 0)) - (wick ? 26 : 0);
+        const x = center + (Math.random() * 2 - 1) * (wick ? 2 : half);
+        context.globalAlpha = 0.25 + Math.random() * 0.75;
+        context.fillRect(x, y, 1.8, 1.8);
+      }
+    }
+    gsap.from(canvas, {
+      opacity: 0,
+      y: 24,
+      scrollTrigger: { trigger: canvas, start: "top 90%", once: true },
+    });
+  });
+}
+
 function hasWebGL() {
   try {
     return Boolean(document.createElement("canvas").getContext("webgl2"));
@@ -122,6 +160,7 @@ if (!prefersReducedMotion()) {
     initSplits();
     initCounters();
     initProcess();
+    drawBars();
     ScrollTrigger.refresh();
     void initScene();
   });

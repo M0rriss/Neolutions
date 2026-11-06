@@ -1,5 +1,4 @@
 ---
-import Badge from "@/components/ui/Badge.astro";
 import Container from "@/components/ui/Container.astro";
 import SectionHeading from "@/components/ui/SectionHeading.astro";
 
@@ -7,27 +6,57 @@ interface Props {
   audience: string[];
 }
 const { audience } = Astro.props;
+const repeated = [...audience, ...audience, ...audience, ...audience];
 ---
 
 <section class="section">
   <Container>
     <div class="reveal">
-      <SectionHeading title="Para quién es" />
+      <SectionHeading title="Para quién es" align="center" />
     </div>
-    <ul class="list reveal">
-      {audience.map((item) => (
-        <li>
-          <Badge>{item}</Badge>
-        </li>
-      ))}
-    </ul>
   </Container>
+  <ul class="sr-only">
+    {audience.map((item) => (
+      <li>{item}</li>
+    ))}
+  </ul>
+  <div class="band" aria-hidden="true">
+    <div class="track">{[0, 1].map(() => repeated.map((item) => <span>{item}</span>))}</div>
+  </div>
 </section>
 
 <style>
-  .list {
+  .band {
+    overflow: hidden;
+    padding-block: var(--space-3);
+    background: var(--color-accent-100);
+  }
+
+  .track {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
+    gap: var(--space-7);
+    width: max-content;
+    animation: slide 40s linear infinite;
+  }
+
+  span {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-medium);
+    white-space: nowrap;
+  }
+
+  span::before {
+    content: "●";
+    margin-right: var(--space-3);
+    color: var(--color-accent-400);
+    font-size: var(--text-xs);
+    vertical-align: middle;
+  }
+
+  @keyframes slide {
+    to {
+      transform: translateX(-50%);
+    }
   }
 </style>

@@ -1,24 +1,57 @@
 ---
 import Container from "@/components/ui/Container.astro";
+import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
+import IconWhatsApp from "@/components/ui/icons/IconWhatsApp.astro";
+import { finalCta } from "@/data/home";
+import { site } from "@/data/site";
 
 interface Props {
   problem: string;
+  service: string;
 }
-const { problem } = Astro.props;
+const { problem, service } = Astro.props;
 ---
 
-<section class="section section--deep">
-  <Container narrow>
-    <div class="reveal">
-      <p class="eyebrow">El problema</p>
-      <p class="problem">{problem}</p>
+<section class="section">
+  <Container>
+    <div class="layout">
+      <div class="copy reveal">
+        <p class="eyebrow">El problema</p>
+        <h2 class="metal">{problem}</h2>
+        <div class="actions">
+          <WhatsAppButton service={service} origen="servicio" />
+        </div>
+      </div>
+      <div class="panel-beam chat reveal" aria-hidden="true">
+        <div class="chat-top">
+          <span class="avatar">
+            <IconWhatsApp size={20} />
+          </span>
+          <strong>{site.shortName}</strong>
+        </div>
+        <div class="bubbles">
+          <p class="bubble bubble--out">{site.whatsapp.defaultMessage}</p>
+          <p class="bubble">{finalCta.text}</p>
+        </div>
+      </div>
     </div>
   </Container>
 </section>
 
 <style>
+  .layout {
+    display: grid;
+    gap: var(--space-7);
+    align-items: center;
+  }
+
+  .copy {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+  }
+
   .eyebrow {
-    margin-bottom: var(--space-3);
     color: var(--color-accent-400);
     font-size: var(--text-sm);
     font-weight: var(--weight-semibold);
@@ -26,9 +59,61 @@ const { problem } = Astro.props;
     text-transform: uppercase;
   }
 
-  .problem {
+  h2 {
+    font-family: var(--font-display);
     font-size: var(--text-3xl);
-    font-weight: var(--weight-semibold);
+    font-weight: var(--weight-regular);
     line-height: var(--leading-snug);
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .chat-top {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-md);
+    height: var(--control-md);
+    border-radius: var(--radius-pill);
+    background: var(--color-accent-100);
+    color: var(--color-accent-400);
+  }
+
+  .bubbles {
+    display: grid;
+    gap: var(--space-3);
+    min-height: 14rem;
+    align-content: end;
+    padding: var(--space-5);
+  }
+
+  .bubble {
+    max-width: 85%;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-brand-600);
+    font-size: var(--text-sm);
+  }
+
+  .bubble--out {
+    justify-self: end;
+    background: var(--color-accent-100);
+  }
+
+  @media (min-width: 1024px) {
+    .layout {
+      grid-template-columns: 1fr 1.2fr;
+      gap: var(--space-8);
+    }
   }
 </style>

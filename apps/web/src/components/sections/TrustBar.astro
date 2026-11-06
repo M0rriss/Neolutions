@@ -9,19 +9,19 @@ const items = trustItems.filter((item) => shouldShow(item.value));
 
 <section class="stats" id="g-stats">
   <Container>
-    <h2 class="metal" data-split>{statsSection.title}</h2>
+    <h2 class="metal" data-split>
+      {statsSection.title}
+    </h2>
     <dl class="grid">
-      {
-        items.map((item) => {
-          const count = /^\d+$/.test(item.value) ? item.value : undefined;
-          return (
-            <div class:list={["item reveal", { todo: isPending(item.value) }]}>
-              <dt>{item.label}</dt>
-              <dd data-count={count}>{item.value}</dd>
-            </div>
-          );
-        })
-      }
+      {items.map((item) => {
+        const count = /^\d+$/.test(item.value) ? item.value : undefined;
+        return (
+          <div class:list={["item reveal", { todo: isPending(item.value) }]}>
+            <dt>{item.label}</dt>
+            <dd data-count={count}>{item.value}</dd>
+          </div>
+        );
+      })}
     </dl>
   </Container>
 </section>
@@ -36,7 +36,7 @@ const items = trustItems.filter((item) => shouldShow(item.value));
     margin-bottom: var(--space-7);
     font-family: var(--font-display);
     font-size: var(--text-4xl);
-    font-weight: var(--weight-medium);
+    font-weight: var(--weight-regular);
   }
 
   .grid {

@@ -1,14 +1,20 @@
 ---
 import FinalCta from "@/components/sections/FinalCta.astro";
 import PageHero from "@/components/sections/PageHero.astro";
+import Process from "@/components/sections/Process.astro";
+import Button from "@/components/ui/Button.astro";
 import Card from "@/components/ui/Card.astro";
 import Container from "@/components/ui/Container.astro";
 import Icon from "@/components/ui/Icon.astro";
 import SectionHeading from "@/components/ui/SectionHeading.astro";
+import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
 import { about } from "@/data/about";
+import { serviceGroups } from "@/data/serviceGroups";
+import { trustItems } from "@/data/trust";
 import PageLayout from "@/layouts/PageLayout.astro";
 import { isPending, shouldShow } from "@/lib/format";
 
+const stats = trustItems.filter((item) => shouldShow(item.value));
 const initials = (name: string) =>
   name
     .split(" ")
@@ -18,12 +24,19 @@ const initials = (name: string) =>
 ---
 
 <PageLayout title={about.title} description={about.description}>
-  <PageHero eyebrow={about.eyebrow} title={about.headline} text={about.intro} />
+  <PageHero badge={about.eyebrow} title={about.headline} text={about.intro}>
+    <div class="actions">
+      <WhatsAppButton size="lg" origen="nosotros" />
+      <Button variant="secondary" size="lg" href="/servicios">
+        Ver servicios
+      </Button>
+    </div>
+  </PageHero>
 
-  <section class="section section--deep">
+  <section class="section">
     <Container narrow>
-      <div class="reveal">
-        <SectionHeading title={about.whoHeading} />
+      <div class="centered reveal">
+        <SectionHeading title={about.whoHeading} align="center" />
         <p class="lead">{about.who}</p>
       </div>
     </Container>
@@ -44,21 +57,27 @@ const initials = (name: string) =>
     </Container>
   </section>
 
-  <section class="section section--deep">
+  <section class="section">
     <Container>
       <div class="reveal">
-        <SectionHeading title="Nuestros valores" />
+        <SectionHeading
+          title="Nuestros valores"
+          subtitle="Los principios que guían lo que hacemos"
+          align="center"
+        />
       </div>
-      <ul class="values reveal">
+      <ul class="cards reveal">
         {about.values.map((value) => (
-          <li class="value">
-            <span class="value-icon">
-              <Icon name={value.icon} size={28} />
-            </span>
-            <h3>{value.title}</h3>
-            {shouldShow(value.text) && (
-              <p class:list={["muted", { todo: isPending(value.text) }]}>{value.text}</p>
-            )}
+          <li>
+            <Card>
+              <span class="value-icon">
+                <Icon name={value.icon} size={24} />
+              </span>
+              <h3>{value.title}</h3>
+              {shouldShow(value.text) && (
+                <p class:list={["muted", { todo: isPending(value.text) }]}>{value.text}</p>
+              )}
+            </Card>
           </li>
         ))}
       </ul>
@@ -68,7 +87,48 @@ const initials = (name: string) =>
   <section class="section">
     <Container>
       <div class="reveal">
-        <SectionHeading title="Nuestro equipo" />
+        <SectionHeading
+          title="Qué hacemos"
+          subtitle="Tecnología para que tu negocio no se detenga"
+          align="center"
+        />
+      </div>
+      <ul class="cards cards--three reveal">
+        {serviceGroups.map((group) => (
+          <li>
+            <Card>
+              <span class="value-icon">
+                <Icon name={group.icon} size={24} />
+              </span>
+              <h3>{group.title}</h3>
+              <p class="muted">{group.description}</p>
+            </Card>
+          </li>
+        ))}
+      </ul>
+    </Container>
+  </section>
+
+  <section class="section">
+    <Container>
+      <div class="reveal">
+        <SectionHeading title="Qué nos hace diferentes" align="center" />
+      </div>
+      <dl class="stats reveal">
+        {stats.map((item) => (
+          <div class:list={{ todo: isPending(item.value) }}>
+            <dd>{item.value}</dd>
+            <dt>{item.label}</dt>
+          </div>
+        ))}
+      </dl>
+    </Container>
+  </section>
+
+  <section class="section">
+    <Container>
+      <div class="reveal">
+        <SectionHeading title="Nuestro equipo" align="center" />
       </div>
       <ul class="team reveal">
         {about.team.map((member) => (
@@ -95,10 +155,15 @@ const initials = (name: string) =>
     </Container>
   </section>
 
+  <Process />
   <FinalCta />
 </PageLayout>
 
 <style>
+  .centered {
+    text-align: center;
+  }
+
   .lead {
     color: var(--color-text-muted);
     font-size: var(--text-lg);
@@ -106,49 +171,69 @@ const initials = (name: string) =>
 
   .muted {
     color: var(--color-text-muted);
+    font-size: var(--text-sm);
   }
 
-  .two {
+  .two,
+  .cards {
     display: grid;
     gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
   .card-title {
     margin-bottom: var(--space-3);
+    font-family: var(--font-display);
     font-size: var(--text-2xl);
-    font-weight: var(--weight-bold);
-  }
-
-  .values {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-    gap: var(--space-5);
-  }
-
-  .value {
-    display: grid;
-    gap: var(--space-2);
-    align-content: start;
+    font-weight: var(--weight-regular);
   }
 
   .value-icon {
+    display: flex;
+    margin-bottom: var(--space-3);
     color: var(--color-accent-400);
   }
 
   h3 {
+    margin-bottom: var(--space-1);
+    font-family: var(--font-display);
     font-size: var(--text-xl);
-    font-weight: var(--weight-semibold);
+    font-weight: var(--weight-medium);
+  }
+
+  .stats {
+    display: grid;
+    gap: var(--space-5);
+    margin: 0;
+    text-align: center;
+  }
+
+  .stats dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: var(--weight-regular);
+  }
+
+  .stats dt {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
   }
 
   .team {
-    display: grid;
-    gap: var(--space-4);
     max-width: 24rem;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
   }
 
   .member {
     display: grid;
     gap: var(--space-2);
+    justify-items: center;
+    text-align: center;
   }
 
   .avatar {
@@ -167,6 +252,18 @@ const initials = (name: string) =>
   @media (min-width: 768px) {
     .two {
       grid-template-columns: repeat(2, 1fr);
+    }
+
+    .cards {
+      grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    }
+
+    .cards--three {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .stats {
+      grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
     }
   }
 </style>

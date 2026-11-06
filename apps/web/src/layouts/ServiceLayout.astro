@@ -43,8 +43,8 @@ const jsonLd = [
   pageService={id}
 >
   <ServiceHero servicio={servicio} />
-  <ServiceProblem problem={data.problem} />
   <ServiceIncludes items={data.includes} />
+  <ServiceProblem problem={data.problem} service={id} />
   <ServiceBenefits benefits={data.benefits} />
   <ServiceAudience audience={data.audience} />
   <Process service={id} />

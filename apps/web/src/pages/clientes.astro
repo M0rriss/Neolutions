@@ -1,0 +1,125 @@
+---
+import { getCollection } from "astro:content";
+import FinalCta from "@/components/sections/FinalCta.astro";
+import PageHero from "@/components/sections/PageHero.astro";
+import Testimonials from "@/components/sections/Testimonials.astro";
+import Button from "@/components/ui/Button.astro";
+import Card from "@/components/ui/Card.astro";
+import Container from "@/components/ui/Container.astro";
+import LogoGrid from "@/components/ui/LogoGrid.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
+import { clients, clientsPage as page, licensePartners } from "@/data/clients";
+import { whyUs } from "@/data/whyUs";
+import PageLayout from "@/layouts/PageLayout.astro";
+
+const services = await getCollection("servicios", ({ data }) => data.published);
+const sectors = [...new Set(services.flatMap((service) => service.data.audience))];
+const showClients = import.meta.env.DEV || clients.length > 0;
+const showPartners = import.meta.env.DEV || licensePartners.length > 0;
+---
+
+<PageLayout title={page.title} description={page.description}>
+  <PageHero badge={page.badge} title={page.headline} text={page.text}>
+    <div class="actions">
+      <WhatsAppButton size="lg" origen="clientes" />
+      <Button variant="secondary" size="lg" href="/servicios">
+        Ver servicios
+      </Button>
+    </div>
+  </PageHero>
+
+  <section class="section">
+    <Container>
+      <div class="reveal">
+        <SectionHeading title={page.sectorsTitle} subtitle={page.sectorsText} align="center" />
+      </div>
+      <ul class="pills reveal">
+        {sectors.map((sector) => (
+          <li>{sector}</li>
+        ))}
+      </ul>
+    </Container>
+  </section>
+
+  {showClients && (
+    <section class="section">
+      <Container>
+        <SectionHeading title={page.clientsTitle} subtitle={page.clientsText} align="center" />
+        <LogoGrid items={clients} slots={page.slots} />
+      </Container>
+    </section>
+  )}
+
+  <Testimonials />
+
+  <section class="section">
+    <Container>
+      <div class="reveal">
+        <SectionHeading title={page.whyTitle} align="center" />
+      </div>
+      <div class="bento reveal">
+        {whyUs.map((reason) => (
+          <Card>
+            <h3>{reason.title}</h3>
+            <p>{reason.text}</p>
+          </Card>
+        ))}
+      </div>
+    </Container>
+  </section>
+
+  {showPartners && (
+    <section class="section">
+      <Container>
+        <SectionHeading title={page.partnersTitle} subtitle={page.partnersText} align="center" />
+        <LogoGrid items={licensePartners} slots={page.slots} />
+      </Container>
+    </section>
+  )}
+
+  <FinalCta />
+</PageLayout>
+
+<style>
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pills li {
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-pill);
+    background: var(--gradient-card);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+  }
+
+  .bento {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  h3 {
+    margin-bottom: var(--space-2);
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-medium);
+  }
+
+  .bento p {
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 768px) {
+    .bento {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

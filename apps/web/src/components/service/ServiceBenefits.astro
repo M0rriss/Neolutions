@@ -1,5 +1,4 @@
 ---
-import Card from "@/components/ui/Card.astro";
 import Container from "@/components/ui/Container.astro";
 import SectionHeading from "@/components/ui/SectionHeading.astro";
 
@@ -9,17 +8,17 @@ interface Props {
 const { benefits } = Astro.props;
 ---
 
-<section class="section section--deep">
+<section class="section">
   <Container>
     <div class="reveal">
-      <SectionHeading title="Beneficios para tu negocio" />
+      <SectionHeading title="Beneficios para tu negocio" align="center" />
     </div>
     <div class="grid reveal">
-      {benefits.map((benefit) => (
-        <Card>
+      {benefits.map((benefit, index) => (
+        <article class:list={["tile", { "tile--glow": index % 2 === 1 }]}>
           <h3>{benefit.title}</h3>
           <p>{benefit.text}</p>
-        </Card>
+        </article>
       ))}
     </div>
   </Container>
@@ -31,10 +30,27 @@ const { benefits } = Astro.props;
     gap: var(--space-4);
   }
 
+  .tile {
+    display: grid;
+    gap: var(--space-2);
+    align-content: end;
+    min-height: 13rem;
+    padding: var(--space-5);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-card);
+    background: var(--gradient-card);
+  }
+
+  .tile--glow {
+    background:
+      radial-gradient(20rem 12rem at 100% 0%, var(--color-accent-500), transparent 70%),
+      var(--gradient-card);
+  }
+
   h3 {
-    margin-bottom: var(--space-2);
+    font-family: var(--font-display);
     font-size: var(--text-xl);
-    font-weight: var(--weight-semibold);
+    font-weight: var(--weight-medium);
   }
 
   p {

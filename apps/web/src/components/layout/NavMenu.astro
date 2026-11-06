@@ -1,0 +1,152 @@
+---
+import IconChevronDown from "@/components/ui/icons/IconChevronDown.astro";
+import IconChevronRight from "@/components/ui/icons/IconChevronRight.astro";
+
+interface Props {
+  id: string;
+  label: string;
+  items: { label: string; href: string }[];
+}
+const { id, label, items } = Astro.props;
+---
+
+<div class="menu" data-nav-menu>
+  <button class="trigger" type="button" aria-expanded="false" aria-controls={id}>
+    {label}
+    <span class="chevron">
+      <IconChevronDown size={14} />
+    </span>
+  </button>
+  <div class="panel" id={id} hidden>
+    <ul>
+      {items.map((item) => (
+        <li>
+          <a href={item.href}>
+            {item.label}
+            <IconChevronRight size={14} />
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-nav-menu]").forEach((menu) => {
+    const trigger = menu.querySelector<HTMLButtonElement>("button");
+    const panel = menu.querySelector<HTMLElement>(".panel");
+    if (!trigger || !panel) return;
+
+    const setOpen = (open: boolean) => {
+      trigger.setAttribute("aria-expanded", String(open));
+      panel.hidden = !open;
+    };
+
+    // Enter y Espacio llegan como click por ser un <button> nativo.
+    trigger.addEventListener("click", () => setOpen(panel.hidden !== false));
+    menu.addEventListener("pointerenter", (event) => {
+      if (event.pointerType === "mouse") setOpen(true);
+    });
+    menu.addEventListener("pointerleave", (event) => {
+      if (event.pointerType === "mouse") setOpen(false);
+    });
+    menu.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" || panel.hidden) return;
+      setOpen(false);
+      trigger.focus();
+    });
+    menu.addEventListener("focusout", (event) => {
+      const next = event.relatedTarget;
+      if (next instanceof Node && !menu.contains(next)) setOpen(false);
+    });
+  });
+</script>
+
+<style>
+  .menu {
+    position: relative;
+  }
+
+  .trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: var(--control-md);
+    padding-inline: var(--space-3);
+    border: 0;
+    background: none;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    cursor: pointer;
+    transition: color var(--transition-fast);
+  }
+
+  .trigger:hover,
+  .trigger[aria-expanded="true"] {
+    color: var(--color-text);
+  }
+
+  .chevron {
+    display: flex;
+    transition: transform var(--transition-fast);
+  }
+
+  .trigger[aria-expanded="true"] .chevron {
+    transform: rotate(180deg);
+  }
+
+  .panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 15rem;
+    margin-top: var(--space-2);
+    padding: var(--space-2);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-card);
+    background: var(--gradient-glass), var(--color-menu);
+    box-shadow: var(--shadow-glass);
+  }
+
+  .panel[hidden] {
+    display: none;
+  }
+
+  /* Puente invisible para que el mouse no cierre el panel al bajar */
+  .panel::before {
+    content: "";
+    position: absolute;
+    inset: calc(-1 * var(--space-3)) 0 auto;
+    height: var(--space-3);
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: var(--control-md);
+    padding-inline: var(--space-3);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      background-color var(--transition-fast),
+      color var(--transition-fast);
+  }
+
+  a:hover {
+    background: var(--color-border);
+    color: var(--color-text);
+  }
+</style>

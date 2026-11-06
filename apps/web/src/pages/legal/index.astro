@@ -1,0 +1,87 @@
+---
+import Container from "@/components/ui/Container.astro";
+import { legalNav } from "@/data/navigation";
+import PageLayout from "@/layouts/PageLayout.astro";
+---
+
+<PageLayout
+  title="Documentos legales"
+  description="Política de privacidad, términos, cookies y Libro de Reclamaciones de Neolutions Tecnology."
+>
+  <section class="legal">
+    <Container>
+      <div class="inner">
+        <h1>Documentos legales</h1>
+        <p class="lead">Revisa nuestras políticas y documentos.</p>
+        <ul class="grid">
+          {legalNav.map((link) => (
+            <li>
+              <a href={link.href}>
+                <strong>{link.label}</strong>
+                <span>{link.text}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </Container>
+  </section>
+</PageLayout>
+
+<style>
+  .legal {
+    padding-block: var(--space-5) var(--space-8);
+  }
+
+  .inner {
+    max-width: 60rem;
+    margin-inline: auto;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: var(--weight-medium);
+  }
+
+  .lead {
+    margin-block: var(--space-2) var(--space-6);
+    color: var(--color-text-muted);
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: grid;
+    gap: var(--space-1);
+    height: 100%;
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-brand-800);
+    color: var(--color-text);
+    text-decoration: none;
+    transition: border-color var(--transition-base);
+  }
+
+  a:hover {
+    border-color: var(--color-accent-500);
+  }
+
+  span {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

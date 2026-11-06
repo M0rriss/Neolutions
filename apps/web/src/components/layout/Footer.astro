@@ -1,7 +1,10 @@
 ---
 import Container from "@/components/ui/Container.astro";
 import IconBook from "@/components/ui/icons/IconBook.astro";
-import { legalNav, mainNav } from "@/data/navigation";
+import IconFacebook from "@/components/ui/icons/IconFacebook.astro";
+import IconTikTok from "@/components/ui/icons/IconTikTok.astro";
+import IconWhatsApp from "@/components/ui/icons/IconWhatsApp.astro";
+import { companyNav, helpNav, legalNav } from "@/data/navigation";
 import { site } from "@/data/site";
 import { shouldShow } from "@/lib/format";
 import { getServices } from "@/lib/services";
@@ -9,16 +12,16 @@ import { whatsappLink } from "@/lib/whatsapp";
 import Logo from "./Logo.astro";
 
 const services = await getServices();
-const company = mainNav.filter((item) => item.enabled && !["/", "/servicios"].includes(item.href));
 const columns = [
   {
     title: "Servicios",
     links: services.map((s) => ({ label: s.data.title, href: `/servicios/${s.id}` })),
   },
-  { title: "Empresa", links: company.map(({ label, href }) => ({ label, href })) },
-  { title: "Legal", links: legalNav.map(({ label, href }) => ({ label, href })) },
+  { title: "Empresa", links: [...companyNav] },
+  { title: "Asistencia", links: [...helpNav] },
 ];
 const year = new Date().getFullYear();
+const whatsapp = whatsappLink();
 ---
 
 <footer class="footer">
@@ -29,14 +32,28 @@ const year = new Date().getFullYear();
           <Logo />
         </a>
         <p class="tagline">{site.tagline}</p>
-        <p class="social">
-          <a href={site.social.tiktok} target="_blank" rel="noopener">
-            TikTok
+        <p>{site.area}</p>
+        {shouldShow(site.schedule) && (
+          <p class:list={{ todo: site.schedule.startsWith("TODO") }}>{site.schedule}</p>
+        )}
+        <div class="social">
+          <a
+            href={whatsapp}
+            target="_blank"
+            rel="noopener"
+            aria-label="WhatsApp"
+            data-track="whatsapp_click"
+            data-origen="footer"
+          >
+            <IconWhatsApp size={18} />
           </a>
-          <a href={site.social.facebook} target="_blank" rel="noopener">
-            Facebook
+          <a href={site.social.facebook} target="_blank" rel="noopener" aria-label="Facebook">
+            <IconFacebook size={18} />
           </a>
-        </p>
+          <a href={site.social.tiktok} target="_blank" rel="noopener" aria-label="TikTok">
+            <IconTikTok size={18} />
+          </a>
+        </div>
       </div>
 
       {columns.map((column) => (
@@ -51,26 +68,45 @@ const year = new Date().getFullYear();
           </ul>
         </details>
       ))}
-
-      <div class="contact">
-        <h2>Contacto</h2>
-        <p>
-          <a
-            href={whatsappLink()}
-            target="_blank"
-            rel="noopener"
-            data-track="whatsapp_click"
-            data-origen="footer"
-          >
-            WhatsApp {site.whatsapp.display}
-          </a>
-        </p>
-        <p>{site.area}</p>
-        {shouldShow(site.schedule) && (
-          <p class:list={{ todo: site.schedule.startsWith("TODO") }}>{site.schedule}</p>
-        )}
-      </div>
     </div>
+
+    <div class="cards">
+      <a
+        class="action"
+        href={whatsapp}
+        target="_blank"
+        rel="noopener"
+        data-track="whatsapp_click"
+        data-origen="footer"
+      >
+        <IconWhatsApp size={26} />
+        <span>
+          <small>Escríbenos por</small>WhatsApp {site.whatsapp.display}
+        </span>
+      </a>
+      <a class="action" href={site.social.tiktok} target="_blank" rel="noopener">
+        <IconTikTok size={26} />
+        <span>
+          <small>Síguenos en</small>TikTok
+        </span>
+      </a>
+      <a class="action" href={site.social.facebook} target="_blank" rel="noopener">
+        <IconFacebook size={26} />
+        <span>
+          <small>Síguenos en</small>Facebook
+        </span>
+      </a>
+      <a class="action" href="/legal/libro-de-reclamaciones">
+        <IconBook size={26} />
+        <span>
+          <small>Registra tu reclamo</small>Libro de Reclamaciones
+        </span>
+      </a>
+    </div>
+
+    <p class="word" aria-hidden="true">
+      Neolutions
+    </p>
 
     <div class="bottom">
       <p>
@@ -81,10 +117,13 @@ const year = new Date().getFullYear();
           {site.legal.businessName} · RUC {site.legal.ruc}
         </p>
       )}
-      <a class="book" href="/legal/libro-de-reclamaciones">
-        <IconBook size={20} />
-        Libro de Reclamaciones
-      </a>
+      <ul class="legal">
+        {legalNav.map((link) => (
+          <li>
+            <a href={link.href}>{link.label}</a>
+          </li>
+        ))}
+      </ul>
     </div>
   </Container>
 </footer>
@@ -101,7 +140,8 @@ const year = new Date().getFullYear();
 <style>
   .footer {
     padding-block: var(--space-8) var(--space-9);
-    background: var(--color-brand-900);
+    overflow: hidden;
+    background: linear-gradient(transparent, var(--color-footer-tint)), var(--color-brand-900);
     color: var(--color-text-muted);
     font-size: var(--text-sm);
   }
@@ -113,7 +153,7 @@ const year = new Date().getFullYear();
 
   .brand {
     display: grid;
-    gap: var(--space-3);
+    gap: var(--space-2);
     align-content: start;
     justify-items: start;
   }
@@ -125,83 +165,145 @@ const year = new Date().getFullYear();
     text-decoration: none;
   }
 
-  .social {
-    display: flex;
-    gap: var(--space-4);
+  .tagline {
+    color: var(--color-text);
+    font-weight: var(--weight-semibold);
   }
 
-  a {
-    color: var(--color-text-muted);
+  .social {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+
+  .social a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-md);
+    height: var(--control-md);
+    border-radius: var(--radius-sm);
+    background: var(--color-field);
+    color: var(--color-text);
     transition: color var(--transition-fast);
   }
 
-  a:hover {
+  .social a:hover {
     color: var(--color-accent-400);
-  }
-
-  .social a,
-  .links a {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--control-md);
-    text-decoration: none;
-  }
-
-  summary,
-  h2 {
-    color: var(--color-text);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-semibold);
   }
 
   summary {
     display: flex;
     align-items: center;
     min-height: var(--control-md);
+    color: var(--color-accent-400);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
     cursor: pointer;
   }
 
-  .links {
-    padding-bottom: var(--space-2);
+  .links,
+  .legal {
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .contact {
+  .links a,
+  .legal a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-md);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .links a:hover,
+  .legal a:hover {
+    color: var(--color-accent-400);
+  }
+
+  .cards {
     display: grid;
-    gap: var(--space-2);
-    align-content: start;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+
+  .action {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-card);
+    background: var(--gradient-card);
+    color: var(--color-text);
+    font-weight: var(--weight-semibold);
+    text-decoration: none;
+    transition: border-color var(--transition-base);
+  }
+
+  .action:hover {
+    border-color: var(--color-accent-500);
+  }
+
+  small {
+    display: block;
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
+  }
+
+  .word {
+    position: relative;
+    margin: var(--space-5) 0 var(--space-4);
+    background: radial-gradient(
+      48% 80% at 50% 62%,
+      var(--color-accent-400),
+      var(--color-footer-word) 62%,
+      var(--color-brand-600) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 19.5vw, 15rem);
+    font-weight: var(--weight-medium);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    text-align: center;
+    user-select: none;
+  }
+
+  .word::before {
+    content: "";
+    position: absolute;
+    inset: 10% 18% 0;
+    z-index: -1;
+    background: radial-gradient(closest-side, var(--color-accent-500), transparent);
+    filter: blur(50px);
+    opacity: 0.45;
   }
 
   .bottom {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    margin-top: var(--space-7);
-    padding-top: var(--space-5);
+    display: grid;
+    gap: var(--space-2);
+    padding-top: var(--space-4);
     border-top: 1px solid var(--color-border);
     font-size: var(--text-xs);
   }
 
-  .book {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    min-height: var(--control-md);
-    text-decoration: none;
+  .legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-4);
   }
 
   @media (min-width: 768px) {
     .grid {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 1.6fr repeat(3, 1fr);
       gap: var(--space-6);
-    }
-
-    .brand,
-    .contact {
-      grid-column: span 3;
-    }
-
-    .contact {
-      grid-column: auto;
     }
 
     summary {
@@ -214,8 +316,12 @@ const year = new Date().getFullYear();
       display: none;
     }
 
+    .cards {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
     .bottom {
-      flex-direction: row;
+      display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
@@ -223,12 +329,8 @@ const year = new Date().getFullYear();
   }
 
   @media (min-width: 1024px) {
-    .grid {
-      grid-template-columns: 1.5fr repeat(4, 1fr);
-    }
-
-    .brand {
-      grid-column: auto;
+    .cards {
+      grid-template-columns: repeat(4, 1fr);
     }
   }
 </style>

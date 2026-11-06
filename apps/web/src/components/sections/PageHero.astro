@@ -1,22 +1,28 @@
 ---
+import Badge from "@/components/ui/Badge.astro";
 import Container from "@/components/ui/Container.astro";
 
 interface Props {
-  eyebrow?: string;
+  badge?: string;
   title: string;
   text?: string;
 }
-const { eyebrow, title, text } = Astro.props;
+const { badge, title, text } = Astro.props;
 ---
 
 <section class="hero">
   <Container>
     <div class="copy">
-      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
-      <h1>{title}</h1>
+      {badge && <Badge variant="status">{badge}</Badge>}
+      <h1 class="metal" data-split>
+        {title}
+      </h1>
       {text && <p class="text">{text}</p>}
-      <slot />
+      <div class="slot">
+        <slot />
+      </div>
     </div>
+    <slot name="after" />
   </Container>
 </section>
 
@@ -24,33 +30,34 @@ const { eyebrow, title, text } = Astro.props;
   .hero {
     margin-top: calc(-1 * var(--header-height));
     padding-block: calc(var(--header-height) + var(--space-7)) var(--space-7);
-    background:
-      radial-gradient(50rem 30rem at 90% 0%, var(--color-accent-100), transparent 65%),
-      var(--color-brand-800);
+    background: var(--gradient-top-glow);
   }
 
   .copy {
     display: grid;
     gap: var(--space-4);
+    justify-items: center;
     max-width: var(--container-narrow);
-  }
-
-  .eyebrow {
-    color: var(--color-accent-400);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-semibold);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    margin-inline: auto;
+    text-align: center;
   }
 
   h1 {
+    font-family: var(--font-display);
     font-size: var(--text-4xl);
-    font-weight: var(--weight-bold);
-    letter-spacing: -0.02em;
+    font-weight: var(--weight-regular);
   }
 
   .text {
     color: var(--color-text-muted);
     font-size: var(--text-lg);
+  }
+
+  .slot {
+    width: 100%;
+  }
+
+  .slot :global(.actions) {
+    justify-content: center;
   }
 </style>

@@ -150,6 +150,13 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
       }
     };
 
+    // Los enlaces del menú llegan como /servicios#<bloque>
+    const fromHash = tabs.find((tab) => tab.dataset.filter === location.hash.slice(1));
+    if (fromHash) {
+      select(fromHash);
+      document.querySelector("#servicios")?.scrollIntoView();
+    }
+
     tablist.addEventListener("click", (event) => {
       const tab = event.target instanceof Element && event.target.closest("[role=tab]");
       if (tab) select(tab as HTMLButtonElement);

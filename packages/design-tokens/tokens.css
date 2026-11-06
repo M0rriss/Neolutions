@@ -1,11 +1,26 @@
 /* Tokens de Neolutions. Fuente: docs/frontend/11-design-system.md */
 :root {
   /* Marca */
-  --color-brand-900: #05060d;
+  --color-brand-900: #05070d;
   --color-brand-800: #080912;
   --color-brand-700: #10121d;
   --color-brand-600: #1c1f30;
   --color-glass: rgba(16, 18, 29, 0.62);
+  --color-glass-dark: rgba(18, 18, 18, 0.35);
+  --color-menu: rgba(14, 22, 22, 0.97);
+  --color-black: #000000;
+  --color-card-border: rgba(0, 92, 84, 0.5);
+  --color-card-border-solid: #00504a;
+  --color-field: #0f1e1d;
+  --color-item: #05191a;
+  --color-side: #00110f;
+  --color-footer-tint: #071413;
+  --color-footer-word: #1e2a2a;
+  --gradient-card: radial-gradient(113.74% 391.42% at 65.73% 3.01%, #030606 19%, #060c0c 63%);
+  --gradient-panel: radial-gradient(307.01% 88.35% at 65.73% 3.01%, #091615 19.23%, #060c0c 72.6%);
+  --gradient-glass: linear-gradient(rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  --gradient-top-glow: radial-gradient(70rem 30rem at 50% -8%, rgba(0, 169, 153, 0.24), transparent 70%);
+  --shadow-glass: rgba(255, 255, 255, 0.14) 0 1px 0 0 inset, rgba(255, 255, 255, 0.03) 0 -1px 0 0 inset, rgba(0, 0, 0, 0.45) 0 8px 32px 0;
   --color-violet-400: #a78bfa;
   --color-violet-glow: rgba(139, 92, 246, 0.22);
 
@@ -14,7 +29,7 @@
   --color-accent-100: rgba(0, 169, 153, 0.14);
 
   /* Texto */
-  --color-text: #ffffff;
+  --color-text: #e8ecf5;
   --color-text-muted: #c9c2dc;
   --color-text-subtle: #9b92b4;
   --color-text-on-accent: #0d0a17;
@@ -39,7 +54,7 @@
   /* Tipografía */
   --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Familjen Grotesk Variable", "Inter Variable", system-ui, sans-serif;
-  --gradient-metal: linear-gradient(180deg, #ffffff 15%, #aeb4c0 95%);
+  --gradient-metal: radial-gradient(855.92% 46.42% at 48.25% 50.79%, #ffffff 0%, #999999 100%);
   --gradient-gloss: linear-gradient(100deg, #ffffff 30%, #bfe9e3 100%);
 
   --text-xs: 0.75rem;
@@ -81,6 +96,8 @@
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 20px;
+  --radius-card: 20px;
+  --radius-nav: 15px;
   --radius-pill: 999px;
 
   --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 12px 32px rgba(0, 0, 0, 0.25);

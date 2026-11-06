@@ -1,60 +1,135 @@
 ---
 import ContactForm from "@/components/islands/ContactForm";
-import Card from "@/components/ui/Card.astro";
+import Button from "@/components/ui/Button.astro";
 import Container from "@/components/ui/Container.astro";
+import Badge from "@/components/ui/Badge.astro";
 import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
-import { contactPage } from "@/data/contact";
+import IconBook from "@/components/ui/icons/IconBook.astro";
+import IconCheck from "@/components/ui/icons/IconCheck.astro";
+import IconFacebook from "@/components/ui/icons/IconFacebook.astro";
+import IconTikTok from "@/components/ui/icons/IconTikTok.astro";
+import IconWhatsApp from "@/components/ui/icons/IconWhatsApp.astro";
+import { contactPage as page } from "@/data/contact";
 import { site } from "@/data/site";
 import PageLayout from "@/layouts/PageLayout.astro";
-import { isPending, shouldShow } from "@/lib/format";
 import { getServices } from "@/lib/services";
+import { whatsappLink } from "@/lib/whatsapp";
 
 const services = (await getServices()).map((s) => ({ slug: s.id, title: s.data.title }));
+const whatsapp = whatsappLink();
+const channels = [
+  {
+    icon: IconWhatsApp,
+    title: "WhatsApp",
+    text: "Escríbenos directo",
+    action: site.whatsapp.display,
+    href: whatsapp,
+    track: true,
+  },
+  {
+    icon: IconFacebook,
+    title: "Facebook",
+    text: "Síguenos y escríbenos",
+    action: "NeolutionsTecnology",
+    href: site.social.facebook,
+  },
+  {
+    icon: IconTikTok,
+    title: "TikTok",
+    text: "Mira nuestros trabajos",
+    action: "@neo.soluciones",
+    href: site.social.tiktok,
+  },
+];
 ---
 
-<PageLayout title="Contacto" description={contactPage.description}>
+<PageLayout title="Contacto" description={page.description}>
   <section class="contact">
     <Container>
       <div class="grid">
         <div class="info">
-          <h1>{contactPage.title}</h1>
-          <p class="text">{contactPage.text}</p>
-          <div class="actions">
-            <WhatsAppButton size="lg" origen="contacto" />
+          <h1 class="metal" data-split>
+            {page.title}
+          </h1>
+          <p class="text">{page.text}</p>
+          <ul class="ticks">
+            {page.ticks.map((tick) => (
+              <li>
+                <span class="tick">
+                  <IconCheck size={12} />
+                </span>
+                {tick}
+              </li>
+            ))}
+          </ul>
+          <div class="social">
+            <a href={whatsapp} target="_blank" rel="noopener" aria-label="WhatsApp">
+              <IconWhatsApp size={20} />
+            </a>
+            <a href={site.social.facebook} target="_blank" rel="noopener" aria-label="Facebook">
+              <IconFacebook size={20} />
+            </a>
+            <a href={site.social.tiktok} target="_blank" rel="noopener" aria-label="TikTok">
+              <IconTikTok size={20} />
+            </a>
+            <a href="/legal/libro-de-reclamaciones" aria-label="Libro de Reclamaciones">
+              <IconBook size={20} />
+            </a>
           </div>
-          <dl class="data">
-            <div>
-              <dt>WhatsApp</dt>
-              <dd>{site.whatsapp.display}</dd>
-            </div>
-            <div>
-              <dt>Zona de atención</dt>
-              <dd>{site.area}</dd>
-            </div>
-            {shouldShow(site.schedule) && (
-              <div>
-                <dt>Horario</dt>
-                <dd class:list={{ todo: isPending(site.schedule) }}>{site.schedule}</dd>
-              </div>
-            )}
-            <div>
-              <dt>Redes</dt>
-              <dd class="social">
-                <a href={site.social.tiktok} target="_blank" rel="noopener">
-                  TikTok
-                </a>
-                <a href={site.social.facebook} target="_blank" rel="noopener">
-                  Facebook
-                </a>
-              </dd>
-            </div>
-          </dl>
         </div>
-        <Card>
+        <div class="panel">
           <ContactForm client:visible services={services} />
-        </Card>
+        </div>
       </div>
-      <p class="area">{contactPage.area}</p>
+
+      <div class="channels">
+        {channels.map((channel) => (
+          <a
+            class="channel reveal"
+            href={channel.href}
+            target="_blank"
+            rel="noopener"
+            data-track={channel.track ? "whatsapp_click" : undefined}
+            data-origen={channel.track ? "contacto" : undefined}
+          >
+            <span class="channel-icon">
+              <channel.icon size={18} />
+            </span>
+            <strong>{channel.title}</strong>
+            <span class="muted">{channel.text}</span>
+            <span class="accent">{channel.action}</span>
+          </a>
+        ))}
+      </div>
+
+      <div class="guided reveal">
+        <div class="guided-copy">
+          <Badge variant="status">{page.guided.badge}</Badge>
+          <h2>{page.guided.title}</h2>
+          <p class="muted">{page.guided.text}</p>
+          <div class="actions">
+            <WhatsAppButton label={page.guided.primary} origen="contacto-guiado" />
+            <Button variant="secondary" href="/ayuda">
+              {page.guided.secondary}
+            </Button>
+          </div>
+        </div>
+        <ul class="points">
+          {page.guided.points.map((point) => (
+            <li>
+              <span class="tick">
+                <IconCheck size={12} />
+              </span>
+              <span>
+                <strong>{point.title}</strong>
+                <small>{point.text}</small>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <p class="area">{page.area}</p>
     </Container>
   </section>
 </PageLayout>
@@ -62,27 +137,26 @@ const services = (await getServices()).map((s) => ({ slug: s.id, title: s.data.t
 <style>
   .contact {
     margin-top: calc(-1 * var(--header-height));
-    padding-block: calc(var(--header-height) + var(--space-7)) var(--space-8);
-    background:
-      radial-gradient(50rem 30rem at 0% 0%, var(--color-accent-100), transparent 65%),
-      var(--color-brand-800);
+    padding-block: calc(var(--header-height) + var(--space-6)) var(--space-8);
+    background: var(--gradient-top-glow);
   }
 
   .grid {
     display: grid;
     gap: var(--space-6);
+    align-items: center;
   }
 
   .info {
     display: grid;
     gap: var(--space-4);
-    align-content: start;
+    justify-items: start;
   }
 
   h1 {
+    font-family: var(--font-display);
     font-size: var(--text-4xl);
-    font-weight: var(--weight-bold);
-    letter-spacing: -0.02em;
+    font-weight: var(--weight-regular);
   }
 
   .text {
@@ -90,42 +164,190 @@ const services = (await getServices()).map((s) => ({ slug: s.id, title: s.data.t
     font-size: var(--text-lg);
   }
 
-  .data {
+  .ticks {
     display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ticks li {
+    display: flex;
+    align-items: center;
     gap: var(--space-3);
-    margin-top: var(--space-3);
+    color: var(--color-text-muted);
   }
 
-  dt {
-    color: var(--color-text-subtle);
-    font-size: var(--text-xs);
-  }
-
-  dd {
-    font-weight: var(--weight-medium);
+  .tick {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: var(--space-5);
+    height: var(--space-5);
+    border-radius: var(--radius-pill);
+    background: var(--color-accent-500);
+    color: var(--color-text-on-accent);
   }
 
   .social {
     display: flex;
-    gap: var(--space-4);
+    gap: var(--space-3);
   }
 
   .social a {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    min-height: var(--control-md);
+    justify-content: center;
+    width: var(--control-md);
+    height: var(--control-md);
+    border-radius: var(--radius-sm);
+    background: var(--color-field);
+    color: var(--color-text);
+    transition: color var(--transition-fast);
+  }
+
+  .social a:hover {
+    color: var(--color-accent-400);
+  }
+
+  .panel {
+    padding: var(--space-6) var(--space-5);
+    border-radius: var(--radius-card);
+    background: var(--gradient-panel);
+  }
+
+  .channels {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+  }
+
+  .channel {
+    display: grid;
+    gap: var(--space-1);
+    justify-items: start;
+    padding: var(--space-5);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-card);
+    background: var(--gradient-card);
+    color: var(--color-text);
+    text-decoration: none;
+    transition: border-color var(--transition-base);
+  }
+
+  .channel:hover {
+    border-color: var(--color-accent-500);
+  }
+
+  .channel-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-md);
+    height: var(--control-md);
+    margin-bottom: var(--space-3);
+    border-radius: var(--radius-sm);
+    background: var(--color-field);
+  }
+
+  .channel strong {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-regular);
+  }
+
+  .muted {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .accent {
+    color: var(--color-accent-400);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+  }
+
+  .guided {
+    display: grid;
+    gap: var(--space-5);
+    align-items: center;
+    margin-top: var(--space-4);
+    padding: var(--space-6) var(--space-5);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-card);
+    background: var(--gradient-panel);
+  }
+
+  .guided-copy {
+    display: grid;
+    gap: var(--space-3);
+    justify-items: start;
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: var(--weight-regular);
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .points {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .points li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-md);
+    background: var(--color-item);
+  }
+
+  .points span:last-child {
+    display: grid;
+  }
+
+  .points strong {
+    font-size: var(--text-sm);
+  }
+
+  small {
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
   }
 
   .area {
-    margin-top: var(--space-6);
+    margin-top: var(--space-5);
     color: var(--color-text-muted);
     text-align: center;
+  }
+
+  @media (min-width: 768px) {
+    .channels {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
 
   @media (min-width: 1024px) {
     .grid {
       grid-template-columns: 1fr 1fr;
       gap: var(--space-8);
+    }
+
+    .guided {
+      grid-template-columns: 1.4fr 1fr;
+      padding: var(--space-7);
     }
   }
 </style>

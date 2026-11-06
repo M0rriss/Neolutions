@@ -2,12 +2,19 @@
 import Container from "@/components/ui/Container.astro";
 import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
 import { mainNav } from "@/data/navigation";
+import { getServices } from "@/lib/services";
 import Logo from "./Logo.astro";
 import MobileMenu from "./MobileMenu.astro";
-import ServicesMenu from "./ServicesMenu.astro";
+import NavMenu from "./NavMenu.astro";
 
-const items = mainNav.filter((item) => item.enabled);
+const services = await getServices();
+const serviceLinks = services.map((s) => ({ label: s.data.title, href: `/servicios/${s.id}` }));
 const current = Astro.url.pathname.replace(/\/$/, "") || "/";
+const items = mainNav.map((item, index) => ({
+  ...item,
+  id: `menu-${index}`,
+  links: item.services ? serviceLinks : item.children ? [...item.children] : undefined,
+}));
 ---
 
 <header class="header" data-header>
@@ -20,8 +27,8 @@ const current = Astro.url.pathname.replace(/\/$/, "") || "/";
         <ul>
           {items.map((item) => (
             <li>
-              {"hasMenu" in item ? (
-                <ServicesMenu />
+              {item.links ? (
+                <NavMenu id={item.id} label={item.label} items={item.links} />
               ) : (
                 <a
                   class="link"
@@ -101,7 +108,6 @@ const current = Astro.url.pathname.replace(/\/$/, "") || "/";
     align-items: center;
     min-height: var(--control-md);
     padding-inline: var(--space-3);
-    border-radius: var(--radius-sm);
     color: var(--color-text-muted);
     font-size: var(--text-sm);
     font-weight: var(--weight-medium);
@@ -123,16 +129,12 @@ const current = Astro.url.pathname.replace(/\/$/, "") || "/";
     .nav {
       position: absolute;
       left: 50%;
-      padding-inline: var(--space-3);
+      padding-inline: var(--space-2);
       border: 1px solid var(--color-border-strong);
-      border-radius: var(--radius-lg);
-      background: linear-gradient(
-        90deg,
-        var(--color-glass),
-        var(--color-accent-100),
-        var(--color-glass)
-      );
-      backdrop-filter: blur(14px);
+      border-radius: var(--radius-nav);
+      background: var(--gradient-glass), var(--color-glass-dark);
+      box-shadow: var(--shadow-glass);
+      backdrop-filter: blur(24px) saturate(1.8);
       transform: translateX(-50%);
     }
 

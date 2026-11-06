@@ -4,8 +4,10 @@ import * as THREE from "three";
 export const sceneState = { y: -2.15, scale: 1.6, mix: 0, opacity: 1, spin: -0.75 };
 
 const LIMA_ROTATION = { y: 1.344, x: -0.21 };
-const HALO = 5200;
-const DUST = 1800;
+const HALO = 7600;
+const DUST = 1500;
+const SPARKS = 1100;
+const COLUMN_POINTS = 1100;
 const LIMA = 1;
 
 const vertex = /* glsl */ `
@@ -23,7 +25,7 @@ const vertex = /* glsl */ `
     t = t * t * (3.0 - 2.0 * t);
     vec3 source = position;
     if (aKind > 0.5 && aKind < 1.5) {
-      source *= 1.0 + 0.035 * sin(uTime * 0.7 + aSeed * 40.0);
+      source *= 1.0 + 0.02 * sin(uTime * 0.7 + aSeed * 40.0);
     }
     vec3 point = mix(source, aTarget, t);
     point += normalize(point + 0.001) * sin(t * 3.14159) * (aSeed - 0.3) * 0.7;
@@ -36,10 +38,14 @@ const vertex = /* glsl */ `
     float globeAlpha = aKind > 1.5 && aKind < 2.5
       ? 0.14
       : aKind > 0.5 && aKind < 1.5
-        ? 0.14 + 0.28 * aSeed
+        ? (0.03 + 0.7 * pow(1.0 - abs(normal.z), 2.5)) * (0.4 + 0.6 * aSeed)
         : 0.2 + 0.8 * front + 1.1 * rim * front;
     float size = uSize * (0.7 + aSeed * 0.8);
-    if (aKind > 2.5) {
+    if (aKind > 3.5) {
+      // Puntos blancos sueltos sobre el globo
+      globeAlpha = (0.35 + 0.65 * abs(sin(uTime * (0.6 + aSeed) + aSeed * 30.0))) * front;
+      size = uSize * 0.8;
+    } else if (aKind > 2.5) {
       float pulse = 0.5 + 0.5 * sin(uTime * 2.4 - aSeed * 6.0);
       size *= 2.2 + 1.6 * pulse * (1.0 - t);
       globeAlpha = 0.5 + 0.5 * pulse;
@@ -62,6 +68,7 @@ const fragment = /* glsl */ `
     float d = length(gl_PointCoord - 0.5);
     float dot = smoothstep(0.5, 0.05, d);
     vec3 color = vKind > 2.5 ? uHot : uColor;
+    if (vKind > 0.5 && vKind < 1.5) color = mix(uColor, uHot, 0.25);
     gl_FragColor = vec4(color, dot * vAlpha * uOpacity);
   }
 `;
@@ -116,7 +123,7 @@ export async function startScene(canvas: HTMLCanvasElement) {
   const response = await fetch("/data/globe.bin");
   const land = new Int16Array(await response.arrayBuffer());
   const landCount = land.length / 3;
-  const total = landCount + HALO + DUST + LIMA;
+  const total = landCount + HALO + DUST + SPARKS + LIMA;
 
   const position = new Float32Array(total * 3);
   const target = new Float32Array(total * 3);
@@ -124,19 +131,34 @@ export async function startScene(canvas: HTMLCanvasElement) {
   const kind = new Float32Array(total);
 
   for (let i = 0; i < landCount; i += 1) {
-    position.set([land[i * 3] / 32767, land[i * 3 + 1] / 32767, land[i * 3 + 2] / 32767], i * 3);
-  }
-  for (let i = landCount; i < landCount + HALO; i += 1) {
-    const radius = 1.13 + Math.random() * 0.2;
+    // Un poco de azar borra el dibujo en espiral del muestreo.
+    const jitter = () => (Math.random() - 0.5) * 0.005;
     position.set(
-      randomUnit().map((value) => value * radius),
+      [
+        land[i * 3] / 32767 + jitter(),
+        land[i * 3 + 1] / 32767 + jitter(),
+        land[i * 3 + 2] / 32767 + jitter(),
+      ],
       i * 3,
     );
+  }
+  for (let i = landCount; i < landCount + HALO; i += 1) {
+    const [x, y, z] = randomUnit();
+    const wave = Math.sin(Math.atan2(y, x) * 5 + z * 3) * 0.05;
+    const radius = 1.17 + wave + (Math.random() - 0.5) * 0.07;
+    position.set([x * radius, y * radius, z * radius], i * 3);
     kind[i] = 1;
   }
   for (let i = landCount + HALO; i < landCount + HALO + DUST; i += 1) {
     position.set(randomUnit(), i * 3);
     kind[i] = 2;
+  }
+  for (let i = total - LIMA - SPARKS; i < total - LIMA; i += 1) {
+    position.set(
+      randomUnit().map((value) => value * 1.005),
+      i * 3,
+    );
+    kind[i] = 4;
   }
   // Lima y Callao: 12° S, 77° O
   const lat = (-12 * Math.PI) / 180;
@@ -165,8 +187,8 @@ export async function startScene(canvas: HTMLCanvasElement) {
     uTime: { value: 0 },
     uMix: { value: 0 },
     uOpacity: { value: 1 },
-    uSize: { value: 13 },
-    uColor: { value: new THREE.Color("#1fc4b3") },
+    uSize: { value: 13.5 },
+    uColor: { value: new THREE.Color("#12d6bd") },
     uHot: { value: new THREE.Color("#ffffff") },
   };
   const material = new THREE.ShaderMaterial({
@@ -185,6 +207,35 @@ export async function startScene(canvas: HTMLCanvasElement) {
   points.frustumCulled = false;
   scene.add(points);
 
+  // Columnas de datos del inicio: no giran con el globo
+  const columnPosition = new Float32Array(COLUMN_POINTS * 3);
+  const columnSeed = new Float32Array(COLUMN_POINTS);
+  for (let i = 0; i < COLUMN_POINTS; i += 1) {
+    const column = [-1.05, 0, 1.05][i % 3];
+    columnPosition.set(
+      [
+        column + (Math.random() - 0.5) * 0.09,
+        Math.random() * 1.5 - 1.5,
+        (Math.random() - 0.5) * 0.09,
+      ],
+      i * 3,
+    );
+    columnSeed[i] = Math.random();
+  }
+  const columnGeometry = new THREE.BufferGeometry();
+  columnGeometry.setAttribute("position", new THREE.BufferAttribute(columnPosition, 3));
+  columnGeometry.setAttribute("aTarget", new THREE.BufferAttribute(columnPosition, 3));
+  columnGeometry.setAttribute("aSeed", new THREE.BufferAttribute(columnSeed, 1));
+  columnGeometry.setAttribute(
+    "aKind",
+    new THREE.BufferAttribute(new Float32Array(COLUMN_POINTS).fill(1), 1),
+  );
+  const columnMaterial = material.clone();
+  columnMaterial.uniforms = { ...uniforms, uOpacity: { value: 0 }, uMix: { value: 0 } };
+  const columns = new THREE.Points(columnGeometry, columnMaterial);
+  columns.frustumCulled = false;
+  scene.add(columns);
+
   const renderer = new THREE.WebGLRenderer({
     canvas,
     alpha: true,
@@ -198,7 +249,7 @@ export async function startScene(canvas: HTMLCanvasElement) {
     renderer.setSize(window.innerWidth, window.innerHeight, false);
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    uniforms.uSize.value = 13 * pixelRatio * (window.innerHeight / 900);
+    uniforms.uSize.value = 13.5 * pixelRatio * (window.innerHeight / 900);
   };
   resize();
   window.addEventListener("resize", resize);
@@ -233,6 +284,9 @@ export async function startScene(canvas: HTMLCanvasElement) {
     points.rotation.z = lerp(0, 0.12, mix);
     points.position.y = y;
     points.scale.setScalar(scale);
+    const inHero = THREE.MathUtils.clamp((-y - 0.9) / 1.2, 0, 1);
+    columns.visible = inHero > 0.01;
+    columnMaterial.uniforms.uOpacity.value = inHero * 0.75;
     uniforms.uTime.value = time;
     uniforms.uMix.value = mix;
     uniforms.uOpacity.value = opacity;

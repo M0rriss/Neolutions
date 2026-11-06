@@ -61,7 +61,7 @@ export default function ReclamoForm() {
 
   return (
     <form
-      className={`${styles.form} ${styles.light}`}
+      className={styles.form}
       onSubmit={handleSubmit(onSubmit, focusFirstError)}
       noValidate
       aria-busy={isSubmitting}

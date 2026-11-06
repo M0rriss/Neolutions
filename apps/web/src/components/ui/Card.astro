@@ -12,17 +12,16 @@ const { class: className } = Astro.props;
 <style>
   .card {
     padding: var(--space-6);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    background: var(--color-brand-700);
-    box-shadow: var(--shadow-card);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-card);
+    background: var(--gradient-card);
     transition:
       border-color var(--transition-base),
       transform var(--transition-base);
   }
 
   .card:hover {
-    border-color: var(--color-border-strong);
+    border-color: var(--color-accent-500);
     transform: translateY(-2px);
   }
 </style>

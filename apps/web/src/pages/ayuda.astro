@@ -1,0 +1,364 @@
+---
+import { getCollection, render } from "astro:content";
+import FinalCta from "@/components/sections/FinalCta.astro";
+import Badge from "@/components/ui/Badge.astro";
+import Container from "@/components/ui/Container.astro";
+import IconChevronDown from "@/components/ui/icons/IconChevronDown.astro";
+import IconChevronRight from "@/components/ui/icons/IconChevronRight.astro";
+import IconSearch from "@/components/ui/icons/IconSearch.astro";
+import PageLayout from "@/layouts/PageLayout.astro";
+import { isPending, shouldShow } from "@/lib/format";
+import { faqJsonLd } from "@/lib/seo";
+import { getServices } from "@/lib/services";
+
+const services = await getServices();
+const entries = (
+  await getCollection("faq", ({ data, body }) => data.published && shouldShow(body))
+).sort((a, b) => a.data.order - b.data.order);
+const faqs = await Promise.all(
+  entries.map(async (entry) => ({ entry, Content: (await render(entry)).Content })),
+);
+
+const used = new Set(entries.map((entry) => entry.data.scope));
+const categories = [
+  { id: "todas", title: "Todas las preguntas" },
+  { id: "general", title: "General" },
+  ...services
+    .filter((service) => used.has(service.id))
+    .map((service) => ({ id: service.id, title: service.data.title })),
+];
+const jsonLd = [
+  faqJsonLd(
+    entries
+      .filter((entry) => !isPending(entry.body))
+      .map((entry) => ({ question: entry.data.question, answer: (entry.body ?? "").trim() })),
+  ),
+];
+---
+
+<PageLayout
+  title="Centro de ayuda"
+  description="Preguntas frecuentes sobre cotizaciones, plazos, soporte y cada servicio de Neolutions."
+  jsonLd={jsonLd}
+>
+  <section class="help" data-help>
+    <Container>
+      <div class="inner">
+        <div class="top">
+          <div class="intro">
+            <Badge variant="status">Te ayudamos por WhatsApp</Badge>
+            <h1 class="metal" data-split>
+              Centro de ayuda
+            </h1>
+            <p>Encuentra respuestas sobre cotizaciones, plazos y cada uno de nuestros servicios.</p>
+          </div>
+          <label class="search">
+            <span class="sr-only">Buscar en el centro de ayuda</span>
+            <input type="search" placeholder="Buscar" data-help-search />
+            <IconSearch size={18} />
+          </label>
+        </div>
+
+        <div class="layout">
+          <aside class="side">
+            <h2>Categorías</h2>
+            <ul>
+              {categories.map((category, index) => (
+                <li>
+                  <button
+                    type="button"
+                    data-help-category={category.id}
+                    aria-pressed={index === 0 ? "true" : "false"}
+                  >
+                    {category.title}
+                    <IconChevronRight size={16} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </aside>
+
+          <div>
+            <div class="list" data-help-list>
+              {faqs.map(({ entry, Content }) => (
+                <details class="item" data-help-item data-category={entry.data.scope}>
+                  <summary>
+                    <span>{entry.data.question}</span>
+                    <span class="tile">
+                      <IconChevronDown size={14} />
+                    </span>
+                  </summary>
+                  <div class:list={["answer", { todo: isPending(entry.body) }]}>
+                    <Content />
+                  </div>
+                </details>
+              ))}
+            </div>
+            <p class="empty" data-help-empty hidden>
+              No encontramos resultados. Escríbenos por WhatsApp.
+            </p>
+            <nav class="pager" aria-label="Paginación" data-help-pager></nav>
+          </div>
+        </div>
+      </div>
+    </Container>
+  </section>
+  <FinalCta />
+</PageLayout>
+
+<script>
+  const PER_PAGE = 8;
+  const root = document.querySelector<HTMLElement>("[data-help]");
+  if (root) {
+    const items = [...root.querySelectorAll<HTMLElement>("[data-help-item]")];
+    const buttons = [...root.querySelectorAll<HTMLButtonElement>("[data-help-category]")];
+    const search = root.querySelector<HTMLInputElement>("[data-help-search]");
+    const pager = root.querySelector<HTMLElement>("[data-help-pager]");
+    const empty = root.querySelector<HTMLElement>("[data-help-empty]");
+    let category = "todas";
+    let page = 1;
+
+    const render = () => {
+      const query = search?.value.trim().toLowerCase() ?? "";
+      const matches = items.filter((item) => {
+        const inCategory = category === "todas" || item.dataset.category === category;
+        return inCategory && item.textContent?.toLowerCase().includes(query);
+      });
+      const pages = Math.max(1, Math.ceil(matches.length / PER_PAGE));
+      page = Math.min(page, pages);
+      const visible = new Set(matches.slice((page - 1) * PER_PAGE, page * PER_PAGE));
+      items.forEach((item) => (item.hidden = !visible.has(item)));
+      if (empty) empty.hidden = matches.length > 0;
+      if (!pager) return;
+      pager.replaceChildren(
+        ...Array.from({ length: pages > 1 ? pages : 0 }, (_, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = String(index + 1);
+          button.setAttribute("aria-label", `Página ${index + 1}`);
+          if (index + 1 === page) button.setAttribute("aria-current", "page");
+          button.addEventListener("click", () => {
+            page = index + 1;
+            render();
+          });
+          return button;
+        }),
+      );
+    };
+
+    buttons.forEach((button) =>
+      button.addEventListener("click", () => {
+        category = button.dataset.helpCategory ?? "todas";
+        page = 1;
+        buttons.forEach((other) => other.setAttribute("aria-pressed", String(other === button)));
+        render();
+      }),
+    );
+    search?.addEventListener("input", () => {
+      page = 1;
+      render();
+    });
+    render();
+  }
+</script>
+
+<style>
+  .help {
+    margin-top: calc(-1 * var(--header-height));
+    padding-block: calc(var(--header-height) + var(--space-7)) var(--space-6);
+    background: var(--gradient-top-glow);
+  }
+
+  .inner {
+    max-width: 58rem;
+    margin-inline: auto;
+  }
+
+  .top {
+    display: grid;
+    gap: var(--space-5);
+    align-items: end;
+    margin-bottom: var(--space-6);
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-3);
+    justify-items: start;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    font-weight: var(--weight-regular);
+  }
+
+  .intro p {
+    color: var(--color-text-muted);
+  }
+
+  .search {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--control-md);
+    padding-inline: var(--space-4);
+    border-radius: var(--radius-card);
+    background: var(--color-field);
+    color: var(--color-text-muted);
+  }
+
+  .search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: none;
+    outline: 0;
+    color: var(--color-text);
+    font-size: var(--text-sm);
+  }
+
+  .search:focus-within {
+    outline: 2px solid var(--color-accent-400);
+    outline-offset: 3px;
+  }
+
+  .layout {
+    display: grid;
+    gap: var(--space-5);
+    align-items: start;
+  }
+
+  .side {
+    padding: var(--space-5);
+    border-radius: var(--radius-card);
+    background: var(--color-side);
+  }
+
+  .side h2 {
+    margin-bottom: var(--space-3);
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-regular);
+  }
+
+  .side ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .side button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    width: 100%;
+    min-height: var(--control-md);
+    border: 0;
+    background: none;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .side button:hover,
+  .side button[aria-pressed="true"] {
+    color: var(--color-text);
+  }
+
+  .list {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .item {
+    border: 1px solid var(--color-card-border-solid);
+    border-radius: var(--radius-card);
+    background: var(--color-item);
+  }
+
+  .item[hidden] {
+    display: none;
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-height: var(--space-8);
+    padding: var(--space-3) var(--space-5);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: var(--space-6);
+    height: var(--space-5);
+    border-radius: var(--radius-sm);
+    background: var(--color-field);
+    color: var(--color-accent-400);
+    transition: transform var(--transition-fast);
+  }
+
+  details[open] .tile {
+    transform: rotate(180deg);
+  }
+
+  .answer {
+    padding: 0 var(--space-5) var(--space-4);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .empty {
+    color: var(--color-text-muted);
+  }
+
+  .pager {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+  }
+
+  .pager :global(button) {
+    width: var(--control-md);
+    height: var(--control-md);
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--color-brand-700);
+    color: var(--color-text-muted);
+    font-weight: var(--weight-semibold);
+    cursor: pointer;
+  }
+
+  .pager :global(button[aria-current="page"]) {
+    background: var(--color-accent-500);
+    color: var(--color-text-on-accent);
+  }
+
+  @media (min-width: 768px) {
+    .top {
+      grid-template-columns: 1.1fr 1fr;
+    }
+
+    .layout {
+      grid-template-columns: 19rem minmax(0, 1fr);
+      gap: var(--space-6);
+    }
+  }
+</style>

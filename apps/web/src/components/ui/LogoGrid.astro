@@ -1,0 +1,51 @@
+---
+import type { LogoItem } from "@/data/clients";
+
+interface Props {
+  items: LogoItem[];
+  slots: number;
+}
+const { items, slots } = Astro.props;
+const empty = Array.from({ length: slots });
+---
+
+<ul class="grid">
+  {items.length > 0
+    ? items.map((item) => (
+        <li class="tile">
+          <img src={item.logo} alt={item.name} loading="lazy" />
+        </li>
+      ))
+    : empty.map(() => <li class="tile todo">TODO: logo</li>)}
+</ul>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+
+  .tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 7rem;
+    padding: var(--space-4);
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-card);
+    background: var(--gradient-card);
+    font-size: var(--text-sm);
+  }
+
+  img {
+    max-height: 3rem;
+    object-fit: contain;
+  }
+
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>

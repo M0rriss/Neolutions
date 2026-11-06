@@ -8,7 +8,11 @@ import { site } from "@/data/site";
 import { getServices } from "@/lib/services";
 
 const services = await getServices();
-const items = mainNav.filter((item) => item.enabled);
+const serviceLinks = services.map((s) => ({ label: s.data.title, href: `/servicios/${s.id}` }));
+const items = mainNav.map((item) => ({
+  ...item,
+  links: item.services ? serviceLinks : item.children,
+}));
 ---
 
 <button class="toggle" type="button" aria-label="Abrir menú" aria-haspopup="dialog" data-menu-open>
@@ -25,7 +29,7 @@ const items = mainNav.filter((item) => item.enabled);
   <nav aria-label="Móvil">
     <ul class="links">
       {items.map((item) =>
-        "hasMenu" in item ? (
+        item.links ? (
           <li>
             <details class="sub">
               <summary>
@@ -35,12 +39,9 @@ const items = mainNav.filter((item) => item.enabled);
                 </span>
               </summary>
               <ul class="sublinks">
-                <li>
-                  <a href="/servicios">Ver todos los servicios</a>
-                </li>
-                {services.map((service) => (
+                {item.links.map((link) => (
                   <li>
-                    <a href={`/servicios/${service.id}`}>{service.data.title}</a>
+                    <a href={link.href}>{link.label}</a>
                   </li>
                 ))}
               </ul>
@@ -129,6 +130,13 @@ const items = mainNav.filter((item) => item.enabled);
   nav {
     flex: 1;
     overflow-y: auto;
+  }
+
+  .links,
+  .sublinks {
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
   .link,

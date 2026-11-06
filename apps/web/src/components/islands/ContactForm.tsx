@@ -37,35 +37,39 @@ export default function ContactForm({ services, defaultService = "" }: Props) {
 
   return (
     <form
-      className={styles.form}
+      className={`${styles.form} ${styles.compact}`}
       onSubmit={handleSubmit(onSubmit, focusFirstError)}
       noValidate
       aria-busy={isSubmitting}
     >
-      <Field id="name" label="Nombre" error={errors.name?.message}>
-        {(a11y) => (
-          <input
-            {...a11y}
-            {...register("name")}
-            className={styles.input}
-            type="text"
-            autoComplete="name"
-          />
-        )}
-      </Field>
+      <div className={styles.pair}>
+        <Field id="name" label="Nombre" error={errors.name?.message}>
+          {(a11y) => (
+            <input
+              {...a11y}
+              {...register("name")}
+              className={styles.input}
+              type="text"
+              autoComplete="name"
+              placeholder="Nombre"
+            />
+          )}
+        </Field>
 
-      <Field id="phone" label="Celular" error={errors.phone?.message}>
-        {(a11y) => (
-          <input
-            {...a11y}
-            {...register("phone")}
-            className={styles.input}
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel-national"
-          />
-        )}
-      </Field>
+        <Field id="phone" label="Celular" error={errors.phone?.message}>
+          {(a11y) => (
+            <input
+              {...a11y}
+              {...register("phone")}
+              className={styles.input}
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel-national"
+              placeholder="Celular"
+            />
+          )}
+        </Field>
+      </div>
 
       <Field id="service" label="Servicio" error={errors.service?.message}>
         {(a11y) => (
@@ -83,7 +87,13 @@ export default function ContactForm({ services, defaultService = "" }: Props) {
 
       <Field id="message" label="Mensaje" error={errors.message?.message}>
         {(a11y) => (
-          <textarea {...a11y} {...register("message")} className={styles.input} rows={4} />
+          <textarea
+            {...a11y}
+            {...register("message")}
+            className={styles.input}
+            rows={5}
+            placeholder="Mensaje"
+          />
         )}
       </Field>
 

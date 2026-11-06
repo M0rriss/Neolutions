@@ -4,9 +4,7 @@ import type { CollectionEntry } from "astro:content";
 import Badge from "@/components/ui/Badge.astro";
 import Button from "@/components/ui/Button.astro";
 import Container from "@/components/ui/Container.astro";
-import Icon from "@/components/ui/Icon.astro";
 import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
-import IconCheck from "@/components/ui/icons/IconCheck.astro";
 
 interface Props {
   servicio: CollectionEntry<"servicios">;
@@ -54,25 +52,7 @@ const { data, id } = servicio;
           fetchpriority="high"
         />
       ) : (
-        <>
-          <div class="mock-top">
-            <span class="mock-icon">
-              <Icon name={data.icon} size={20} />
-            </span>
-            <strong>{data.title}</strong>
-            <Badge variant="status">Disponible</Badge>
-          </div>
-          <ul class="mock-list">
-            {data.includes.map((item) => (
-              <li>
-                <span class="check">
-                  <IconCheck size={16} />
-                </span>
-                {item}
-              </li>
-            ))}
-          </ul>
-        </>
+        <img src={`/images/servicios/${id}.svg`} alt="" width="1030" height="539" />
       )}
     </div>
 
@@ -123,13 +103,21 @@ const { data, id } = servicio;
 
   h1 {
     font-family: var(--font-display);
-    font-size: var(--text-4xl);
+    padding-bottom: 0.14em;
+    margin-bottom: -0.14em;
+    font-size: var(--hero-title-size);
     font-weight: var(--weight-regular);
+    line-height: var(--hero-title-leading);
   }
 
   .text {
     color: var(--color-text-muted);
-    font-size: var(--text-lg);
+    font-size: var(--hero-text-size);
+  }
+
+  .actions :global(.btn) {
+    min-height: var(--hero-button-height);
+    font-size: var(--hero-button-font);
   }
 
   .actions {
@@ -138,56 +126,16 @@ const { data, id } = servicio;
   }
 
   .mock {
-    max-width: 62rem;
+    width: var(--hero-frame-width);
     margin: var(--space-7) auto var(--space-5);
     overflow: hidden;
+    border-width: var(--hero-frame-border);
+    border-radius: var(--hero-frame-radius);
   }
 
-  .mock-top {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-4) var(--space-5);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .mock-top strong {
-    flex: 1;
-  }
-
-  .mock-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--control-md);
-    height: var(--control-md);
-    border-radius: var(--radius-sm);
-    background: var(--color-field);
-    color: var(--color-accent-400);
-  }
-
-  .mock-list {
-    display: grid;
-    gap: var(--space-2);
-    margin: 0;
-    padding: var(--space-5);
-    list-style: none;
-  }
-
-  .mock-list li {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-3) var(--space-4);
-    border: 1px solid var(--color-card-border);
-    border-radius: var(--radius-md);
-    background: var(--color-item);
-    font-size: var(--text-sm);
-  }
-
-  .check {
-    display: flex;
-    color: var(--color-accent-400);
+  .mock img {
+    width: 100%;
+    height: auto;
   }
 
   .pills {
@@ -209,9 +157,13 @@ const { data, id } = servicio;
     font-weight: var(--weight-semibold);
   }
 
-  @media (min-width: 768px) {
-    .mock-list {
-      grid-template-columns: repeat(2, 1fr);
+  @media (min-width: 1024px) {
+    .hero :global(.container) {
+      max-width: none;
+    }
+
+    .mock {
+      margin-inline: calc((100% - var(--hero-frame-width)) / 2);
     }
   }
 </style>

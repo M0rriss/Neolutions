@@ -6,8 +6,10 @@ interface Props {
   badge?: string;
   title: string;
   text?: string;
+  /** Panel debajo del título, igual que en la portada */
+  image?: string;
 }
-const { badge, title, text } = Astro.props;
+const { badge, title, text, image } = Astro.props;
 ---
 
 <section class="hero">
@@ -22,6 +24,11 @@ const { badge, title, text } = Astro.props;
         <slot />
       </div>
     </div>
+    {image && (
+      <div class="panel-beam frame mock" aria-hidden="true">
+        <img src={image} alt="" width="1030" height="539" />
+      </div>
+    )}
     <slot name="after" />
   </Container>
 </section>
@@ -44,13 +51,16 @@ const { badge, title, text } = Astro.props;
 
   h1 {
     font-family: var(--font-display);
-    font-size: var(--text-4xl);
+    padding-bottom: 0.14em;
+    margin-bottom: -0.14em;
+    font-size: var(--hero-title-size);
     font-weight: var(--weight-regular);
+    line-height: var(--hero-title-leading);
   }
 
   .text {
     color: var(--color-text-muted);
-    font-size: var(--text-lg);
+    font-size: var(--hero-text-size);
   }
 
   .slot {
@@ -59,5 +69,33 @@ const { badge, title, text } = Astro.props;
 
   .slot :global(.actions) {
     justify-content: center;
+  }
+
+  .slot :global(.btn) {
+    min-height: var(--hero-button-height);
+    font-size: var(--hero-button-font);
+  }
+
+  .frame {
+    width: var(--hero-frame-width);
+    margin: var(--space-7) auto 0;
+    overflow: hidden;
+    border-width: var(--hero-frame-border);
+    border-radius: var(--hero-frame-radius);
+  }
+
+  .frame img {
+    width: 100%;
+    height: auto;
+  }
+
+  @media (min-width: 1024px) {
+    .hero :global(.container) {
+      max-width: none;
+    }
+
+    .frame {
+      margin-inline: calc((100% - var(--hero-frame-width)) / 2);
+    }
   }
 </style>

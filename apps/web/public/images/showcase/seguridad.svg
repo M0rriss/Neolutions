@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="669" height="367" viewBox="0 0 669 367" role="img" aria-label="Panel de cámaras de seguridad">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#07110f"/><stop offset="1" stop-color="#05070d"/></linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0c1a18"/><stop offset="1" stop-color="#090e12"/></linearGradient>
+    <linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1fc4b3" stop-opacity=".4"/><stop offset="1" stop-color="#1fc4b3" stop-opacity="0"/></linearGradient>
+    <style>
+      text { font-family: "Acid Grotesk", Inter, "Segoe UI", system-ui, sans-serif; fill: #e8ecf5; }
+      .sm { font-size: 9px; fill: #a0a0a0; }
+      .md { font-size: 11px; font-weight: 600; }
+      .lg { font-size: 18px; font-weight: 600; }
+      .ok { font-size: 8.5px; fill: #1fc4b3; }
+    </style>
+  </defs>
+  <rect width="669" height="367" fill="url(#bg)"/>
+  <rect width="132" height="367" fill="#060c0c"/>
+  <line x1="132" y1="0" x2="132" y2="367" stroke="#fff" stroke-opacity=".08"/>
+  <path d="M16 28V14l14 14V14" fill="none" stroke="#1fc4b3" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="38" y="26" class="md">Neolutions</text>
+  <circle cx="22" cy="54" r="3" fill="#1fc4b3" fill-opacity="0.35"/>
+  <text x="33" y="57" class="sm">Soporte</text>
+  <circle cx="22" cy="80" r="3" fill="#1fc4b3" fill-opacity="0.35"/>
+  <text x="33" y="83" class="sm">Infraestructura</text>
+  <rect x="9" y="95" width="114" height="22" rx="7" fill="#0f1e1d" stroke="#1fc4b3" stroke-opacity=".35"/>
+  <circle cx="22" cy="106" r="3" fill="#1fc4b3" fill-opacity="1"/>
+  <text x="33" y="109" class="sm" style="fill:#e8ecf5">Seguridad</text>
+  <circle cx="22" cy="132" r="3" fill="#1fc4b3" fill-opacity="0.35"/>
+  <text x="33" y="135" class="sm">Desarrollo</text>
+  <circle cx="22" cy="158" r="3" fill="#1fc4b3" fill-opacity="0.35"/>
+  <text x="33" y="161" class="sm">Marketing digital</text>
+  <text x="152" y="27" class="md">Seguridad</text>
+  <circle cx="584" cy="23" r="3" fill="#1fc4b3"/><text x="592" y="26" class="ok">Disponible</text>
+  <line x1="132" y1="44" x2="669" y2="44" stroke="#fff" stroke-opacity=".08"/>
+  <text x="152" y="76" class="lg">Seguridad</text>
+  <text x="152" y="93" class="sm">Vigila tu local desde el celular</text>
+  <rect x="152" y="108" width="243" height="112" rx="10" fill="#0a1413" stroke="#fff" stroke-opacity=".09"/>
+  <circle cx="273" cy="160" r="17" fill="none" stroke="#1fc4b3" stroke-opacity=".6" stroke-width="1.6"/><circle cx="273" cy="160" r="5.5" fill="#1fc4b3"/>
+  <circle cx="166" cy="204" r="3" fill="#1fc4b3"/><text x="175" y="207" class="sm" style="fill:#e8ecf5">Entrada</text>
+  <rect x="406" y="108" width="243" height="112" rx="10" fill="#0a1413" stroke="#fff" stroke-opacity=".09"/>
+  <circle cx="527" cy="160" r="17" fill="none" stroke="#1fc4b3" stroke-opacity=".6" stroke-width="1.6"/><circle cx="527" cy="160" r="5.5" fill="#1fc4b3"/>
+  <circle cx="420" cy="204" r="3" fill="#1fc4b3"/><text x="429" y="207" class="sm" style="fill:#e8ecf5">Caja</text>
+  <rect x="152" y="232" width="243" height="112" rx="10" fill="#0a1413" stroke="#fff" stroke-opacity=".09"/>
+  <circle cx="273" cy="284" r="17" fill="none" stroke="#1fc4b3" stroke-opacity=".6" stroke-width="1.6"/><circle cx="273" cy="284" r="5.5" fill="#1fc4b3"/>
+  <circle cx="166" cy="328" r="3" fill="#1fc4b3"/><text x="175" y="331" class="sm" style="fill:#e8ecf5">Almacén</text>
+  <rect x="406" y="232" width="243" height="112" rx="10" fill="#0a1413" stroke="#fff" stroke-opacity=".09"/>
+  <circle cx="527" cy="284" r="17" fill="none" stroke="#1fc4b3" stroke-opacity=".6" stroke-width="1.6"/><circle cx="527" cy="284" r="5.5" fill="#1fc4b3"/>
+  <circle cx="420" cy="328" r="3" fill="#1fc4b3"/><text x="429" y="331" class="sm" style="fill:#e8ecf5">Oficina</text>
+</svg>

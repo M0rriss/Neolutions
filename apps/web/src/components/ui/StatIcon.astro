@@ -1,0 +1,21 @@
+---
+// Iconos sólidos propios para las filas de estadísticas.
+const paths = {
+  grid: "M4 3h6a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm10 0h6a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1ZM4 13h6a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1Zm10 0h6a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1Z",
+  layers:
+    "M12 2.5 22 8l-10 5.5L2 8l10-5.5Zm-7.6 9.2L12 15.9l7.6-4.2L22 13l-10 5.5L2 13l2.4-1.3Zm0 5L12 20.9l7.6-4.2L22 18l-10 5.5L2 18l2.4-1.3Z",
+  steps:
+    "M5 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm5 2h11v2H10V5Zm-5 6a3 3 0 1 1 0 6 3 3 0 0 1 0-6Zm5 2h11v2H10v-2Zm-5 6a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Zm5 1.5h11v2H10v-2Z",
+  tag: "M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm5.2 7.2-1.4-1.4-5.3 5.3-2.3-2.3-1.4 1.4 3.7 3.7 6.7-6.7Z",
+  pin: "M12 2a7.5 7.5 0 0 1 7.5 7.5c0 5.2-6 11.2-6.9 12.1a.9.9 0 0 1-1.2 0C10.5 20.7 4.500 14.700 4.500 9.500A7.500 7.500 0 0 1 12 2Zm0 4.800a2.700 2.700 0 1 0 0 5.400 2.700 2.700 0 0 0 0-5.400Z",
+};
+
+interface Props {
+  name: keyof typeof paths;
+}
+const { name } = Astro.props;
+---
+
+<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+  <path d={paths[name]} fill-rule="evenodd"></path>
+</svg>

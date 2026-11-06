@@ -17,7 +17,7 @@ const { id, label, items } = Astro.props;
       <IconChevronDown size={14} />
     </span>
   </button>
-  <div class="panel" id={id} hidden>
+  <div class="panel" id={id}>
     <ul>
       {items.map((item) => (
         <li>
@@ -39,11 +39,12 @@ const { id, label, items } = Astro.props;
 
     const setOpen = (open: boolean) => {
       trigger.setAttribute("aria-expanded", String(open));
-      panel.hidden = !open;
+      panel.classList.toggle("is-open", open);
     };
 
     // Enter y Espacio llegan como click por ser un <button> nativo.
-    trigger.addEventListener("click", () => setOpen(panel.hidden !== false));
+    const isOpen = () => panel.classList.contains("is-open");
+    trigger.addEventListener("click", () => setOpen(!isOpen()));
     menu.addEventListener("pointerenter", (event) => {
       if (event.pointerType === "mouse") setOpen(true);
     });
@@ -51,7 +52,7 @@ const { id, label, items } = Astro.props;
       if (event.pointerType === "mouse") setOpen(false);
     });
     menu.addEventListener("keydown", (event) => {
-      if (event.key !== "Escape" || panel.hidden) return;
+      if (event.key !== "Escape" || !isOpen()) return;
       setOpen(false);
       trigger.focus();
     });
@@ -70,13 +71,13 @@ const { id, label, items } = Astro.props;
   .trigger {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-1);
-    min-height: var(--control-md);
-    padding-inline: var(--space-3);
+    gap: var(--nav-item-gap);
+    height: var(--nav-height);
+    padding-inline: var(--nav-item-padding-x);
     border: 0;
     background: none;
     color: var(--color-text-muted);
-    font-size: var(--text-sm);
+    font-size: var(--nav-font);
     font-weight: var(--weight-medium);
     cursor: pointer;
     transition: color var(--transition-fast);
@@ -92,6 +93,11 @@ const { id, label, items } = Astro.props;
     transition: transform var(--transition-fast);
   }
 
+  .chevron :global(svg) {
+    width: 1em;
+    height: 1em;
+  }
+
   .trigger[aria-expanded="true"] .chevron {
     transform: rotate(180deg);
   }
@@ -99,26 +105,42 @@ const { id, label, items } = Astro.props;
   .panel {
     position: absolute;
     top: 100%;
-    left: 0;
-    min-width: 15rem;
-    margin-top: var(--space-2);
-    padding: var(--space-2);
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-card);
-    background: var(--gradient-glass), var(--color-menu);
-    box-shadow: var(--shadow-glass);
+    left: 50%;
+    z-index: 1;
+    min-width: max(11vw, 11rem);
+    margin-top: 0.7vw;
+    padding: 0.425vw;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--nav-radius);
+    background:
+      radial-gradient(120% 90% at 12% 0%, color-mix(in srgb, var(--color-accent-500) 16%, transparent), transparent 55%),
+      var(--gradient-glass),
+      var(--color-menu);
+    box-shadow:
+      rgba(255, 255, 255, 0.14) 0 1px 0 0 inset,
+      rgba(0, 0, 0, 0.5) 0 16px 40px;
+    backdrop-filter: blur(24px) saturate(1.8);
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, -0.4vw);
+    transition:
+      opacity 250ms ease,
+      transform 250ms ease,
+      visibility 250ms;
   }
 
-  .panel[hidden] {
-    display: none;
+  .panel.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
   }
 
   /* Puente invisible para que el mouse no cierre el panel al bajar */
   .panel::before {
     content: "";
     position: absolute;
-    inset: calc(-1 * var(--space-3)) 0 auto;
-    height: var(--space-3);
+    inset: calc(-1 * var(--space-4)) 0 auto;
+    height: var(--space-4);
   }
 
   ul {
@@ -132,21 +154,23 @@ const { id, label, items } = Astro.props;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-4);
-    min-height: var(--control-md);
-    padding-inline: var(--space-3);
-    border-radius: var(--radius-sm);
-    color: var(--color-text-muted);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-medium);
+    padding: 0.64vw 0.765vw;
+    border-radius: 0.64vw;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: var(--nav-submenu-font);
     text-decoration: none;
     white-space: nowrap;
-    transition:
-      background-color var(--transition-fast),
-      color var(--transition-fast);
+    transition: color 200ms ease;
   }
 
   a:hover {
-    background: var(--color-border);
     color: var(--color-text);
+  }
+
+  a :global(svg) {
+    width: 1em;
+    height: 1em;
+    flex: none;
+    opacity: 0.5;
   }
 </style>

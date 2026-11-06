@@ -1,9 +1,9 @@
 ---
 import Button from "@/components/ui/Button.astro";
 import Container from "@/components/ui/Container.astro";
+import Icon from "@/components/ui/Icon.astro";
 import SectionHeading from "@/components/ui/SectionHeading.astro";
 import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
-import IconCheck from "@/components/ui/icons/IconCheck.astro";
 import { groupsSection } from "@/data/home";
 import { serviceGroups } from "@/data/serviceGroups";
 import { getServices } from "@/lib/services";
@@ -12,24 +12,28 @@ const services = await getServices();
 const featured = Math.floor(serviceGroups.length / 2);
 ---
 
-<section class="section">
+<section class="section groups">
   <Container>
     <div class="reveal">
       <SectionHeading eyebrow={groupsSection.eyebrow} title={groupsSection.title} align="center" />
     </div>
     <div class="grid">
       {serviceGroups.map((group, index) => (
-        <article
-          class:list={[
-            "plan reveal",
-            { "panel-beam": index === featured, "plan--featured": index === featured },
-          ]}
-        >
-          <span class="corner" aria-hidden="true" />
+        <article class:list={["plan reveal", { "plan--featured": index === featured }]}>
+          <span class="edge" aria-hidden="true"></span>
+          <span class="edge-hover" aria-hidden="true"></span>
+          <span class="halo" aria-hidden="true"></span>
+          <span class="glow" aria-hidden="true"></span>
           <div class="head">
-            <h3>{group.title}</h3>
-            <p>{group.description}</p>
+            <h3 class="metal">{group.title}</h3>
+            {index === featured && (
+              <span class="tag">
+                <Icon name="spark" size={12} />
+                {groupsSection.badge}
+              </span>
+            )}
           </div>
+          <p class="desc">{group.description}</p>
           <div class="buttons">
             <WhatsAppButton
               message={group.whatsappMessage}
@@ -45,12 +49,7 @@ const featured = Math.floor(serviceGroups.length / 2);
               .filter((service) => service.data.group === group.id)
               .map((service) => (
                 <li>
-                  <a href={`/servicios/${service.id}`}>
-                    <span class="check">
-                      <IconCheck size={14} />
-                    </span>
-                    {service.data.title}
-                  </a>
+                  <a href={`/servicios/${service.id}`}>{service.data.title}</a>
                 </li>
               ))}
           </ul>
@@ -71,52 +70,112 @@ const featured = Math.floor(serviceGroups.length / 2);
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
-    overflow: hidden;
-    padding: var(--space-6) var(--space-5);
-    border: 1px solid var(--color-border);
+    padding: var(--space-7) var(--space-5);
     border-radius: var(--radius-card);
-    background: var(--color-black);
-    transition: border-color var(--transition-base);
+    background: radial-gradient(
+      68% 69% at 66% 3%,
+      var(--color-card-top) 19%,
+      var(--color-card-base) 73%
+    );
   }
 
-  .plan:hover {
-    border-color: var(--color-card-border-solid);
-  }
-
-  .plan--featured {
-    overflow: visible;
-    border: 6px solid var(--color-card-border);
-  }
-
-  /* Luz verde que baja desde la esquina superior */
-  .corner {
+  /* Dos capas de borde: una tenue siempre visible y otra gruesa que aparece con el hover.
+     La máscara deja ver solo el contorno, sin tocar el contenido. */
+  .edge,
+  .edge-hover {
     position: absolute;
-    top: -6rem;
-    right: 10%;
-    width: 12rem;
-    height: 16rem;
-    background: var(--color-accent-500);
-    filter: blur(70px);
-    opacity: 0.14;
+    inset: 0;
+    border-radius: inherit;
     pointer-events: none;
-    transition: opacity var(--transition-base);
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#fff 0 0) content-box exclude,
+      linear-gradient(#fff 0 0);
   }
 
-  .plan:hover .corner {
-    opacity: 0.3;
+  .edge {
+    padding: 1px;
+    background: linear-gradient(
+      color-mix(in srgb, var(--color-accent-500) 30%, transparent),
+      transparent 60%
+    );
   }
 
-  .head,
-  .buttons,
-  .links {
-    position: relative;
+  .edge-hover {
+    padding: var(--plan-edge, 5px);
+    background: linear-gradient(
+      color-mix(in srgb, var(--color-accent-400) 34%, transparent),
+      transparent 50%
+    );
+    opacity: 0;
+    transition: opacity 800ms ease;
+  }
+
+  /* Línea de luz sobre el borde superior */
+  .glow {
+    position: absolute;
+    top: 0;
+    left: 10%;
+    width: 80%;
+    height: var(--plan-edge, 5px);
+    background: radial-gradient(50% 100% at 50% 50%, var(--color-mint), var(--color-accent-400) 45%, transparent);
+    opacity: 0;
+    transition: opacity 800ms ease-in 150ms;
+  }
+
+  /* Elipse detrás de la tarjeta: su luz asoma por encima del borde */
+  .halo {
+    position: absolute;
+    top: 1.3%;
+    left: 15%;
+    z-index: -1;
+    width: 70%;
+    height: 5.7%;
+    border-radius: 50%;
+    box-shadow:
+      inset 0 2px 20px 0 var(--color-accent-500),
+      0 -10px 50px 1px var(--color-accent-500);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 800ms ease-in 150ms;
+  }
+
+  .plan:hover .edge-hover,
+  .plan:hover .glow,
+  .plan--featured .edge-hover,
+  .plan--featured .glow {
+    opacity: 1;
+  }
+
+  .plan:hover .halo,
+  .plan--featured .halo {
+    opacity: 0.85;
+  }
+
+  .tag {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--color-text);
+    font-size: var(--text-xs);
+    white-space: nowrap;
   }
 
   .head {
-    display: grid;
-    gap: var(--space-3);
-    min-height: 9rem;
-    align-content: start;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-height: 2.6em;
+    font-size: var(--text-2xl);
   }
 
   h3 {
@@ -126,9 +185,11 @@ const featured = Math.floor(serviceGroups.length / 2);
     line-height: var(--leading-snug);
   }
 
-  .head p {
-    color: var(--color-text-muted);
+  .desc {
+    min-height: 3lh;
+    color: var(--color-text-subtle);
     font-size: var(--text-sm);
+    line-height: 1.4;
   }
 
   .buttons {
@@ -141,17 +202,31 @@ const featured = Math.floor(serviceGroups.length / 2);
   }
 
   .links {
+    position: relative;
     display: grid;
+    gap: var(--space-2);
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
+  .links li {
+    position: relative;
+    padding-left: 0.85rem;
+  }
+
+  .links li::before {
+    content: "";
+    position: absolute;
+    top: 0.6em;
+    left: 0.2rem;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--color-text-subtle);
+  }
+
   .links a {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    min-height: var(--control-md);
     color: var(--color-text-muted);
     font-size: var(--text-sm);
     text-decoration: none;
@@ -162,14 +237,49 @@ const featured = Math.floor(serviceGroups.length / 2);
     color: var(--color-accent-400);
   }
 
-  .check {
-    display: flex;
-    color: var(--color-accent-400);
-  }
-
   @media (min-width: 1024px) {
+    .groups :global(.container) {
+      max-width: none;
+      padding-inline: 10.5vw;
+    }
+
     .grid {
+      --plan-edge: 0.457vw;
       grid-template-columns: repeat(3, 1fr);
+      gap: 1.33vw;
+    }
+
+    .plan {
+      gap: 1.05vw;
+      padding: 3.24vw 1.7vw 3.72vw;
+      border-radius: 1.4vw;
+    }
+
+    .head {
+      font-size: 1.9125vw;
+    }
+
+    h3 {
+      font-size: 1.9125vw;
+    }
+
+    .tag {
+      padding: 0.45vw 0.72vw;
+      font-size: max(0.64vw, 0.625rem);
+    }
+
+    .desc {
+      font-size: max(0.85vw, 0.75rem);
+    }
+
+    .buttons :global(.btn) {
+      min-height: var(--nav-cta-height);
+      padding-block: 0;
+      font-size: var(--nav-font);
+    }
+
+    .links a {
+      font-size: max(0.85vw, 0.75rem);
     }
   }
 </style>

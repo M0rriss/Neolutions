@@ -31,11 +31,14 @@
   --color-accent-500: #00a999;
   --color-accent-400: #1fc4b3;
   --color-accent-100: rgba(0, 169, 153, 0.14);
+  --color-badge: #021b19;
+  --color-card-top: #08120f;
+  --color-card-base: #010101;
 
   /* Texto */
   --color-text: #e8ecf5;
-  --color-text-muted: #c9c2dc;
-  --color-text-subtle: #9b92b4;
+  --color-text-muted: #a0a0a0;
+  --color-text-subtle: #8a8a8a;
   --color-text-on-accent: #0d0a17;
 
   /* Estados */
@@ -46,6 +49,12 @@
   /* Líneas */
   --color-border: rgba(255, 255, 255, 0.1);
   --color-border-strong: rgba(255, 255, 255, 0.18);
+  --color-divider: rgba(255, 255, 255, 0.07);
+  --color-table-top: #02262a;
+  --color-table-base: #00110f;
+  --color-rail-top: #04141a;
+  --color-rail-mid: #0d3f3a;
+  --color-rail-end: #4a9e96;
 
   /* Secciones claras */
   --color-surface-light: #f7f6fb;
@@ -56,8 +65,8 @@
   --color-danger-on-light: #b3261e;
 
   /* Tipografía */
-  --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Familjen Grotesk Variable", "Inter Variable", system-ui, sans-serif;
+  --font-sans: "Acid Grotesk", "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Acid Grotesk", "Inter Variable", system-ui, sans-serif;
   --gradient-metal: radial-gradient(855.92% 46.42% at 48.25% 50.79%, #ffffff 0%, #999999 100%);
   --gradient-gloss: linear-gradient(100deg, #ffffff 30%, #bfe9e3 100%);
 
@@ -116,7 +125,34 @@
   --float-size: 56px;
   --announcement-height: 40px;
   --header-height: 64px;
+  --header-padding-x: var(--container-padding-x);
   --icon-circle: 44px;
+
+  /* Navbar: en celular usa la escala normal; desde 1024px escala con la pantalla */
+  --nav-font: var(--text-sm);
+  --nav-submenu-font: var(--text-sm);
+  --nav-height: var(--control-md);
+  --nav-radius: var(--radius-nav);
+  --nav-padding-x: var(--space-2);
+  --nav-gap: var(--space-1);
+  --nav-item-padding-x: var(--space-3);
+  --nav-item-gap: var(--space-1);
+  --nav-cta-height: var(--control-md);
+  --logo-mark: 28px;
+  --logo-word: var(--text-xl);
+
+  /* Hero */
+  --hero-title-size: var(--text-5xl);
+  --hero-title-leading: var(--leading-tight);
+  --hero-highlight-size: var(--text-2xl);
+  --hero-text-size: var(--text-lg);
+  --hero-button-height: var(--control-lg);
+  --hero-button-font: var(--text-base);
+  --hero-frame-width: 100%;
+  --hero-frame-border: 4px;
+  --hero-frame-radius: var(--radius-card);
+  --hero-frame-top: auto;
+  --parallax-reserve: calc(var(--space-9) + var(--space-8));
 
   /* Capas */
   --z-header: 40;
@@ -130,8 +166,38 @@
   }
 }
 
+/* Escala fluida: las proporciones se mantienen de 1024px a pantallas grandes.
+   max() deja un mínimo legible en anchos bajos. */
 @media (min-width: 1024px) {
   :root {
-    --header-height: 72px;
+    --header-height: max(5vw, 64px);
+    --header-padding-x: 5vw;
+
+    --nav-font: max(0.85vw, 10.88px);
+    --nav-submenu-font: max(0.744vw, 9.52px);
+    --nav-height: max(2.87vw, 36px);
+    --nav-radius: 1.0625vw;
+    --nav-padding-x: 0.425vw;
+    --nav-gap: 0.2125vw;
+    --nav-item-padding-x: 0.935vw;
+    --nav-item-gap: 0.2975vw;
+    --nav-cta-height: max(2.34vw, 30px);
+    --nav-cta-padding-x: 1.1vw;
+    --nav-cta-gap: 0.8vw;
+    --logo-mark: max(1.75vw, 22px);
+    --logo-word: max(1.19vw, 0.9375rem);
+
+    --text-4xl: 3.1875vw;
+
+    --hero-title-size: 4.25vw;
+    --hero-title-leading: 1;
+    --hero-highlight-size: 1.594vw;
+    --hero-text-size: max(0.956vw, 0.9375rem);
+    --hero-button-height: max(2.42vw, 40px);
+    --hero-button-font: max(0.85vw, 0.8125rem);
+    --hero-frame-width: 81.7vw;
+    --hero-frame-border: 0.55vw;
+    --hero-frame-radius: 2vw;
+    --hero-frame-top: 78.75svh;
   }
 }

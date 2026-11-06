@@ -53,11 +53,17 @@ function initPageEntrance() {
       { y: 240, opacity: 0 },
       { y: 0, opacity: 1, duration: 1.1, ease: RISE, delay: 0.25 },
     );
-    gsap.to(mock, {
-      y: 120,
-      ease: "none",
-      scrollTrigger: { trigger: first, start: "top top", end: "bottom top", scrub: 0.6 },
-    });
+    // Inicio explícito: con gsap.to tomaría los 240 px de la entrada y saltaría al primer scroll.
+    gsap.fromTo(
+      mock,
+      { y: 0 },
+      {
+        y: 120,
+        ease: "none",
+        immediateRender: false,
+        scrollTrigger: { trigger: first, start: "top top", end: "bottom top", scrub: 0.6 },
+      },
+    );
     gsap.to(first.querySelector(".copy"), {
       y: -70,
       opacity: 0,
@@ -127,24 +133,63 @@ function initCounters() {
   });
 }
 
+/** Estadísticas: la sección queda fija y cada fila se enciende con el scroll. */
+function initStats() {
+  const section = document.querySelector<HTMLElement>("#g-stats");
+  const rows = section ? gsap.utils.toArray<HTMLElement>("[data-stat]") : [];
+  if (!section || !rows.length) return;
+
+  gsap.matchMedia().add("(min-width: 1024px)", () => {
+    gsap.set(rows.slice(1), { opacity: 0.25 });
+    const timeline = gsap.timeline({
+      scrollTrigger: { trigger: section, start: "top top", end: "+=150%", pin: true, scrub: 0.6 },
+    });
+    rows.slice(1).forEach((row, index) => {
+      timeline.to(row, { opacity: 1, duration: 0.3, ease: "none" }, index * 0.6);
+    });
+    // Tramo final con todas encendidas, antes de soltar la sección.
+    timeline.to({}, { duration: 0.5 });
+  });
+}
+
+/** Soluciones: la sección queda fija y cada panel se funde en el siguiente al hacer scroll. */
+function initShowcase() {
+  const section = document.querySelector<HTMLElement>("#g-showcase");
+  if (!section) return;
+  const shots = gsap.utils.toArray<HTMLElement>("[data-shot]");
+  const features = gsap.utils.toArray<HTMLElement>("[data-feature]");
+
+  gsap.matchMedia().add("(min-width: 1024px)", () => {
+    gsap.set(features.slice(1), { opacity: 0.2 });
+    const timeline = gsap.timeline({
+      scrollTrigger: { trigger: section, start: "top top", end: "+=200%", pin: true, scrub: 0.6 },
+    });
+    shots.slice(1).forEach((shot, index) => {
+      timeline.to(shot, { opacity: 1, duration: 0.5, ease: "none" }, index + 0.5);
+      timeline.to(features[index + 1], { opacity: 1, duration: 0.5, ease: "none" }, index + 0.5);
+    });
+    timeline.to({}, { duration: 0.5 });
+  });
+}
+
 /** Pasos: una banda de luz recorre el riel y solo el paso activo se enciende. */
 function initProcess() {
   const section = document.querySelector<HTMLElement>("#g-process");
-  const band = section?.querySelector<HTMLElement>("[data-rail-fill]");
+  const band = section?.querySelector<HTMLElement>("[data-rail]");
   const steps = section ? gsap.utils.toArray<HTMLElement>("[data-step]") : [];
   if (!section || !band) return;
 
   gsap.matchMedia().add("(min-width: 1024px)", () => {
-    // El número sigue encendido: solo se atenúa el texto de cada paso.
-    const textOf = (step: HTMLElement) => step.querySelectorAll(":scope > :not(.number)");
-    steps.slice(1).forEach((step) => gsap.set(textOf(step), { opacity: 0.35 }));
+    // Número y etiqueta siguen encendidos: solo se atenúan título y descripción.
+    const textOf = (step: HTMLElement) => step.querySelectorAll("h3, .text");
+    steps.slice(1).forEach((step) => gsap.set(textOf(step), { opacity: 0.4 }));
     const timeline = gsap.timeline({
       scrollTrigger: { trigger: section, start: "top top", end: "+=180%", pin: true, scrub: 0.6 },
     });
     timeline.fromTo(
       band,
-      { yPercent: -100 },
-      { yPercent: 300, ease: "none", duration: steps.length },
+      { "--band": "-16%" },
+      { "--band": "116%", ease: "none", duration: steps.length },
       0,
     );
     steps.forEach((step, index) => {
@@ -152,62 +197,10 @@ function initProcess() {
         timeline.to(textOf(step), { opacity: 1, duration: 0.3, ease: "none" }, index - 0.15);
       }
       if (index < steps.length - 1) {
-        timeline.to(textOf(step), { opacity: 0.45, duration: 0.3, ease: "none" }, index + 0.7);
+        timeline.to(textOf(step), { opacity: 0.4, duration: 0.3, ease: "none" }, index + 0.7);
       }
     });
   });
-}
-
-/** Destellos de puntos en las tarjetas; solo se anima opacity. */
-function initSparkles() {
-  const hosts = document.querySelectorAll<HTMLElement>(
-    ".panel-beam, .card, .channel, .guided, a.tile, article.tile, li.tile, .frame, .final .panel, .plan",
-  );
-  hosts.forEach((host) => {
-    if (getComputedStyle(host).position === "static") host.style.position = "relative";
-    const layer = document.createElement("span");
-    layer.className = "sparkles";
-    layer.setAttribute("aria-hidden", "true");
-    for (let i = 0; i < 18; i += 1) {
-      const dot = document.createElement("span");
-      dot.className = "sparkle";
-      dot.style.left = `${4 + Math.floor(Math.random() * 12) * 3.2}%`;
-      dot.style.top = `${4 + Math.floor(Math.random() * 7) * 7}%`;
-      dot.style.animationDelay = `${(-Math.random() * 2.4).toFixed(2)}s`;
-      layer.append(dot);
-    }
-    host.prepend(layer);
-  });
-}
-
-/** Resplandor de tarjetas y luz del botón: siguen al cursor con una sola escucha. */
-function initPointerEffects() {
-  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-  const selector = ".card, .channel, a.tile, article.tile, .action, .row, .item, .plan";
-  document.querySelectorAll<HTMLElement>(selector).forEach((item) => {
-    item.dataset.spot = "";
-    if (getComputedStyle(item).position === "static") item.style.position = "relative";
-  });
-  document.addEventListener(
-    "pointermove",
-    (event) => {
-      const element = event.target instanceof Element ? event.target : null;
-      const target = element?.closest<HTMLElement>("[data-spot]");
-      if (target) {
-        const box = target.getBoundingClientRect();
-        target.style.setProperty("--x", `${event.clientX - box.left}px`);
-        target.style.setProperty("--y", `${event.clientY - box.top}px`);
-      }
-      // Los formularios React aparecen después: se buscan en cada movimiento cercano.
-      document.querySelectorAll<HTMLElement>(".btn--primary").forEach((button) => {
-        const box = button.getBoundingClientRect();
-        if (Math.abs(event.clientY - (box.top + box.height / 2)) > 120) return;
-        const position = gsap.utils.clamp(0, 100, ((event.clientX - box.left) / box.width) * 100);
-        button.style.setProperty("--lx", `${position}%`);
-      });
-    },
-    { passive: true },
-  );
 }
 
 function initCarousels() {
@@ -356,54 +349,95 @@ async function initScene() {
 
   // Three.js llega aparte: en celular nunca se descarga.
   const { sceneState, startScene } = await import("./scene");
-  const isHome = Boolean(document.querySelector("#g-hold"));
+  const isHome = Boolean(document.querySelector("#g-stats"));
   // Fuera de la portada la escena aparece solo al llegar a los pasos.
   if (!isHome) Object.assign(sceneState, { opacity: 0, mix: 0, y: 0, scale: 0.95, spin: 0 });
   await startScene(canvas);
   document.documentElement.classList.add("has-scene");
   gsap.fromTo(canvas, { opacity: 0 }, { opacity: 1, duration: 1.2 });
 
-  // Cada tramo declara su inicio: si no, GSAP tomaría el valor inicial de la página
-  // y la escena saltaría al entrar en un tramo nuevo.
-  const segment = (
-    trigger: string,
-    start: string,
-    end: string,
-    from: gsap.TweenVars,
-    to: gsap.TweenVars,
-  ) => {
-    if (!document.querySelector(trigger)) return;
-    gsap.fromTo(sceneState, from, {
-      ...to,
-      ease: "none",
-      immediateRender: false,
-      scrollTrigger: { trigger, start, end, scrub: 1 },
-    });
+  // Una sola función del scroll: cada posición da siempre el mismo estado del globo.
+  // Evita que varias animaciones escriban la misma propiedad y dejen un resultado distinto
+  // según la velocidad del scroll.
+  type Pose = Pick<typeof sceneState, "y" | "scale" | "spin" | "mix" | "opacity">;
+  type Stop = { at: number; pose: Pose };
+
+  const topOf = (selector: string) => {
+    const element = document.querySelector<HTMLElement>(selector);
+    if (!element) return null;
+    const box = (element.closest(".pin-spacer") ?? element).getBoundingClientRect();
+    return box.top + window.scrollY;
+  };
+  const endOf = (selector: string) => {
+    const element = document.querySelector<HTMLElement>(selector);
+    if (!element) return null;
+    const spacer = element.closest<HTMLElement>(".pin-spacer");
+    const top = topOf(selector) ?? 0;
+    return spacer ? top + spacer.offsetHeight - element.offsetHeight : top;
   };
 
-  segment(
-    "#g-hold",
-    "top 75%",
-    "top top",
-    { y: -2.15, scale: 1.6, spin: -0.75 },
-    { y: 0.02, scale: 1.42, spin: 0 },
-  );
-  segment(
-    "#g-services",
-    "top 80%",
-    "top 5%",
-    { mix: 0, y: 0.02, scale: 1.42 },
-    { mix: 1, y: -0.12, scale: 1.08 },
-  );
-  segment("#g-table", "top 90%", "top 30%", { opacity: 1 }, { opacity: 0.12 });
-  segment(
-    "#g-process",
-    "top 90%",
-    "top top",
-    isHome ? { mix: 1, opacity: 0.12, y: -0.12, scale: 1.08 } : { opacity: 0 },
-    isHome ? { mix: 0, opacity: 1, y: 0, scale: 0.95 } : { opacity: 1 },
-  );
-  segment(isHome ? "#g-why" : ".final", "top 90%", "top 40%", { opacity: 1 }, { opacity: 0 });
+  const buildStops = (): Stop[] => {
+    const vh = window.innerHeight;
+    const stops: Stop[] = [];
+    const add = (at: number | null, offset: number, pose: Pose) => {
+      if (at !== null) stops.push({ at: at + offset * vh, pose });
+    };
+    if (isHome) {
+      const hero = { y: -1.66, scale: 1.55, spin: -0.75, mix: 0, opacity: 1 };
+      const center = { y: 0.02, scale: 1.3, spin: -0.55, mix: 0, opacity: 1 };
+      const turned = { ...center, spin: -0.35 };
+      const chip = { y: -0.12, scale: 1.08, spin: -0.35, mix: 1, opacity: 1 };
+      const steps = { y: 0, scale: 0.95, spin: 2.2, mix: 0, opacity: 1 };
+      add(topOf("#g-stats"), -0.85, hero);
+      add(topOf("#g-stats"), 0, center);
+      add(endOf("#g-stats"), 0, turned);
+      add(topOf("#g-services"), -0.8, turned);
+      add(topOf("#g-services"), -0.05, chip);
+      add(topOf("#g-table"), -1, chip);
+      add(topOf("#g-table"), -0.6, { ...chip, opacity: 0.04 });
+      add(topOf("#g-process"), -0.5, { ...chip, opacity: 0.04 });
+      add(topOf("#g-process"), 0, steps);
+      add(topOf("#g-showcase"), -0.9, steps);
+      add(topOf("#g-showcase"), -0.4, { ...steps, opacity: 0 });
+    } else {
+      const on = { y: 0, scale: 0.95, spin: 0, mix: 0, opacity: 1 };
+      add(topOf("#g-process"), -0.9, { ...on, opacity: 0 });
+      add(topOf("#g-process"), 0, on);
+      add(topOf(".final"), -0.9, on);
+      add(topOf(".final"), -0.4, { ...on, opacity: 0 });
+    }
+    return stops.sort((a, b) => a.at - b.at);
+  };
+
+  const sample = (stops: Stop[], position: number): Pose | null => {
+    if (!stops.length) return null;
+    if (position <= stops[0].at) return stops[0].pose;
+    for (let i = 1; i < stops.length; i += 1) {
+      const next = stops[i];
+      if (position > next.at) continue;
+      const previous = stops[i - 1];
+      const span = next.at - previous.at || 1;
+      const t = (position - previous.at) / span;
+      const mixed = {} as Pose;
+      for (const key of Object.keys(next.pose) as (keyof Pose)[]) {
+        mixed[key] = previous.pose[key] + (next.pose[key] - previous.pose[key]) * t;
+      }
+      return mixed;
+    }
+    return stops[stops.length - 1].pose;
+  };
+
+  let stops = buildStops();
+  ScrollTrigger.addEventListener("refresh", () => {
+    stops = buildStops();
+  });
+  gsap.ticker.add(() => {
+    const target = sample(stops, window.scrollY);
+    if (!target) return;
+    for (const key of Object.keys(target) as (keyof Pose)[]) {
+      sceneState[key] += (target[key] - sceneState[key]) * 0.09;
+    }
+  });
   ScrollTrigger.refresh();
 }
 
@@ -418,14 +452,14 @@ if (prefersReducedMotion()) {
 } else {
   window.__motion = true;
   initLenis();
-  initSparkles();
-  initPointerEffects();
   document.fonts.ready.then(() => {
     initPageEntrance();
     initHeadings();
     initReveals();
     initCounters();
+    initStats();
     initProcess();
+    initShowcase();
     initCarousels();
     initOrbs();
     ScrollTrigger.refresh();

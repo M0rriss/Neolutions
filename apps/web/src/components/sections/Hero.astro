@@ -2,12 +2,8 @@
 import Badge from "@/components/ui/Badge.astro";
 import Button from "@/components/ui/Button.astro";
 import Container from "@/components/ui/Container.astro";
-import Icon from "@/components/ui/Icon.astro";
 import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
 import { hero } from "@/data/home";
-import { getServices } from "@/lib/services";
-
-const preview = (await getServices()).slice(0, 4);
 ---
 
 <section class="hero">
@@ -37,22 +33,10 @@ const preview = (await getServices()).slice(0, 4);
     />
 
     <div class="panel-beam console" aria-hidden="true">
-      <div class="console-top">
-        <span class="dot"></span>
-        <span>{hero.consoleLabel}</span>
-      </div>
-      <ul class="rows">
-        {preview.map((service) => (
-          <li class="row">
-            <span class="row-icon">
-              <Icon name={service.data.icon} size={20} />
-            </span>
-            <span class="row-name">{service.data.title}</span>
-            <span class="row-tag">{service.data.tagline}</span>
-            <Badge variant="status">Disponible</Badge>
-          </li>
-        ))}
-      </ul>
+      <picture>
+        <source media="(min-width: 768px)" srcset="/images/dashboard/panel-escritorio.svg" />
+        <img src="/images/dashboard/panel-movil.svg" alt="" width="319" height="576" />
+      </picture>
     </div>
   </Container>
 </section>
@@ -61,6 +45,8 @@ const preview = (await getServices()).slice(0, 4);
   .hero {
     margin-top: calc(-1 * var(--header-height));
     padding-top: calc(var(--header-height) + var(--space-6));
+    /* Reserva el recorrido del parallax para que el panel no pise la sección siguiente */
+    padding-bottom: var(--parallax-reserve);
     background: radial-gradient(
       70rem 30rem at 50% -8%,
       color-mix(in srgb, var(--color-accent-500) 26%, transparent),
@@ -79,27 +65,37 @@ const preview = (await getServices()).slice(0, 4);
 
   h1 {
     font-family: var(--font-display);
-    font-size: var(--text-5xl);
+    font-size: var(--hero-title-size);
     font-weight: var(--weight-regular);
+    /* El degradado recorta el texto a su caja: sin este aire se corta la g */
+    padding-bottom: 0.14em;
+    margin-bottom: -0.14em;
+    line-height: var(--hero-title-leading);
     letter-spacing: -0.02em;
   }
 
   .highlight {
     font-family: var(--font-display);
-    font-size: var(--text-2xl);
-    font-weight: var(--weight-semibold);
+    color: var(--color-accent-400);
+    font-size: var(--hero-highlight-size);
+    font-weight: var(--weight-medium);
     line-height: var(--leading-snug);
   }
 
   .text {
-    max-width: 34rem;
+    max-width: 34em;
     color: var(--color-text-muted);
-    font-size: var(--text-lg);
+    font-size: var(--hero-text-size);
   }
 
   .actions {
     width: 100%;
     margin-top: var(--space-2);
+  }
+
+  .actions :global(.btn) {
+    min-height: var(--hero-button-height);
+    font-size: var(--hero-button-font);
   }
 
   .fallback {
@@ -113,79 +109,53 @@ const preview = (await getServices()).slice(0, 4);
   }
 
   .console {
-    margin-top: var(--space-5);
-    text-align: left;
+    width: var(--hero-frame-width);
+    margin: var(--space-5) auto 0;
+    overflow: hidden;
+    border-width: var(--hero-frame-border);
+    border-radius: var(--hero-frame-radius);
   }
 
-  .console-top {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-4) var(--space-5);
-    border-bottom: 1px solid var(--color-border);
-    color: var(--color-text-subtle);
-    font-size: var(--text-xs);
-    font-weight: var(--weight-medium);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .dot {
-    width: var(--space-2);
-    height: var(--space-2);
-    border-radius: var(--radius-pill);
-    background: var(--color-success);
-  }
-
-  .row {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-3) var(--space-5);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .row-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: none;
-    width: var(--icon-circle);
-    height: var(--icon-circle);
-    border-radius: var(--radius-pill);
-    background: var(--color-accent-100);
-    color: var(--color-accent-400);
-  }
-
-  .row-name {
-    flex: 1;
-    min-width: 0;
-    font-size: var(--text-sm);
-    font-weight: var(--weight-semibold);
-  }
-
-  .row-tag {
-    display: none;
-    flex: 1;
-    color: var(--color-text-muted);
-    font-size: var(--text-sm);
+  .console img {
+    width: 100%;
+    height: auto;
   }
 
   @media (min-width: 768px) {
     .actions {
       justify-content: center;
     }
-
-    .row-tag {
-      display: block;
-    }
   }
 
   @media (min-width: 1024px) {
+    .hero {
+      position: relative;
+    }
+
+    .hero :global(.container) {
+      max-width: none;
+    }
+
+    /* El texto ocupa hasta donde empieza el panel: misma altura relativa en toda pantalla */
+    .copy {
+      align-content: start;
+      min-height: calc(var(--hero-frame-top) - var(--header-height) - var(--space-6));
+    }
+
+    .console {
+      margin-top: 0;
+      margin-inline: calc((100% - var(--hero-frame-width)) / 2);
+    }
+
     .fallback {
-      height: 23svh;
+      position: absolute;
+      top: 42svh;
+      left: 50%;
       width: auto;
+      height: 34svh;
+      margin: 0;
       object-fit: contain;
+      transform: translateX(-50%);
     }
 
     :global(.has-scene) .fallback {

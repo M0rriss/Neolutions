@@ -26,7 +26,12 @@ const initials = (name: string) =>
 
 <PageLayout title={about.title} description={about.description}>
   <GlobeStage />
-  <PageHero badge={about.eyebrow} title={about.headline} text={about.intro}>
+  <PageHero
+    badge={about.eyebrow}
+    title={about.headline}
+    text={about.intro}
+    image="/images/showcase/soporte.svg"
+  >
     <div class="actions">
       <WhatsAppButton size="lg" origen="nosotros" />
       <Button variant="secondary" size="lg" href="/servicios">

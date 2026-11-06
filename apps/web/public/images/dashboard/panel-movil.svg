@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="319" height="576" viewBox="0 0 319 576" role="img" aria-label="Panel de servicios de Neolutions en el celular">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#07110f"/>
+      <stop offset="1" stop-color="#05070d"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c1a18"/>
+      <stop offset="1" stop-color="#090e12"/>
+    </linearGradient>
+    <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1fc4b3" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#1fc4b3" stop-opacity="0"/>
+    </linearGradient>
+    <style>
+      text { font-family: "Inter Variable", Inter, "Segoe UI", system-ui, sans-serif; fill: #e8ecf5; }
+      .sm { font-size: 11px; fill: #c9c2dc; }
+      .md { font-size: 13px; font-weight: 600; }
+      .ok { font-size: 10px; fill: #2ecc8f; }
+    </style>
+  </defs>
+
+  <rect width="319" height="576" fill="url(#bg)"/>
+  <path d="M20 36V20l16 16V20" fill="none" stroke="#1fc4b3" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="46" y="33" class="md">Neolutions</text>
+  <circle cx="218" cy="28" r="3.5" fill="#2ecc8f"/>
+  <text x="228" y="32" class="ok">Disponible</text>
+  <line x1="0" y1="54" x2="319" y2="54" stroke="#fff" stroke-opacity=".08"/>
+
+  <rect x="16" y="70" width="287" height="178" rx="16" fill="url(#card)" stroke="#fff" stroke-opacity=".09"/>
+  <text x="32" y="98" class="sm">Tu negocio, en un solo lugar</text>
+  <text x="32" y="128" style="font-size:19px;font-weight:600">7 servicios, un solo equipo</text>
+  <path d="M32 226 C 80 218, 110 200, 150 200 S 230 166, 287 146 V 236 H 32 Z" fill="url(#area)"/>
+  <path d="M32 226 C 80 218, 110 200, 150 200 S 230 166, 287 146" fill="none" stroke="#1fc4b3" stroke-width="2"/>
+  <circle cx="287" cy="146" r="4" fill="#bff3e9"/>
+
+  <g>
+    <rect x="16" y="264" width="287" height="62" rx="14" fill="url(#card)" stroke="#fff" stroke-opacity=".09"/>
+    <circle cx="44" cy="295" r="14" fill="#1fc4b3" fill-opacity=".16"/>
+    <circle cx="44" cy="295" r="4" fill="#1fc4b3"/>
+    <text x="70" y="292" class="md" style="font-size:12px">Soporte e infraestructura</text>
+    <text x="70" y="309" class="ok">Disponible</text>
+
+    <rect x="16" y="338" width="287" height="62" rx="14" fill="url(#card)" stroke="#fff" stroke-opacity=".09"/>
+    <circle cx="44" cy="369" r="14" fill="#f2b544" fill-opacity=".16"/>
+    <circle cx="44" cy="369" r="4" fill="#f2b544"/>
+    <text x="70" y="366" class="md" style="font-size:12px">Seguridad</text>
+    <text x="70" y="383" class="ok">Disponible</text>
+
+    <rect x="16" y="412" width="287" height="62" rx="14" fill="url(#card)" stroke="#fff" stroke-opacity=".09"/>
+    <circle cx="44" cy="443" r="14" fill="#a78bfa" fill-opacity=".16"/>
+    <circle cx="44" cy="443" r="4" fill="#a78bfa"/>
+    <text x="70" y="440" class="md" style="font-size:12px">Desarrollo y marketing digital</text>
+    <text x="70" y="457" class="ok">Disponible</text>
+  </g>
+
+  <rect x="16" y="490" width="287" height="66" rx="33" fill="#0f1e1d" stroke="#1fc4b3" stroke-opacity=".4"/>
+  <text x="159.5" y="528" text-anchor="middle" class="md" style="fill:#bff3e9">Cotización gratis</text>
+</svg>

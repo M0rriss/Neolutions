@@ -30,11 +30,17 @@ const { eyebrow, title, subtitle, align = "left" } = Astro.props;
   }
 
   .eyebrow {
-    color: var(--color-accent-400);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-semibold);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    justify-self: start;
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    background: var(--color-badge);
+    color: var(--color-mint);
+    font-size: max(0.64vw, 0.6875rem);
+  }
+
+  .heading--center .eyebrow {
+    justify-self: center;
   }
 
   h2 {
@@ -45,6 +51,6 @@ const { eyebrow, title, subtitle, align = "left" } = Astro.props;
 
   .subtitle {
     color: var(--color-text-muted);
-    font-size: var(--text-lg);
+    font-size: var(--hero-text-size);
   }
 </style>

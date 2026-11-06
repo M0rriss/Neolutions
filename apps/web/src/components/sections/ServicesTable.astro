@@ -3,8 +3,8 @@ import Badge from "@/components/ui/Badge.astro";
 import Container from "@/components/ui/Container.astro";
 import Icon from "@/components/ui/Icon.astro";
 import SectionHeading from "@/components/ui/SectionHeading.astro";
-import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
 import IconArrowRight from "@/components/ui/icons/IconArrowRight.astro";
+import IconChevronRight from "@/components/ui/icons/IconChevronRight.astro";
 import { servicesSection } from "@/data/home";
 import { serviceGroups } from "@/data/serviceGroups";
 import { getServices, groupTitle } from "@/lib/services";
@@ -12,9 +12,11 @@ import { getServices, groupTitle } from "@/lib/services";
 interface Props {
   /** En /servicios no hace falta el enlace a sí misma */
   showAllLink?: boolean;
+  /** La portada muestra la tabla sola; /servicios conserva los filtros */
+  showFilters?: boolean;
 }
 
-const { showAllLink = true } = Astro.props;
+const { showAllLink = true, showFilters = true } = Astro.props;
 const services = await getServices();
 const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
 ---
@@ -30,51 +32,40 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
       />
     </div>
 
-    <div class="filters" role="tablist" aria-label="Filtrar servicios" data-filters>
-      {filters.map((filter, index) => (
-        <button
-          class="filter"
-          type="button"
-          role="tab"
-          id={`filtro-${filter.id}`}
-          aria-controls="tabla-servicios"
-          aria-selected={index === 0 ? "true" : "false"}
-          tabindex={index === 0 ? 0 : -1}
-          data-filter={filter.id}
-        >
-          {filter.title}
-        </button>
-      ))}
-    </div>
+    {showFilters && (
+      <div class="filters" role="tablist" aria-label="Filtrar servicios" data-filters>
+        {filters.map((filter, index) => (
+          <button
+            class="filter"
+            type="button"
+            role="tab"
+            id={`filtro-${filter.id}`}
+            aria-controls="tabla-servicios"
+            aria-selected={index === 0 ? "true" : "false"}
+            tabindex={index === 0 ? 0 : -1}
+            data-filter={filter.id}
+          >
+            {filter.title}
+          </button>
+        ))}
+      </div>
+    )}
 
     <div
       class="panel-beam board"
       id="tabla-servicios"
-      role="tabpanel"
-      aria-labelledby="filtro-todos"
+      role={showFilters ? "tabpanel" : undefined}
+      aria-labelledby={showFilters ? "filtro-todos" : undefined}
       data-filter-panel
     >
       <table class="table" role="table" aria-label="Servicios de Neolutions">
         <thead role="rowgroup">
           <tr role="row">
-            <th role="columnheader" scope="col">
-              Servicio
-            </th>
-            <th role="columnheader" scope="col" class="col-audience">
-              Para quién
-            </th>
-            <th role="columnheader" scope="col">
-              Incluye
-            </th>
-            <th role="columnheader" scope="col" class="col-group">
-              Bloque
-            </th>
-            <th role="columnheader" scope="col">
-              Estado
-            </th>
-            <th role="columnheader" scope="col">
-              <span class="sr-only">Acción</span>
-            </th>
+            <th role="columnheader" scope="col">Servicio</th>
+            <th role="columnheader" scope="col">Para quién</th>
+            <th role="columnheader" scope="col">Incluye</th>
+            <th role="columnheader" scope="col">Estado</th>
+            <th role="columnheader" scope="col">Bloque</th>
           </tr>
         </thead>
         <tbody role="rowgroup">
@@ -82,36 +73,29 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
             <tr class="row reveal" role="row" data-group={service.data.group}>
               <th class="cell-service" role="rowheader" scope="row">
                 <span class="icon">
-                  <Icon name={service.data.icon} size={22} />
+                  <Icon name={service.data.icon} size={18} />
                 </span>
-                <span class="name">
+                <a class="name" href={`/servicios/${service.id}`}>
                   <span class="title">{service.data.title}</span>
                   <span class="tagline">{service.data.tagline}</span>
-                </span>
+                </a>
               </th>
-              <td class="cell-audience col-audience" role="cell">
+              <td class="cell-audience" role="cell">
                 {service.data.audienceShort}
               </td>
               <td class="cell-includes" role="cell">
                 {service.data.includesShort}
               </td>
-              <td class="cell-badge col-group" role="cell">
-                <Badge>{groupTitle(service.data.group)}</Badge>
+              <td class="cell-state" role="cell">
+                {service.data.available && (
+                  <span class="state">
+                    <span class="dot"></span>Disponible
+                  </span>
+                )}
               </td>
-              <td class="cell-badge" role="cell">
-                {service.data.available && <Badge variant="status">Disponible</Badge>}
-              </td>
-              <td class="cell-action" role="cell">
-                <div class="row-actions">
-                  <WhatsAppButton service={service.id} label="Cotizar" origen="tabla" />
-                  <a
-                    class="more"
-                    href={`/servicios/${service.id}`}
-                    aria-label={`Ver más sobre ${service.data.title}`}
-                  >
-                    Ver más
-                  </a>
-                </div>
+              <td class="cell-group" role="cell">
+                <span>{groupTitle(service.data.group)}</span>
+                <IconChevronRight size={14} />
               </td>
             </tr>
           ))}
@@ -182,10 +166,6 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
 </script>
 
 <style>
-  .board {
-    padding: var(--space-3);
-  }
-
   .filters {
     display: flex;
     flex-wrap: wrap;
@@ -202,7 +182,6 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
     background: transparent;
     color: var(--color-text-muted);
     font-size: var(--text-sm);
-    font-weight: var(--weight-medium);
     cursor: pointer;
     transition:
       background-color var(--transition-fast),
@@ -217,6 +196,13 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
     border-color: var(--color-accent-500);
     background: var(--color-accent-500);
     color: var(--color-text-on-accent);
+  }
+
+  /* Panel con degradado vertical y filas separadas por una línea muy tenue */
+  .board {
+    padding: 0 var(--space-3);
+    border-width: 1px;
+    background: linear-gradient(var(--color-table-top), var(--color-table-base));
   }
 
   .table {
@@ -234,23 +220,24 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
 
   tbody {
     display: grid;
-    gap: var(--space-3);
   }
 
-  /* Celular: cada fila es una tarjeta apilada */
   .row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-    padding: var(--space-4);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background: var(--color-brand-700);
-    transition: border-color var(--transition-fast);
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-2) var(--space-3);
+    padding: var(--space-4) var(--space-2);
+    border-bottom: 1px solid var(--color-divider);
+    transition: background-color var(--transition-base);
+  }
+
+  .row:last-child {
+    border-bottom: 0;
   }
 
   .row:hover {
-    border-color: var(--color-border-strong);
+    background: var(--color-accent-100);
   }
 
   .row[hidden] {
@@ -261,15 +248,14 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
   .row td {
     display: block;
     padding: 0;
-    text-align: left;
     font-weight: var(--weight-regular);
+    text-align: left;
   }
 
-  .cell-service {
-    display: flex !important;
+  .row .cell-service {
+    display: flex;
     align-items: center;
     gap: var(--space-3);
-    width: 100%;
   }
 
   .icon {
@@ -277,8 +263,8 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
     align-items: center;
     justify-content: center;
     flex: none;
-    width: var(--icon-circle);
-    height: var(--icon-circle);
+    width: 2rem;
+    height: 2rem;
     border-radius: var(--radius-pill);
     background: var(--color-accent-100);
     color: var(--color-accent-400);
@@ -286,94 +272,100 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
 
   .name {
     display: grid;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  /* Toda la fila funciona como enlace */
+  .name::after {
+    content: "";
+    position: absolute;
+    inset: 0;
   }
 
   .title {
-    font-weight: var(--weight-semibold);
+    font-size: var(--text-base);
     line-height: var(--leading-snug);
   }
 
   .tagline {
+    color: var(--color-text-subtle);
+    font-size: var(--text-xs);
+    line-height: var(--leading-snug);
+  }
+
+  .cell-audience,
+  .cell-includes {
+    grid-column: 1 / -1;
     color: var(--color-text-muted);
     font-size: var(--text-sm);
-    line-height: var(--leading-snug);
   }
 
   .cell-audience {
     display: none !important;
   }
 
-  .cell-includes {
-    width: 100%;
-    order: 1;
-    color: var(--color-text-muted);
-    font-size: var(--text-sm);
+  .cell-state {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
   }
 
-  .cell-action {
-    width: 100%;
-    order: 2;
-  }
-
-  .row-actions {
-    display: grid;
-    gap: var(--space-2);
-  }
-
-  .more {
+  .state {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    min-height: var(--control-md);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-semibold);
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--color-text);
+    font-size: var(--text-xs);
+    white-space: nowrap;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-pill);
+    background: var(--color-accent-400);
+  }
+
+  .cell-group {
+    display: flex !important;
+    grid-column: 1 / -1;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--color-text-subtle);
+    font-size: var(--text-xs);
   }
 
   .note {
     margin-top: var(--space-5);
     color: var(--color-text-subtle);
     font-size: var(--text-sm);
+    text-align: center;
   }
 
   .all {
-    display: inline-flex;
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: var(--space-2);
     min-height: var(--control-md);
-    margin-top: var(--space-3);
-    font-weight: var(--weight-semibold);
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
     text-decoration: none;
   }
 
-  /* Tableta: tabla real, sin las dos columnas que no caben */
   @media (min-width: 768px) {
     .table {
       display: table;
-      border-collapse: separate;
-      border-spacing: 0;
+      border-collapse: collapse;
     }
 
     thead {
-      position: static;
-      display: table-header-group;
-      width: auto;
-      height: auto;
-      clip-path: none;
-    }
-
-    thead th {
-      padding: 0 var(--space-3);
-      color: var(--color-text-subtle);
-      font-size: var(--text-xs);
-      font-weight: var(--weight-medium);
-      text-align: left;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .col-audience,
-    .col-group {
-      display: none !important;
+      display: none;
     }
 
     tbody {
@@ -391,27 +383,12 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
     .row th,
     .row td {
       display: table-cell;
-      padding: var(--space-3);
-      border-bottom: 1px solid var(--color-border);
-      background: transparent;
+      padding: 1.19vw var(--space-3);
       vertical-align: middle;
-      transition: border-color var(--transition-fast);
     }
 
-    .row:hover th,
-    .row:hover td {
-      background: var(--color-accent-100);
-    }
-
-    .row:last-child th,
-    .row:last-child td {
-      border-bottom: 0;
-    }
-
-    .cell-service {
-      display: table-cell !important;
-      width: auto;
-      min-width: 15rem;
+    .row .cell-service {
+      display: table-cell;
     }
 
     .cell-service .icon {
@@ -419,35 +396,99 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
       margin-right: var(--space-3);
     }
 
-    .cell-badge {
+    .cell-group {
+      display: table-cell !important;
+      text-align: right !important;
       white-space: nowrap;
     }
 
-    .row-actions {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      white-space: nowrap;
-    }
-  }
-
-  @media (min-width: 1100px) {
-    .col-audience {
-      display: table-cell !important;
-    }
-
-    .col-group {
-      display: table-cell !important;
-      max-width: 9rem;
+    .cell-group :global(svg) {
+      display: inline;
+      margin-left: var(--space-2);
+      vertical-align: -2px;
     }
 
     .cell-audience {
-      color: var(--color-text-muted);
-      font-size: var(--text-sm);
+      display: none !important;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    /* La tabla ocupa casi toda la pantalla */
+    .section :global(.container) {
+      max-width: none;
+      padding-inline: 5vw;
     }
 
-    .col-group :global(span) {
-      white-space: normal;
+    .board {
+      padding: 0 1.7vw;
+      border-radius: 1.4vw;
+    }
+
+    .table {
+      table-layout: fixed;
+    }
+
+    .row th,
+    .row td {
+      padding: 1.5vw 1vw;
+    }
+
+    .row .cell-service {
+      width: 27%;
+    }
+
+    .cell-audience {
+      display: table-cell !important;
+      width: 20%;
+    }
+
+    .cell-includes {
+      width: 25%;
+    }
+
+    .cell-state {
+      width: 10%;
+    }
+
+    .cell-group {
+      width: 18%;
+    }
+
+    .cell-service .icon {
+      width: 2.9vw;
+      height: 2.9vw;
+      margin-right: 1.1vw;
+    }
+
+    .cell-service .icon :global(svg) {
+      width: 50%;
+      height: 50%;
+    }
+
+    .title {
+      font-size: 1.25vw;
+    }
+
+    .tagline {
+      font-size: max(0.8vw, 0.6875rem);
+    }
+
+    .cell-audience,
+    .cell-includes {
+      font-size: max(0.95vw, 0.75rem);
+    }
+
+    .cell-group {
+      font-size: max(0.85vw, 0.6875rem);
+    }
+
+    .state {
+      font-size: max(0.8vw, 0.6875rem);
+    }
+
+    .note {
+      font-size: max(0.85vw, 0.6875rem);
     }
   }
 </style>

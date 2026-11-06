@@ -22,7 +22,12 @@ const showPartners = import.meta.env.DEV || licensePartners.length > 0;
 ---
 
 <PageLayout title={page.title} description={page.description}>
-  <PageHero badge={page.badge} title={page.headline} text={page.text}>
+  <PageHero
+    badge={page.badge}
+    title={page.headline}
+    text={page.text}
+    image="/images/showcase/desarrollo.svg"
+  >
     <div class="actions">
       <WhatsAppButton size="lg" origen="clientes" />
       <Button variant="secondary" size="lg" href="/servicios">

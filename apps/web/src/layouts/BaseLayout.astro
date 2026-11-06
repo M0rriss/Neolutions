@@ -1,6 +1,5 @@
 ---
 import "@/styles/global.css";
-import interUrl from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
 import { absoluteUrl, jsonLdString, organizationJsonLd, pageTitle } from "@/lib/seo";
 
 export interface Props {
@@ -55,7 +54,7 @@ const structured = [organizationJsonLd(base), ...jsonLd];
     <meta name="twitter:image" content={imageUrl} />
     <meta name="theme-color" content="#2a1b4a" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="preload" href={interUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/AcidGrotesk-Regular.otf" as="font" type="font/otf" crossorigin />
     <script is:inline>
       document.documentElement.classList.add("js");
       // Si las animaciones no llegan a cargar, nada queda oculto.

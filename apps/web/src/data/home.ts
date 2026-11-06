@@ -4,10 +4,14 @@ export const hero = {
   highlight: "7 servicios, un solo equipo",
   text: "Soporte técnico, redes, cámaras, páginas web, apps y sistemas a medida para pequeñas empresas y emprendedores.",
   secondary: "Ver servicios",
-  consoleLabel: "Servicios",
 } as const;
 
-export const statsSection = { title: "Tecnología cerca de tu negocio" } as const;
+export const statsSection = {
+  badge: "Cerca de ti",
+  title: "Tecnología cerca de tu negocio",
+  text: "Atendemos a pequeñas empresas y emprendedores de Lima y Callao.",
+  secondary: "Ver servicios",
+} as const;
 
 export const gridSection = {
   title: "Todo lo que necesitas, con un solo equipo",
@@ -25,6 +29,8 @@ export const servicesSection = {
 export const processSection = {
   eyebrow: "Proceso",
   title: "Así de simple es trabajar con nosotros",
+  text: "Nos cuentas qué necesitas, te cotizamos sin costo y te acompañamos después de la entrega.",
+  secondary: "Ver servicios",
 } as const;
 
 export const groupsSection = {
@@ -32,6 +38,18 @@ export const groupsSection = {
   title: "Tres frentes, un solo aliado tecnológico",
   quote: "Cotizar este bloque",
   see: "Ver servicios",
+  badge: "Cotización gratis",
+} as const;
+
+export const showcaseSection = {
+  title: "Un solo equipo para tu negocio",
+  text: "Tres frentes de trabajo, con un mismo equipo a tu lado.",
+} as const;
+
+export const bentoSection = {
+  eyebrow: "Nuestros servicios",
+  title: "Lo que hacemos por tu negocio",
+  text: "Elige lo que necesitas y te enviamos una cotización clara.",
 } as const;
 
 export const whySection = { title: "Por qué elegir Neolutions" } as const;

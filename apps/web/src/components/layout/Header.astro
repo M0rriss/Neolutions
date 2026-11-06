@@ -1,5 +1,5 @@
 ---
-import Container from "@/components/ui/Container.astro";
+import Button from "@/components/ui/Button.astro";
 import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
 import { mainNav } from "@/data/navigation";
 import { getServices } from "@/lib/services";
@@ -18,7 +18,7 @@ const items = mainNav.map((item, index) => ({
 ---
 
 <header class="header" data-header>
-  <Container>
+  <div class="shell">
     <div class="bar">
       <a class="brand" href="/" aria-label="Neolutions, ir al inicio">
         <Logo />
@@ -43,20 +43,49 @@ const items = mainNav.map((item, index) => ({
         </ul>
       </nav>
       <div class="cta">
-        <WhatsAppButton origen="header" />
+        <Button variant="secondary" href="/contacto">Contacto</Button>
+        <WhatsAppButton label="Cotizar" origen="header" />
       </div>
       <div class="mobile">
         <MobileMenu />
       </div>
     </div>
-  </Container>
+  </div>
 </header>
 
 <script>
-  const header = document.querySelector("[data-header]");
-  const update = () => header?.classList.toggle("is-scrolled", window.scrollY > 40);
+  const header = document.querySelector<HTMLElement>("[data-header]");
+  const narrow = window.matchMedia("(max-width: 1023px)");
+  let last = window.scrollY;
+  let pointerY = Infinity;
+
+  // Escritorio: al bajar se condensa; con el puntero arriba o el foco dentro vuelve completo.
+  const updatePeek = () => {
+    if (!header) return;
+    const near = pointerY <= header.offsetHeight * 1.8;
+    header.classList.toggle("is-peek", near || header.matches(":focus-within"));
+  };
+
+  // En celular se esconde al bajar y vuelve al subir, para no pisar el contenido.
+  const update = () => {
+    const y = window.scrollY;
+    header?.classList.toggle("is-scrolled", y > 40);
+    if (Math.abs(y - last) < 6) return;
+    header?.classList.toggle("is-hidden", narrow.matches && y > last && y > 120);
+    last = y;
+  };
   update();
   window.addEventListener("scroll", update, { passive: true });
+  window.addEventListener(
+    "pointermove",
+    (event) => {
+      pointerY = event.clientY;
+      updatePeek();
+    },
+    { passive: true },
+  );
+  header?.addEventListener("focusin", updatePeek);
+  header?.addEventListener("focusout", () => requestAnimationFrame(updatePeek));
 </script>
 
 <style>
@@ -64,6 +93,17 @@ const items = mainNav.map((item, index) => ({
     position: sticky;
     top: 0;
     z-index: var(--z-header);
+    transition:
+      transform 350ms cubic-bezier(0.4, 0, 0.2, 1),
+      background-color var(--transition-base);
+  }
+
+  .header.is-hidden {
+    transform: translateY(-100%);
+  }
+
+  .shell {
+    padding-inline: var(--header-padding-x);
   }
 
   .bar {
@@ -73,6 +113,7 @@ const items = mainNav.map((item, index) => ({
     justify-content: space-between;
     gap: var(--space-4);
     height: var(--header-height);
+    transition: height 400ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .brand {
@@ -82,11 +123,21 @@ const items = mainNav.map((item, index) => ({
     text-decoration: none;
   }
 
+  .brand :global(svg) {
+    width: var(--logo-mark);
+    height: var(--logo-mark);
+  }
+
+  .brand :global(.word) {
+    font-size: var(--logo-word);
+  }
+
   .brand,
   .cta {
     transition:
-      opacity var(--transition-base),
-      visibility var(--transition-base);
+      transform 400ms cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 350ms ease,
+      visibility 350ms ease;
   }
 
   .nav,
@@ -97,7 +148,7 @@ const items = mainNav.map((item, index) => ({
   ul {
     display: flex;
     align-items: center;
-    gap: var(--space-1);
+    gap: var(--nav-gap);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -106,10 +157,10 @@ const items = mainNav.map((item, index) => ({
   .link {
     display: inline-flex;
     align-items: center;
-    min-height: var(--control-md);
-    padding-inline: var(--space-3);
+    height: var(--nav-height);
+    padding-inline: var(--nav-item-padding-x);
     color: var(--color-text-muted);
-    font-size: var(--text-sm);
+    font-size: var(--nav-font);
     font-weight: var(--weight-medium);
     text-decoration: none;
     transition: color var(--transition-fast);
@@ -120,18 +171,44 @@ const items = mainNav.map((item, index) => ({
     color: var(--color-text);
   }
 
+  /* Fondo de vidrio mientras el header acompaña el scroll en celular */
+  @media (max-width: 1023px) {
+    .header.is-scrolled {
+      background: var(--color-glass);
+      backdrop-filter: blur(16px);
+    }
+  }
+
   @media (min-width: 1024px) {
     .nav,
     .cta {
       display: block;
     }
 
+    .cta {
+      display: flex;
+      align-items: center;
+      gap: var(--nav-cta-gap);
+    }
+
+    .cta :global(.btn) {
+      min-height: var(--nav-cta-height);
+      padding-block: 0;
+      padding-inline: var(--nav-cta-padding-x);
+      font-size: var(--nav-font);
+    }
+
+    .cta :global(.btn svg) {
+      width: 1.1em;
+      height: 1.1em;
+    }
+
     .nav {
       position: absolute;
       left: 50%;
-      padding-inline: var(--space-2);
+      padding-inline: var(--nav-padding-x);
       border: 1px solid var(--color-border-strong);
-      border-radius: var(--radius-nav);
+      border-radius: var(--nav-radius);
       background: var(--gradient-glass), var(--color-glass-dark);
       box-shadow: var(--shadow-glass);
       backdrop-filter: blur(24px) saturate(1.8);
@@ -139,8 +216,12 @@ const items = mainNav.map((item, index) => ({
       transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .is-scrolled .nav {
-      transform: translateX(-50%) translateY(-6px) scale(0.96);
+    .is-scrolled:not(.is-peek) .bar {
+      height: calc(var(--header-height) * 0.81);
+    }
+
+    .is-scrolled:not(.is-peek) .nav {
+      transform: translateX(-50%) scale(0.92);
     }
 
     /* Resplandor que respira bajo el menú */
@@ -152,14 +233,14 @@ const items = mainNav.map((item, index) => ({
       border-radius: inherit;
       background: radial-gradient(closest-side, var(--color-accent-500), transparent);
       filter: blur(10px) brightness(1.5);
-      opacity: 0.4;
+      opacity: 0.12;
       pointer-events: none;
       animation: nav-breathe 4s ease-in-out infinite alternate;
     }
 
     @keyframes nav-breathe {
       to {
-        opacity: 0.85;
+        opacity: 0.3;
         transform: scale(1.3);
       }
     }
@@ -168,10 +249,18 @@ const items = mainNav.map((item, index) => ({
       display: none;
     }
 
-    .is-scrolled .brand,
-    .is-scrolled .cta {
+    .is-scrolled:not(.is-peek) .brand,
+    .is-scrolled:not(.is-peek) .cta {
       opacity: 0;
       visibility: hidden;
+    }
+
+    .is-scrolled:not(.is-peek) .brand {
+      transform: translateX(-1.275vw);
+    }
+
+    .is-scrolled:not(.is-peek) .cta {
+      transform: translateX(1.275vw);
     }
   }
 </style>

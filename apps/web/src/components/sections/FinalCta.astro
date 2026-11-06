@@ -1,4 +1,5 @@
 ---
+import Button from "@/components/ui/Button.astro";
 import Container from "@/components/ui/Container.astro";
 import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
 import { finalCta } from "@/data/home";
@@ -12,14 +13,15 @@ const { service } = Astro.props;
 <section class="section final">
   <Container>
     <div class="panel reveal">
+      <span class="dots" aria-hidden="true"></span>
       <div class="copy">
         <h2 class="metal">{finalCta.title}</h2>
         <p>{finalCta.text}</p>
         <div class="actions">
-          <WhatsAppButton size="lg" service={service} origen="cta-final" />
-          <a class="form" href="/contacto">
+          <WhatsAppButton service={service} origen="cta-final" />
+          <Button variant="secondary" href="/contacto">
             {finalCta.secondary}
-          </a>
+          </Button>
         </div>
       </div>
       <canvas class="bars" data-bars aria-hidden="true"></canvas>
@@ -33,14 +35,38 @@ const { service } = Astro.props;
     display: grid;
     gap: var(--space-6);
     align-items: center;
-    min-height: 30rem;
-    padding: var(--space-7) var(--space-5);
+    padding: var(--space-8) var(--space-5) var(--space-6);
     overflow: hidden;
+    border: 1px solid var(--color-border-strong);
     border-radius: var(--radius-card);
     background:
-      radial-gradient(34rem 16rem at 42% 112%, var(--color-accent-400), transparent 70%),
-      radial-gradient(22rem 18rem at 0% 0%, var(--color-accent-500), transparent 70%),
-      var(--color-black);
+      radial-gradient(
+        40% 34% at 50% 102%,
+        var(--color-mint),
+        var(--color-accent-400) 24%,
+        color-mix(in srgb, var(--color-accent-500) 45%, transparent) 55%,
+        transparent 100%
+      ),
+      radial-gradient(
+        46% 40% at 0% 0%,
+        var(--color-accent-400),
+        color-mix(in srgb, var(--color-accent-500) 40%, transparent) 45%,
+        transparent 100%
+      ),
+      var(--color-brand-900);
+  }
+
+  /* Trama de puntos sobre la luz inferior */
+  .dots {
+    position: absolute;
+    right: 42%;
+    bottom: 0;
+    left: 28%;
+    height: 38%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.34) 1px, transparent 1.5px) 0 0 / 12px 12px;
+    -webkit-mask-image: radial-gradient(closest-side, #000, transparent);
+    mask-image: radial-gradient(closest-side, #000, transparent);
+    pointer-events: none;
   }
 
   .copy {
@@ -52,43 +78,71 @@ const { service } = Astro.props;
   }
 
   h2 {
+    padding-bottom: 0.14em;
+    margin-bottom: -0.14em;
     font-family: var(--font-display);
     font-size: var(--text-4xl);
     font-weight: var(--weight-regular);
+    line-height: var(--leading-tight);
   }
 
   p {
     max-width: 30rem;
     color: var(--color-text-muted);
-    font-size: var(--text-lg);
+    font-size: var(--hero-text-size);
   }
 
   .actions {
     width: 100%;
   }
 
-  .form {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: var(--control-md);
-    color: var(--color-text);
-    font-weight: var(--weight-semibold);
-  }
-
   .bars {
     width: 100%;
-    height: 14rem;
+    height: 16rem;
+    filter: drop-shadow(0 0 5px var(--color-accent-400)) drop-shadow(0 0 16px color-mix(in srgb, var(--color-accent-400) 60%, transparent));
   }
 
   @media (min-width: 1024px) {
+    .final :global(.container) {
+      max-width: none;
+      padding-inline: 5vw;
+    }
+
     .panel {
-      grid-template-columns: 1.1fr 1fr;
-      padding: var(--space-8);
+      display: flex;
+      min-height: 45vw;
+      padding: 3.4vw 4.25vw;
+      border-radius: 1.4vw;
+    }
+
+    .copy {
+      width: 46vw;
+      gap: 1.2vw;
+    }
+
+    h2 {
+      font-size: 4.78vw;
+      line-height: 1.14;
+    }
+
+    p {
+      font-size: max(0.956vw, 0.8125rem);
+    }
+
+    .actions :global(.btn) {
+      min-height: var(--nav-cta-height);
+      padding-block: 0;
+      padding-inline: var(--nav-cta-padding-x);
+      font-size: var(--nav-font);
     }
 
     .bars {
-      height: 22rem;
+      position: absolute;
+      top: 50%;
+      right: 1.35vw;
+      width: 39.6vw;
+      height: 34vw;
+      margin-top: -17vw;
     }
   }
 </style>

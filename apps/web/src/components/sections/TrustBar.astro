@@ -1,77 +1,192 @@
 ---
-import Container from "@/components/ui/Container.astro";
+import Badge from "@/components/ui/Badge.astro";
+import Button from "@/components/ui/Button.astro";
+import Icon from "@/components/ui/Icon.astro";
+import StatIcon from "@/components/ui/StatIcon.astro";
+import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
 import { statsSection } from "@/data/home";
-import { trustItems } from "@/data/trust";
-import { isPending, shouldShow } from "@/lib/format";
-
-const items = trustItems.filter((item) => shouldShow(item.value));
+import { homeStats } from "@/data/trust";
 ---
 
 <section class="stats" id="g-stats">
-  <Container>
-    <h2 class="metal" data-split>
-      {statsSection.title}
-    </h2>
-    <dl class="grid">
-      {items.map((item) => {
+  <div class="stage">
+    <div class="intro">
+      <Badge>
+        <Icon name="shield" size={12} />
+        {statsSection.badge}
+      </Badge>
+      <h2 class="metal">{statsSection.title}</h2>
+      <p class="text">{statsSection.text}</p>
+      <div class="actions">
+        <WhatsAppButton origen="estadisticas" />
+        <Button variant="secondary" href="#servicios">
+          {statsSection.secondary}
+        </Button>
+      </div>
+    </div>
+    <dl class="list">
+      {homeStats.map((item) => {
         const count = /^\d+$/.test(item.value) ? item.value : undefined;
         return (
-          <div class:list={["item reveal", { todo: isPending(item.value) }]}>
+          <div class="stat" data-stat>
+            <span class="icon">
+              <StatIcon name={item.icon} />
+            </span>
             <dt>{item.label}</dt>
-            <dd data-count={count}>{item.value}</dd>
+            <dd class="metal" data-count={count}>
+              {item.value}
+            </dd>
           </div>
         );
       })}
     </dl>
-  </Container>
+  </div>
 </section>
 
 <style>
   .stats {
+    position: relative;
     padding-block: var(--section-padding-y);
-    text-align: center;
+  }
+
+  .stage {
+    display: grid;
+    gap: var(--space-7);
+    padding-inline: var(--container-padding-x);
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
   }
 
   h2 {
-    margin-bottom: var(--space-7);
+    padding-bottom: 0.14em;
+    margin-bottom: -0.14em;
     font-family: var(--font-display);
     font-size: var(--text-4xl);
     font-weight: var(--weight-regular);
+    line-height: var(--leading-tight);
   }
 
-  .grid {
-    display: grid;
-    gap: var(--space-5);
-    max-width: 60rem;
-    margin-inline: auto;
-  }
-
-  .item {
-    display: flex;
-    flex-direction: column-reverse;
-    gap: var(--space-1);
-    padding: var(--space-5);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    background: var(--color-glass);
-    backdrop-filter: blur(6px);
-  }
-
-  dt {
+  .text {
     color: var(--color-text-muted);
     font-size: var(--text-sm);
   }
 
-  dd {
-    font-family: var(--font-display);
-    font-size: var(--text-3xl);
-    font-weight: var(--weight-semibold);
-    line-height: var(--leading-snug);
+  .actions {
+    width: 100%;
   }
 
-  @media (min-width: 768px) {
-    .grid {
-      grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  .intro :global(.badge) {
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-badge);
+    color: var(--color-mint);
+  }
+
+  .list {
+    margin: 0;
+  }
+
+  /* Cada fila ajusta sus columnas: la frase queda pegada a su valor */
+  .stat {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(4.5rem, max-content) 1fr;
+    gap: 0 var(--space-2);
+    align-items: center;
+    padding: var(--space-3) var(--space-1);
+    border-bottom: 1px solid var(--color-divider);
+  }
+
+  .stat:last-child {
+    border-bottom: 0;
+  }
+
+  .icon {
+    display: flex;
+    order: 0;
+    color: var(--color-text);
+  }
+
+  .icon :global(svg) {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  dd {
+    order: 1;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: var(--weight-regular);
+    line-height: var(--leading-snug);
+    white-space: nowrap;
+  }
+
+  dt {
+    order: 2;
+    color: var(--color-accent-400);
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    line-height: var(--leading-snug);
+    white-space: nowrap;
+  }
+
+  @media (min-width: 1024px) {
+    .stats {
+      display: flex;
+      align-items: center;
+      min-height: 100svh;
+      padding-block: 0;
+    }
+
+    .stage {
+      grid-template-columns: 27vw 27.2vw;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding-inline: 5vw;
+    }
+
+    .intro {
+      gap: 1.1vw;
+    }
+
+    .intro :global(.badge) {
+      font-size: max(0.64vw, 0.6875rem);
+    }
+
+    .text {
+      max-width: 22vw;
+      font-size: max(0.85vw, 0.8125rem);
+    }
+
+    .actions :global(.btn) {
+      min-height: var(--nav-cta-height);
+      padding-block: 0;
+      padding-inline: var(--nav-cta-padding-x);
+      font-size: var(--nav-font);
+    }
+
+    .stat {
+      grid-template-columns: 3.35vw minmax(7.38vw, max-content) 1fr;
+      gap: 0 0.6375vw;
+      padding: 0.935vw 0.2125vw;
+    }
+
+    .icon :global(svg) {
+      width: 1.275vw;
+      height: 1.275vw;
+    }
+
+    dd {
+      font-size: 2.125vw;
+      line-height: 1.18;
+    }
+
+    dt {
+      font-size: 1.594vw;
     }
   }
 </style>

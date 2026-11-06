@@ -1,12 +1,13 @@
 ---
 import Faq from "@/components/sections/Faq.astro";
 import FinalCta from "@/components/sections/FinalCta.astro";
-import GlobeHold from "@/components/sections/GlobeHold.astro";
 import GlobeStage from "@/components/sections/GlobeStage.astro";
 import Hero from "@/components/sections/Hero.astro";
 import Process from "@/components/sections/Process.astro";
 import ProjectsPreview from "@/components/sections/ProjectsPreview.astro";
 import ServiceGroups from "@/components/sections/ServiceGroups.astro";
+import ServiceShowcase from "@/components/sections/ServiceShowcase.astro";
+import ServicesBento from "@/components/sections/ServicesBento.astro";
 import ServicesGrid from "@/components/sections/ServicesGrid.astro";
 import ServicesTable from "@/components/sections/ServicesTable.astro";
 import Testimonials from "@/components/sections/Testimonials.astro";
@@ -23,13 +24,14 @@ import PageLayout from "@/layouts/PageLayout.astro";
   <GlobeStage />
   <Hero />
   <TrustBar />
-  <GlobeHold />
   <ServicesGrid />
   <div id="g-table">
-    <ServicesTable />
+    <ServicesTable showFilters={false} />
   </div>
   <ServiceGroups />
   <Process />
+  <ServiceShowcase />
+  <ServicesBento />
   <WhyUs />
   <ProjectsPreview />
   <Testimonials />

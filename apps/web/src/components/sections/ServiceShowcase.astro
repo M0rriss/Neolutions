@@ -1,0 +1,156 @@
+---
+import { showcaseSection } from "@/data/home";
+import { serviceGroups } from "@/data/serviceGroups";
+
+const shots = [
+  { id: "soporte", src: "/images/showcase/soporte.svg" },
+  { id: "seguridad", src: "/images/showcase/seguridad.svg" },
+  { id: "desarrollo", src: "/images/showcase/desarrollo.svg" },
+];
+---
+
+<section class="showcase" id="g-showcase">
+  <div class="stage">
+    <div class="panel-beam frame" aria-hidden="true">
+      {shots.map((shot) => (
+        <img
+          class="shot"
+          data-shot
+          src={shot.src}
+          alt=""
+          width="669"
+          height="367"
+          loading="lazy"
+        />
+      ))}
+    </div>
+    <div class="copy">
+      <h2 class="metal">{showcaseSection.title}</h2>
+      <p class="text">{showcaseSection.text}</p>
+      <ul class="features">
+        {serviceGroups.map((group) => (
+          <li class="feature" data-feature>
+            <h3>{group.title}</h3>
+            <p>{group.description}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .showcase {
+    position: relative;
+    padding-block: var(--section-padding-y);
+  }
+
+  .stage {
+    display: grid;
+    gap: var(--space-7);
+    padding-inline: var(--container-padding-x);
+  }
+
+  .frame {
+    position: relative;
+    aspect-ratio: 669 / 367;
+    overflow: hidden;
+    border-width: 2px;
+  }
+
+  .shot {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Sin animación (celular o movimiento reducido) se ve el primer panel */
+  .shot + .shot {
+    opacity: 0;
+  }
+
+  h2 {
+    padding-bottom: 0.14em;
+    margin-bottom: -0.14em;
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    font-weight: var(--weight-regular);
+    line-height: var(--leading-tight);
+  }
+
+  .text {
+    margin-top: var(--space-3);
+    color: var(--color-text-muted);
+    font-size: var(--hero-text-size);
+  }
+
+  .features {
+    display: grid;
+    gap: var(--space-5);
+    margin: var(--space-6) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .feature {
+    padding-left: var(--space-4);
+    border-left: 3px solid var(--color-accent-500);
+  }
+
+  h3 {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-regular);
+  }
+
+  .feature p {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: 1.4;
+  }
+
+  @media (min-width: 1024px) {
+    .showcase {
+      display: flex;
+      align-items: center;
+      min-height: 100svh;
+      padding-block: 0;
+    }
+
+    .stage {
+      grid-template-columns: 52.3vw 1fr;
+      gap: 4vw;
+      align-items: center;
+      width: 100%;
+      padding-inline: 5.6vw;
+    }
+
+    .frame {
+      border-radius: 1.3vw;
+    }
+
+    h2 {
+      font-size: 3.825vw;
+      line-height: 1;
+    }
+
+    .text {
+      font-size: max(0.956vw, 0.8125rem);
+    }
+
+    .features {
+      gap: 2vw;
+      margin-top: 2.2vw;
+    }
+
+    h3 {
+      font-size: 1.275vw;
+    }
+
+    .feature p {
+      font-size: max(0.85vw, 0.75rem);
+    }
+  }
+</style>

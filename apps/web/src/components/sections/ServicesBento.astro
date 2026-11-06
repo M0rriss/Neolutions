@@ -1,0 +1,219 @@
+---
+import Container from "@/components/ui/Container.astro";
+import Icon from "@/components/ui/Icon.astro";
+import SectionHeading from "@/components/ui/SectionHeading.astro";
+import { bentoSection } from "@/data/home";
+import { getServices } from "@/lib/services";
+
+const services = await getServices();
+---
+
+<section class="section bento">
+  <Container>
+    <div class="reveal">
+      <SectionHeading
+        eyebrow={bentoSection.eyebrow}
+        title={bentoSection.title}
+        subtitle={bentoSection.text}
+        align="center"
+      />
+    </div>
+    <div class="grid">
+      {services.map((service, index) => (
+        <a class:list={["cell reveal", `cell--${index}`]} href={`/servicios/${service.id}`}>
+          <span class="dots" aria-hidden="true"></span>
+          <span class="art" aria-hidden="true">
+            <span class="ring"></span>
+            <span class="plate">
+              <Icon name={service.data.icon} size={32} />
+            </span>
+          </span>
+          <span class="body">
+            <strong>{service.data.title}</strong>
+            <span class="tag">{service.data.tagline}</span>
+          </span>
+        </a>
+      ))}
+    </div>
+  </Container>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .cell {
+    --at: 30% 110%;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: 15rem;
+    overflow: hidden;
+    padding: var(--space-5);
+    border: 1px solid color-mix(in srgb, var(--color-accent-500) 22%, transparent);
+    border-radius: var(--radius-card);
+    background:
+      radial-gradient(
+        70% 90% at var(--at),
+        color-mix(in srgb, var(--color-accent-400) 80%, transparent),
+        color-mix(in srgb, var(--color-accent-500) 20%, transparent) 55%,
+        transparent 80%
+      ),
+      var(--color-side);
+    color: var(--color-text);
+    text-decoration: none;
+    transition: border-color 500ms ease;
+  }
+
+  .cell:hover {
+    border-color: color-mix(in srgb, var(--color-accent-400) 65%, transparent);
+  }
+
+  .cell--1 {
+    --at: 100% 0%;
+  }
+
+  .cell--2 {
+    --at: 0% 0%;
+  }
+
+  .cell--3 {
+    --at: 100% 100%;
+  }
+
+  .cell--4 {
+    --at: 50% 120%;
+  }
+
+  .cell--5 {
+    --at: 0% 100%;
+  }
+
+  .cell--6 {
+    --at: 100% 20%;
+  }
+
+  /* Trama de puntos en la esquina */
+  .dots {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.28) 1px, transparent 1.4px) 0 0 / 14px 14px;
+    -webkit-mask-image: radial-gradient(45% 55% at 12% 10%, #000, transparent);
+    mask-image: radial-gradient(45% 55% at 12% 10%, #000, transparent);
+  }
+
+  .art {
+    position: absolute;
+    top: 14%;
+    right: 12%;
+    display: grid;
+    place-items: center;
+    width: 9rem;
+    aspect-ratio: 1;
+  }
+
+  .ring {
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 50%;
+    background: radial-gradient(circle, transparent 54%, rgba(255, 255, 255, 0.05) 55%, transparent 56%);
+    transition: transform 900ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cell:hover .ring {
+    transform: scale(1.1);
+  }
+
+  .plate {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 44%;
+    aspect-ratio: 1;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.03));
+    box-shadow: rgba(255, 255, 255, 0.2) 0 1px 0 0 inset;
+    backdrop-filter: blur(10px);
+    color: var(--color-text);
+  }
+
+  .body {
+    position: relative;
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  strong {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-regular);
+  }
+
+  .tag {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: 1.35;
+  }
+
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(12, 1fr);
+    }
+
+    .cell {
+      grid-column: span 6;
+    }
+
+    .cell--0 {
+      grid-column: span 5;
+    }
+
+    .cell--1 {
+      grid-column: span 7;
+    }
+
+    .cell--4,
+    .cell--5,
+    .cell--6 {
+      grid-column: span 4;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .bento :global(.container) {
+      max-width: none;
+      padding-inline: 5vw;
+    }
+
+    .grid {
+      gap: 0.75vw;
+    }
+
+    .cell {
+      min-height: 21vw;
+      padding: 1.6vw;
+      border-radius: 1.2vw;
+    }
+
+    .art {
+      width: 11vw;
+    }
+
+    .plate :global(svg) {
+      width: 60%;
+      height: 60%;
+    }
+
+    strong {
+      font-size: 1.275vw;
+    }
+
+    .tag {
+      font-size: max(0.85vw, 0.75rem);
+    }
+  }
+</style>

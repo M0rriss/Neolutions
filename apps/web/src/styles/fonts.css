@@ -1,3 +1,18 @@
-/* Fuentes autoalojadas; ambos paquetes declaran font-display: swap. */
+/* Acid Grotesk (Folch Studio): archivos aportados por el cliente. Confirmar licencia web antes de publicar. */
 @import "@fontsource-variable/inter/wght.css";
-@import "@fontsource-variable/familjen-grotesk/wght.css";
+
+@font-face {
+  font-family: "Acid Grotesk";
+  src: url("/fonts/AcidGrotesk-Regular.otf") format("opentype");
+  font-weight: 100 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Acid Grotesk";
+  src: url("/fonts/AcidGrotesk-Bold.otf") format("opentype");
+  font-weight: 600 900;
+  font-style: normal;
+  font-display: swap;
+}

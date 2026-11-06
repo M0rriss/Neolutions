@@ -10,7 +10,7 @@ const require = createRequire(import.meta.url);
 const atlas = JSON.parse(readFileSync(require.resolve("world-atlas/land-110m.json"), "utf8"));
 const land = feature(atlas, atlas.objects.land);
 
-const SAMPLES = 85000;
+const SAMPLES = 120000;
 const GOLDEN = Math.PI * (3 - Math.sqrt(5));
 const values = [];
 

@@ -34,6 +34,8 @@ y verifica sus criterios de aceptación.
 | `frontend/19-plan-de-tareas.md` | Tareas numeradas con criterios de aceptación | Siempre |
 | `frontend/21-auditoria-frontend.md` | Resultado de F01 a F12, pendientes y bloqueantes | Antes de publicar |
 | `backend/20-backend-pendiente.md` | Qué viene después del frontend | Después de F12 |
+| `22-actualizar-dependencias.md` | Actualizar el workspace a la última versión | Al retomar el proyecto |
+| `decisiones-de-versiones.md` | Versiones fijadas y motivos | En cada actualización |
 
 ## Fases
 

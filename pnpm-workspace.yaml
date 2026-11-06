@@ -2,6 +2,10 @@ packages:
   - "apps/*"
   - "packages/*"
 
+# pnpm 12 ignora estos ajustes en .npmrc: deben vivir aquí.
+engineStrict: true
+autoInstallPeers: true
+
 # @astrojs/check falla si @emnapi/core y @emnapi/runtime no van en la misma versión
 # (pnpm resolvía core 1.x con runtime 2.0-beta). Revisar al actualizar @astrojs/check.
 overrides:
@@ -9,3 +13,8 @@ overrides:
   "@emnapi/runtime": 1.11.3
   # GHSA-g3hv-75wg-m249: minimatch vulnerable, llega por @typescript-eslint (solo desarrollo).
   minimatch: ^11.0.1
+minimumReleaseAgeExclude:
+  - "@astrojs/internal-helpers@0.13.1"
+  - "@astrojs/markdown-satteri@0.4.7"
+  - "@astrojs/react@7.1.4"
+  - astro@7.4.7

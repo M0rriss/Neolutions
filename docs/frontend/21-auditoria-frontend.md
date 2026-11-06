@@ -2,6 +2,8 @@
 
 Resultado de construir F01 a F12 y revisar cada documento contra lo instalado. Fecha: 6 de noviembre de 2026.
 
+> **El frontend no está completo.** Mientras se construía se agregaron `11b-stack-ui-y-animaciones.md` y las tareas F02b y F08b, que siguen sin hacer. Ver sección 8.
+
 ## 1. Estado
 
 | Revisión | Resultado |
@@ -31,7 +33,7 @@ Medido en local con 4G lenta y CPU 4x, tres corridas por página. Es optimista f
 | Punto | Estado | Detalle |
 | --- | --- | --- |
 | JS de `/contacto` y del Libro | **No cumple** | `react-dom` solo pesa 65.7 KB comprimido, más que toda la meta. Con React no se puede cumplir. Ver sección 5 |
-| Lighthouse | **Sin ejecutar** | El control de permisos bloqueó ejecutar `lighthouse@latest` por ser código descargado. No hay notas oficiales de Rendimiento, Accesibilidad ni SEO |
+| Lighthouse | **Sin ejecutar** | El control de permisos bloqueó ejecutar `lighthouse@latest` por ser código descargado; también lo exige el doc 22. No hay notas oficiales de Rendimiento, Accesibilidad ni SEO |
 | validator.schema.org | **Sin ejecutar** | Se comprobó que el JSON-LD es válido como JSON, no contra el validador |
 | Lector de pantalla real | **Sin ejecutar** | Atributos y `role="alert"` comprobados; falta probar con NVDA o TalkBack |
 | Barra superior | Diferencia aceptada | Mide 40 px por la spec; el resto de controles cumple 44 px |
@@ -81,19 +83,12 @@ Los ejemplos de código de 02, 16 y 17 quedaron desactualizados frente a Astro 7
 
 ## 5. Recomendaciones
 
-- **Peso de formularios:** cambiar a Preact reduciría unos 60 KB, con el mismo código casi sin cambios. La alternativa es mantener React y subir la meta a unos 110 KB: la página sigue rápida porque el formulario carga con `client:visible`.
-- **Banner de cookies:** reescribirlo como script sin React para no perder la meta de la portada al activar la analítica.
+- **Peso de formularios:** la idea inicial de cambiar a Preact queda **descartada**: la escena 3D de 11b exige React 19. Lo razonable es subir la meta de `/contacto` a unos 110 KB. La página sigue rápida porque el formulario carga con `client:visible`.
+- **Banner de cookies:** queda por decidir junto con el presupuesto de la sección 8. Si la portada ya carga React por los menús, reescribirlo sin React deja de ahorrar.
 
 ## 6. Dependencias fijadas a propósito
 
-| Paquete | Versión | Motivo | Cuándo revisar |
-| --- | --- | --- | --- |
-| `eslint-plugin-astro` | 1.x | 2.x y 3.x piden Node 24.16 o superior; hay 24.14 | Al actualizar Node |
-| `typescript` | ~6.0 | `astro check` no soporta TypeScript 7 | Cuando lo soporte |
-| `@emnapi/core` y `@emnapi/runtime` | 1.11.3 | Versiones distintas rompen `astro check` | Al actualizar `@astrojs/check` |
-| `minimatch` | ^11.0.1 | GHSA-g3hv-75wg-m249 | Al actualizar `@typescript-eslint` |
-
-Las tres últimas fijaciones de `@emnapi` y `minimatch` están en `overrides` de `pnpm-workspace.yaml`.
+El detalle, con motivos y cuándo revisar cada una, está en `docs/decisiones-de-versiones.md`.
 
 ## 7. Datos pendientes del negocio
 
@@ -119,3 +114,52 @@ Todo lo marcado `TODO` queda fuera de producción, salvo los avisos legales.
 | Foto y frase del fundador, y colaboradores | `data/about.ts`, `public/images/equipo/` |
 | Campos del Libro de Reclamaciones con INDECOPI | `features/compliance/reclamoSchema.ts` |
 | Fotos reales de trabajos y servicios | `public/images/` |
+
+## 8. Pendiente por 11b, 13 y 19 (actualizados durante la construcción)
+
+Sin hacer:
+
+- **F02b:** Tailwind con `@theme`, shadcn/ui, GSAP, Lenis, `lib/motion/*`, `Reveal` y `SplitHeading`.
+- **F08b:** catálogo de animaciones, `HeroScene` y `NetworkMesh`, `Sheet`, `NavigationMenu` y efecto magnético.
+- **Imagen `public/images/hero/red-estatica.webp`:** se genera al terminar la escena 3D.
+
+Lo ya construido que incumple 11b y debe cambiar en F08b:
+
+| Archivo | Problema | Regla de 11b |
+| --- | --- | --- |
+| `sections/Process.astro` | La señal del "cable" anima `top` y `left`, y se repite sin fin | Reglas 2 y 6 |
+| `sections/Hero.astro` | El punto de la tarjeta pulsa sin fin | Regla 6 |
+
+Conflictos entre documentos que hay que resolver antes de F02b:
+
+| Documentos | Conflicto |
+| --- | --- |
+| 18 y 11b | 18 pide menos de 30 KB de JS en la portada y "sin islas React". 11b permite 60 KB de núcleo, 50 KB de menús y 200 KB de 3D |
+| 11b | Reserva 50 KB para las islas de menú (React + Radix), pero `react-dom` solo pesa 65.7 KB comprimido. Ese límite no se puede cumplir |
+| 19 y 18 | Hoy la portada usa 2.1 KB y tiene LCP de 0.6 a 0.8 s. Hay que confirmar que las metas se mantienen con todo el stack |
+| 11 y 11b | 11 anima con 12 px y un script propio; 11b usa 24 px con GSAP. Los tokens pasan de `tokens.css` a `@theme` |
+| 12 y 11b | `MobileMenu.astro` y `ServicesMenu.astro` funcionan sin React; 11b los cambia por islas. Es la mayor causa del peso nuevo |
+
+## 9. Actualización de dependencias (doc 22)
+
+Ejecutada en la rama `chore/actualizar-dependencias`. `main` no cambió.
+
+| Paquete | Antes | Después |
+| --- | --- | --- |
+| `pnpm` | 10.32.1 | **12.18.0** |
+| `astro` y demás directas | Ya en su última versión | Sin cambios |
+| `typescript` | 6.0.3 | 6.0.3 (fijada, última 7.0.2) |
+| `eslint-plugin-astro` | 1.7.0 | 1.7.0 (fijada, última 3.2.1) |
+
+Cambios necesarios: ajustes de `.npmrc` movidos a `pnpm-workspace.yaml`, `.npmrc` eliminado, y lockfile regenerado para cumplir la política de antigüedad de pnpm 12.
+
+Lo que el doc 22 pide y no se hizo:
+
+| Paso | Motivo |
+| --- | --- |
+| 2: `npx @astrojs/upgrade` | El control de permisos bloqueó ejecutar código descargado. No hacía falta: Astro ya estaba en su última versión |
+| 5: componentes de shadcn | shadcn aún no está instalado (F02b) |
+| 7: SplitText, 3D, Lenis, Sheet | Aún no existen (F02b y F08b) |
+| 7: Lighthouse | Bloqueado, igual que en la sección 2 |
+
+Correcciones para el doc 22: el prompt cita `docs/frontend/22-...`, pero el archivo está en `docs/22-...`; menciona una Tarea F13 que no existe en el plan; `02-setup-monorepo.md` todavía pide crear `.npmrc`; y exige repositorio git, que no existía.

@@ -15,14 +15,14 @@ const { problem, service } = Astro.props;
 <section class="section">
   <Container>
     <div class="layout">
-      <div class="copy reveal">
+      <div class="copy reveal" data-slide="left">
         <p class="eyebrow">El problema</p>
         <h2 class="metal">{problem}</h2>
         <div class="actions">
           <WhatsAppButton service={service} origen="servicio" />
         </div>
       </div>
-      <div class="panel-beam chat reveal" aria-hidden="true">
+      <div class="panel-beam chat reveal" data-slide="right" aria-hidden="true">
         <div class="chat-top">
           <span class="avatar">
             <IconWhatsApp size={20} />

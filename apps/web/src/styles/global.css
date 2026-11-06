@@ -203,18 +203,121 @@ footer {
   color: var(--color-warning);
 }
 
-/* Entrada al hacer scroll. Sin JS (.js ausente) todo queda visible. */
-.js .reveal {
+/* Antes de que GSAP tome el control. Si el JS falla, .no-motion lo deja todo visible. */
+.js:not(.no-motion) .reveal {
   opacity: 0;
-  transform: translateY(12px);
-  transition:
-    opacity var(--transition-base),
-    transform var(--transition-base);
 }
 
-.js .reveal.is-visible {
+/* Haz de luz que recorre el borde superior */
+.panel-beam::before {
+  animation: beam-sweep 6s ease-in-out infinite alternate;
+}
+
+.panel-beam::after {
+  content: "";
+  position: absolute;
+  top: -70px;
+  left: 50%;
+  z-index: -1;
+  width: 60%;
+  height: 120px;
+  background: radial-gradient(closest-side, var(--color-accent-500), transparent);
+  filter: blur(26px);
+  opacity: 0.55;
+  pointer-events: none;
+  animation: glow-sweep 6s ease-in-out infinite alternate;
+}
+
+.panel-beam--violet::after {
+  background: radial-gradient(closest-side, var(--color-violet-400), transparent);
+}
+
+@keyframes beam-sweep {
+  from {
+    transform: translateX(-16%) scaleX(0.72);
+  }
+  to {
+    transform: translateX(16%) scaleX(1);
+  }
+}
+
+@keyframes glow-sweep {
+  from {
+    transform: translateX(-90%) scaleX(0.8);
+  }
+  to {
+    transform: translateX(-10%) scaleX(1.1);
+  }
+}
+
+/* Destellos de puntos */
+.sparkles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.sparkle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-400);
+  opacity: 0;
+  animation: sparkle-twinkle 2.4s ease-in-out infinite;
+}
+
+@keyframes sparkle-twinkle {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* Resplandor que sigue al cursor */
+[data-spot]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    16rem circle at var(--x, 50%) var(--y, 50%),
+    var(--color-accent-100),
+    transparent 70%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-base);
+}
+
+[data-spot]:hover::after {
   opacity: 1;
-  transform: none;
+}
+
+/* Barrido de luz en el botón principal */
+.btn--primary {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn--primary::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 42%;
+  background: linear-gradient(100deg, transparent, var(--color-accent-400), transparent);
+  opacity: 0.5;
+  pointer-events: none;
+  transform: translateX(-120%);
+  animation: sheen 3.6s ease-in-out infinite;
+}
+
+@keyframes sheen {
+  60%,
+  100% {
+    transform: translateX(260%);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -231,6 +334,5 @@ footer {
 
   .js .reveal {
     opacity: 1;
-    transform: none;
   }
 }

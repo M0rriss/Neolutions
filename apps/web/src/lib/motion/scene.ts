@@ -50,7 +50,8 @@ const vertex = /* glsl */ `
       size *= 2.2 + 1.6 * pulse * (1.0 - t);
       globeAlpha = 0.5 + 0.5 * pulse;
     }
-    vAlpha = mix(globeAlpha, 0.35 + 0.65 * aSeed, t);
+    float shimmer = 0.78 + 0.22 * sin(uTime * 1.6 + aSeed * 50.0);
+    vAlpha = mix(globeAlpha, 0.35 + 0.65 * aSeed, t) * shimmer;
     vKind = aKind;
     gl_PointSize = size / -view.z;
     gl_Position = projectionMatrix * view;
@@ -278,9 +279,10 @@ export async function startScene(canvas: HTMLCanvasElement) {
     tiltX = lerp(tiltX, pointer.y * 0.12, 0.05);
     tiltY = lerp(tiltY, pointer.x * 0.18, 0.05);
     const { mix, y, scale, opacity, spin } = sceneState;
-    const sway = Math.sin(time * 0.15) * 0.07 * (1 + Math.abs(spin));
-    points.rotation.y = lerp(LIMA_ROTATION.y + sway + spin, -0.42, mix) + tiltY;
-    points.rotation.x = lerp(LIMA_ROTATION.x, -0.62, mix) + tiltX;
+    const sway = Math.sin(time * 0.16) * 0.26;
+    points.rotation.y =
+      lerp(LIMA_ROTATION.y + sway + spin, -0.42 + Math.sin(time * 0.5) * 0.14, mix) + tiltY;
+    points.rotation.x = lerp(LIMA_ROTATION.x, -0.62 + Math.cos(time * 0.4) * 0.08, mix) + tiltX;
     points.rotation.z = lerp(0, 0.12, mix);
     points.position.y = y;
     points.scale.setScalar(scale);

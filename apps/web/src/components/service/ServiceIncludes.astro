@@ -11,7 +11,7 @@ const { items } = Astro.props;
 
 <section class="section">
   <Container>
-    <div class="frame reveal">
+    <div class="frame">
       <SectionHeading
         title="Qué incluye este servicio"
         subtitle="Todo queda detallado en tu cotización."
@@ -19,7 +19,7 @@ const { items } = Astro.props;
       />
       <ul class="list">
         {items.map((item) => (
-          <li>
+          <li class="reveal">
             <span class="tile">
               <IconCheck size={24} />
             </span>

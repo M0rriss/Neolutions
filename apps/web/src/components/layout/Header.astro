@@ -138,6 +138,27 @@ const items = mainNav.map((item, index) => ({
       transform: translateX(-50%);
     }
 
+    /* Resplandor que respira bajo el menú */
+    .nav::before {
+      content: "";
+      position: absolute;
+      inset: auto 18% -1px;
+      height: 70%;
+      border-radius: inherit;
+      background: radial-gradient(closest-side, var(--color-accent-500), transparent);
+      filter: blur(10px);
+      opacity: 0.35;
+      pointer-events: none;
+      animation: nav-breathe 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes nav-breathe {
+      to {
+        opacity: 0.7;
+        transform: scaleX(1.25);
+      }
+    }
+
     .mobile {
       display: none;
     }

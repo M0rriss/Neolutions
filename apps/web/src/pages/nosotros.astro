@@ -66,9 +66,9 @@ const initials = (name: string) =>
           align="center"
         />
       </div>
-      <ul class="cards reveal">
+      <ul class="cards">
         {about.values.map((value) => (
-          <li>
+          <li class="reveal">
             <Card>
               <span class="value-icon">
                 <Icon name={value.icon} size={24} />
@@ -93,9 +93,9 @@ const initials = (name: string) =>
           align="center"
         />
       </div>
-      <ul class="cards cards--three reveal">
+      <ul class="cards cards--three">
         {serviceGroups.map((group) => (
-          <li>
+          <li class="reveal">
             <Card>
               <span class="value-icon">
                 <Icon name={group.icon} size={24} />
@@ -114,9 +114,9 @@ const initials = (name: string) =>
       <div class="reveal">
         <SectionHeading title="Qué nos hace diferentes" align="center" />
       </div>
-      <dl class="stats reveal">
+      <dl class="stats">
         {stats.map((item) => (
-          <div class:list={{ todo: isPending(item.value) }}>
+          <div class:list={["reveal", { todo: isPending(item.value) }]}>
             <dd>{item.value}</dd>
             <dt>{item.label}</dt>
           </div>

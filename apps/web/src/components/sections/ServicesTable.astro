@@ -79,7 +79,7 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
         </thead>
         <tbody role="rowgroup">
           {services.map((service) => (
-            <tr class="row" role="row" data-group={service.data.group}>
+            <tr class="row reveal" role="row" data-group={service.data.group}>
               <th class="cell-service" role="rowheader" scope="row">
                 <span class="icon">
                   <Icon name={service.data.icon} size={22} />
@@ -147,6 +147,8 @@ const filters = [{ id: "todos", title: "Todos" }, ...serviceGroups];
       const filter = tab.dataset.filter;
       for (const row of rows) {
         row.hidden = filter !== "todos" && row.dataset.group !== filter;
+        // Una fila oculta al cargar no recibe su entrada: se muestra directo.
+        if (!row.hidden) row.style.opacity = "1";
       }
     };
 

@@ -24,17 +24,19 @@ const related = [
     <div class="reveal">
       <SectionHeading title="Otros servicios" align="center" />
     </div>
-    <div class="grid reveal">
+    <div class="grid">
       {related.map((service) => (
-        <Card>
-          <span class="icon">
-            <Icon name={service.data.icon} size={28} />
-          </span>
-          <h3>
-            <a href={`/servicios/${service.id}`}>{service.data.title}</a>
-          </h3>
-          <p>{service.data.tagline}</p>
-        </Card>
+        <div class="reveal">
+          <Card>
+            <span class="icon">
+              <Icon name={service.data.icon} size={28} />
+            </span>
+            <h3>
+              <a href={`/servicios/${service.id}`}>{service.data.title}</a>
+            </h3>
+            <p>{service.data.tagline}</p>
+          </Card>
+        </div>
       ))}
     </div>
   </Container>

@@ -13,9 +13,9 @@ const { benefits } = Astro.props;
     <div class="reveal">
       <SectionHeading title="Beneficios para tu negocio" align="center" />
     </div>
-    <div class="grid reveal">
+    <div class="grid">
       {benefits.map((benefit, index) => (
-        <article class:list={["tile", { "tile--glow": index % 2 === 1 }]}>
+        <article class:list={["tile reveal", { "tile--glow": index % 2 === 1 }]}>
           <h3>{benefit.title}</h3>
           <p>{benefit.text}</p>
         </article>

@@ -9,16 +9,19 @@ import { whyUs } from "@/data/whyUs";
 <section class="section why" id="g-why">
   <Container>
     <div class="layout">
-      <div class="panel-beam chat reveal" data-slide="left" aria-hidden="true">
-        <div class="chat-top">
-          <span class="avatar">
-            <IconWhatsApp size={20} />
-          </span>
-          <strong>{site.shortName}</strong>
-        </div>
-        <div class="bubbles">
-          <p class="bubble bubble--out">{site.whatsapp.defaultMessage}</p>
-          <p class="bubble">{finalCta.text}</p>
+      <div class="stage">
+        <canvas class="orb" data-orb aria-hidden="true"></canvas>
+        <div class="panel-beam panel-beam--violet chat reveal" data-slide="left" aria-hidden="true">
+          <div class="chat-top">
+            <span class="avatar">
+              <IconWhatsApp size={20} />
+            </span>
+            <strong>{site.shortName}</strong>
+          </div>
+          <div class="bubbles">
+            <p class="bubble bubble--out">{site.whatsapp.defaultMessage}</p>
+            <p class="bubble">{finalCta.text}</p>
+          </div>
         </div>
       </div>
       <div class="copy">
@@ -43,6 +46,20 @@ import { whyUs } from "@/data/whyUs";
     display: grid;
     gap: var(--space-7);
     align-items: center;
+  }
+
+  .stage {
+    position: relative;
+    padding-top: 9rem;
+  }
+
+  .orb {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 15rem;
+    height: 15rem;
+    transform: translateX(-50%);
   }
 
   .chat-top {

@@ -136,26 +136,31 @@ const items = mainNav.map((item, index) => ({
       box-shadow: var(--shadow-glass);
       backdrop-filter: blur(24px) saturate(1.8);
       transform: translateX(-50%);
+      transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .is-scrolled .nav {
+      transform: translateX(-50%) translateY(-6px) scale(0.96);
     }
 
     /* Resplandor que respira bajo el menú */
     .nav::before {
       content: "";
       position: absolute;
-      inset: auto 18% -1px;
-      height: 70%;
+      inset: auto 14% -6px;
+      height: 90%;
       border-radius: inherit;
       background: radial-gradient(closest-side, var(--color-accent-500), transparent);
-      filter: blur(10px);
-      opacity: 0.35;
+      filter: blur(10px) brightness(1.5);
+      opacity: 0.4;
       pointer-events: none;
       animation: nav-breathe 4s ease-in-out infinite alternate;
     }
 
     @keyframes nav-breathe {
       to {
-        opacity: 0.7;
-        transform: scaleX(1.25);
+        opacity: 0.85;
+        transform: scale(1.3);
       }
     }
 

@@ -1,62 +1,60 @@
 ---
-import Card from "@/components/ui/Card.astro";
+import Button from "@/components/ui/Button.astro";
 import Container from "@/components/ui/Container.astro";
-import Icon from "@/components/ui/Icon.astro";
 import SectionHeading from "@/components/ui/SectionHeading.astro";
-import IconArrowRight from "@/components/ui/icons/IconArrowRight.astro";
+import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
 import IconCheck from "@/components/ui/icons/IconCheck.astro";
 import { groupsSection } from "@/data/home";
 import { serviceGroups } from "@/data/serviceGroups";
 import { getServices } from "@/lib/services";
-import { whatsappLink } from "@/lib/whatsapp";
 
 const services = await getServices();
+const featured = Math.floor(serviceGroups.length / 2);
 ---
 
 <section class="section">
   <Container>
     <div class="reveal">
-      <SectionHeading eyebrow={groupsSection.eyebrow} title={groupsSection.title} />
+      <SectionHeading eyebrow={groupsSection.eyebrow} title={groupsSection.title} align="center" />
     </div>
     <div class="grid">
-      {serviceGroups.map((group) => (
-        <div class="reveal">
-          <Card>
-            <div class="inner">
-              <span class="icon">
-                <Icon name={group.icon} size={32} />
-              </span>
-              <h3>{group.title}</h3>
-              <p class="text">{group.description}</p>
-              <ul class="links">
-                {services
-                  .filter((service) => service.data.group === group.id)
-                  .map((service) => (
-                    <li>
-                      <a href={`/servicios/${service.id}`}>
-                        <span class="check">
-                          <IconCheck size={18} />
-                        </span>
-                        {service.data.title}
-                      </a>
-                    </li>
-                  ))}
-              </ul>
-              <a
-                class="quote"
-                href={whatsappLink({ message: group.whatsappMessage })}
-                target="_blank"
-                rel="noopener"
-                aria-label={`${groupsSection.quote}: ${group.title}`}
-                data-track="whatsapp_click"
-                data-origen="bloque"
-              >
-                {groupsSection.quote}
-                <IconArrowRight size={18} />
-              </a>
-            </div>
-          </Card>
-        </div>
+      {serviceGroups.map((group, index) => (
+        <article
+          class:list={[
+            "plan reveal",
+            { "panel-beam": index === featured, "plan--featured": index === featured },
+          ]}
+        >
+          <span class="corner" aria-hidden="true" />
+          <div class="head">
+            <h3>{group.title}</h3>
+            <p>{group.description}</p>
+          </div>
+          <div class="buttons">
+            <WhatsAppButton
+              message={group.whatsappMessage}
+              label={groupsSection.quote}
+              origen="bloque"
+            />
+            <Button variant="secondary" href={`/servicios#${group.id}`}>
+              {groupsSection.see}
+            </Button>
+          </div>
+          <ul class="links">
+            {services
+              .filter((service) => service.data.group === group.id)
+              .map((service) => (
+                <li>
+                  <a href={`/servicios/${service.id}`}>
+                    <span class="check">
+                      <IconCheck size={14} />
+                    </span>
+                    {service.data.title}
+                  </a>
+                </li>
+              ))}
+          </ul>
+        </article>
       ))}
     </div>
   </Container>
@@ -68,33 +66,85 @@ const services = await getServices();
     gap: var(--space-4);
   }
 
-  .reveal {
-    display: grid;
-  }
-
-  .inner {
+  .plan {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
-    height: 100%;
+    gap: var(--space-4);
+    overflow: hidden;
+    padding: var(--space-6) var(--space-5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-black);
+    transition: border-color var(--transition-base);
   }
 
-  .icon {
-    color: var(--color-accent-400);
+  .plan:hover {
+    border-color: var(--color-card-border-solid);
+  }
+
+  .plan--featured {
+    overflow: visible;
+    border: 6px solid var(--color-card-border);
+  }
+
+  /* Luz verde que baja desde la esquina superior */
+  .corner {
+    position: absolute;
+    top: -6rem;
+    right: 10%;
+    width: 12rem;
+    height: 16rem;
+    background: var(--color-accent-500);
+    filter: blur(70px);
+    opacity: 0.14;
+    pointer-events: none;
+    transition: opacity var(--transition-base);
+  }
+
+  .plan:hover .corner {
+    opacity: 0.3;
+  }
+
+  .head,
+  .buttons,
+  .links {
+    position: relative;
+  }
+
+  .head {
+    display: grid;
+    gap: var(--space-3);
+    min-height: 9rem;
+    align-content: start;
   }
 
   h3 {
-    font-size: var(--text-xl);
-    font-weight: var(--weight-semibold);
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-regular);
+    line-height: var(--leading-snug);
   }
 
-  .text {
+  .head p {
     color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .buttons {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .buttons > :global(*) {
+    width: 100%;
   }
 
   .links {
-    flex: 1;
-    margin-block: var(--space-2);
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
   .links a {
@@ -102,7 +152,8 @@ const services = await getServices();
     align-items: center;
     gap: var(--space-2);
     min-height: var(--control-md);
-    color: var(--color-text);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
     text-decoration: none;
     transition: color var(--transition-fast);
   }
@@ -114,15 +165,6 @@ const services = await getServices();
   .check {
     display: flex;
     color: var(--color-accent-400);
-  }
-
-  .quote {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    min-height: var(--control-md);
-    font-weight: var(--weight-semibold);
-    text-decoration: none;
   }
 
   @media (min-width: 1024px) {

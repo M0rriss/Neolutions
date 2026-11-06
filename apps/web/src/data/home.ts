@@ -31,6 +31,7 @@ export const groupsSection = {
   eyebrow: "Soluciones",
   title: "Tres frentes, un solo aliado tecnológico",
   quote: "Cotizar este bloque",
+  see: "Ver servicios",
 } as const;
 
 export const whySection = { title: "Por qué elegir Neolutions" } as const;

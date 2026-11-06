@@ -1,26 +1,33 @@
-import { gsap, ScrollTrigger, SplitText } from "./gsap";
+import { gsap, ScrollTrigger } from "./gsap";
 import { initLenis } from "./lenis";
 import { prefersReducedMotion } from "./reducedMotion";
 
-const EASE = "expo.out";
+const RISE = "power3.out";
+// La opacidad llega tarde respecto al movimiento: el texto sube casi invisible.
+const lateFade = (t: number) => t ** 2.4;
 
-function initSplits() {
-  document.querySelectorAll<HTMLElement>("[data-split]").forEach((element) => {
-    const isHero = element.tagName === "H1";
-    SplitText.create(element, {
-      type: "lines",
-      mask: "lines",
-      linesClass: "metal",
-      autoSplit: true,
-      onSplit: (self) =>
-        gsap.from(self.lines, {
-          yPercent: 115,
-          stagger: 0.12,
-          duration: 1.2,
-          ease: EASE,
-          scrollTrigger: isHero ? undefined : { trigger: element, start: "top 88%", once: true },
-        }),
-    });
+function riseIn(target: gsap.TweenTarget, delay: number, trigger: Element) {
+  const scrollTrigger = { trigger, start: "top 96%", once: true };
+  gsap.fromTo(
+    target,
+    { y: 200 },
+    { y: 0, duration: 1.4, ease: RISE, delay, scrollTrigger, clearProps: "transform" },
+  );
+  gsap.fromTo(
+    target,
+    { opacity: 0 },
+    { opacity: 1, duration: 1.4, ease: lateFade, delay, scrollTrigger },
+  );
+}
+
+/** Títulos y su texto: entran enteros, desde lejos, uno tras otro. */
+function initHeadings() {
+  const first = document.querySelector("main section");
+  document.querySelectorAll<HTMLElement>("[data-split]").forEach((heading) => {
+    if (heading.closest("main section") === first) return;
+    const group = heading.closest(".heading");
+    const parts = group ? [...group.children] : [heading];
+    parts.forEach((part, index) => riseIn(part, index * 0.09, heading));
   });
 }
 
@@ -29,12 +36,12 @@ function initPageEntrance() {
   const first = document.querySelector("main section");
   if (!first) return;
   const items = first.querySelectorAll(
-    ".copy > :not(h1), .info > :not(h1), .intro > :not(h1), .panel, .search, .side, .item",
+    "h1, .copy > :not(h1), .info > :not(h1), .intro > :not(h1), .panel, .search, .side, .item",
   );
   gsap.fromTo(
     items,
-    { opacity: 0, y: 34 },
-    { opacity: 1, y: 0, duration: 1.1, ease: EASE, stagger: 0.07, delay: 0.15 },
+    { opacity: 0, y: 40 },
+    { opacity: 1, y: 0, duration: 1, ease: RISE, stagger: 0.06, delay: 0.1 },
   );
 
   const mock = first.querySelector(".console, .mock");
@@ -43,10 +50,9 @@ function initPageEntrance() {
     mock.classList.remove("reveal");
     gsap.fromTo(
       mock,
-      { y: 170, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1.3, ease: EASE, delay: 0.3 },
+      { y: 240, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1.1, ease: RISE, delay: 0.25 },
     );
-    // Se queda atrás mientras la página sube, como un panel flotando.
     gsap.to(mock, {
       y: 120,
       ease: "none",
@@ -61,14 +67,12 @@ function initPageEntrance() {
   }
 }
 
-/** Todo lo marcado .reveal entra por grupos, un elemento tras otro. */
+/** Tarjetas y filas: 40 px de subida, o 60 px desde el lado en data-slide. */
 function initReveals() {
-  // Un bloque con título se anima por dentro: si no, entraría de una sola pieza.
   document.querySelectorAll(".reveal:has(> .heading)").forEach((wrapper) => {
     wrapper.classList.remove("reveal");
-    wrapper.querySelectorAll(".heading > :not(h2)").forEach((item) => item.classList.add("reveal"));
+    (wrapper as HTMLElement).style.opacity = "1";
   });
-  document.querySelectorAll(".heading > :not(h2)").forEach((item) => item.classList.add("reveal"));
 
   // Con un filtro en la URL las filas ya cambiaron de sitio: entran sin animación.
   if (location.hash) {
@@ -81,14 +85,14 @@ function initReveals() {
   const items = gsap.utils.toArray<HTMLElement>(".reveal");
   gsap.set(items, { opacity: 0 });
   ScrollTrigger.batch(items, {
-    start: "top 90%",
+    start: "top 94%",
     once: true,
-    interval: 0.08,
+    interval: 0.06,
     batchMax: 6,
     onEnter: (batch) => {
       batch.forEach((item, index) => {
         const side = (item as HTMLElement).dataset.slide;
-        const from = side ? { x: side === "left" ? -100 : 100, y: 0 } : { x: 0, y: 72 };
+        const from = side ? { x: side === "left" ? -60 : 60, y: 0 } : { x: 0, y: 40 };
         gsap.fromTo(
           item,
           { ...from, opacity: 0 },
@@ -96,9 +100,9 @@ function initReveals() {
             x: 0,
             y: 0,
             opacity: 1,
-            duration: 1.25,
-            ease: EASE,
-            delay: index * 0.1,
+            duration: 0.9,
+            ease: RISE,
+            delay: index * 0.09,
             clearProps: "transform",
           },
         );
@@ -123,27 +127,41 @@ function initCounters() {
   });
 }
 
+/** Pasos: una banda de luz recorre el riel y solo el paso activo se enciende. */
 function initProcess() {
   const section = document.querySelector<HTMLElement>("#g-process");
-  const fill = section?.querySelector<HTMLElement>("[data-rail-fill]");
+  const band = section?.querySelector<HTMLElement>("[data-rail-fill]");
   const steps = section ? gsap.utils.toArray<HTMLElement>("[data-step]") : [];
-  if (!section || !fill) return;
+  if (!section || !band) return;
 
   gsap.matchMedia().add("(min-width: 1024px)", () => {
+    // El número sigue encendido: solo se atenúa el texto de cada paso.
+    const textOf = (step: HTMLElement) => step.querySelectorAll(":scope > :not(.number)");
+    steps.slice(1).forEach((step) => gsap.set(textOf(step), { opacity: 0.35 }));
     const timeline = gsap.timeline({
-      scrollTrigger: { trigger: section, start: "top top", end: "+=160%", pin: true, scrub: 0.6 },
+      scrollTrigger: { trigger: section, start: "top top", end: "+=180%", pin: true, scrub: 0.6 },
     });
-    timeline.fromTo(fill, { scaleY: 0 }, { scaleY: 1, ease: "none", duration: steps.length }, 0);
+    timeline.fromTo(
+      band,
+      { yPercent: -100 },
+      { yPercent: 300, ease: "none", duration: steps.length },
+      0,
+    );
     steps.forEach((step, index) => {
-      timeline.fromTo(step, { opacity: 0.35 }, { opacity: 1, duration: 0.4, ease: "none" }, index);
+      if (index > 0) {
+        timeline.to(textOf(step), { opacity: 1, duration: 0.3, ease: "none" }, index - 0.15);
+      }
+      if (index < steps.length - 1) {
+        timeline.to(textOf(step), { opacity: 0.45, duration: 0.3, ease: "none" }, index + 0.7);
+      }
     });
   });
 }
 
-/** Destellos de puntos en las tarjetas; solo se anima opacity, sin coste de layout. */
+/** Destellos de puntos en las tarjetas; solo se anima opacity. */
 function initSparkles() {
   const hosts = document.querySelectorAll<HTMLElement>(
-    ".panel-beam, .card, .channel, .guided, a.tile, article.tile, li.tile, .frame, .final .panel",
+    ".panel-beam, .card, .channel, .guided, a.tile, article.tile, li.tile, .frame, .final .panel, .plan",
   );
   hosts.forEach((host) => {
     if (getComputedStyle(host).position === "static") host.style.position = "relative";
@@ -162,10 +180,10 @@ function initSparkles() {
   });
 }
 
-/** Resplandor que sigue al cursor. Una sola escucha para todas las tarjetas. */
-function initSpotlight() {
+/** Resplandor de tarjetas y luz del botón: siguen al cursor con una sola escucha. */
+function initPointerEffects() {
   if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-  const selector = ".card, .channel, a.tile, article.tile, .action, .row, .item";
+  const selector = ".card, .channel, a.tile, article.tile, .action, .row, .item, .plan";
   document.querySelectorAll<HTMLElement>(selector).forEach((item) => {
     item.dataset.spot = "";
     if (getComputedStyle(item).position === "static") item.style.position = "relative";
@@ -173,33 +191,23 @@ function initSpotlight() {
   document.addEventListener(
     "pointermove",
     (event) => {
-      const target =
-        event.target instanceof Element ? event.target.closest<HTMLElement>("[data-spot]") : null;
-      if (!target) return;
-      const box = target.getBoundingClientRect();
-      target.style.setProperty("--x", `${event.clientX - box.left}px`);
-      target.style.setProperty("--y", `${event.clientY - box.top}px`);
+      const element = event.target instanceof Element ? event.target : null;
+      const target = element?.closest<HTMLElement>("[data-spot]");
+      if (target) {
+        const box = target.getBoundingClientRect();
+        target.style.setProperty("--x", `${event.clientX - box.left}px`);
+        target.style.setProperty("--y", `${event.clientY - box.top}px`);
+      }
+      // Los formularios React aparecen después: se buscan en cada movimiento cercano.
+      document.querySelectorAll<HTMLElement>(".btn--primary").forEach((button) => {
+        const box = button.getBoundingClientRect();
+        if (Math.abs(event.clientY - (box.top + box.height / 2)) > 120) return;
+        const position = gsap.utils.clamp(0, 100, ((event.clientX - box.left) / box.width) * 100);
+        button.style.setProperty("--lx", `${position}%`);
+      });
     },
     { passive: true },
   );
-}
-
-/** El botón principal se acerca al cursor hasta 6 px. */
-function initMagnetic() {
-  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-  document.querySelectorAll<HTMLElement>(".btn--primary.btn--lg").forEach((button) => {
-    const x = gsap.quickTo(button, "x", { duration: 0.5, ease: "power3" });
-    const y = gsap.quickTo(button, "y", { duration: 0.5, ease: "power3" });
-    button.addEventListener("pointermove", (event) => {
-      const box = button.getBoundingClientRect();
-      x(((event.clientX - box.left) / box.width - 0.5) * 12);
-      y(((event.clientY - box.top) / box.height - 0.5) * 12);
-    });
-    button.addEventListener("pointerleave", () => {
-      x(0);
-      y(0);
-    });
-  });
 }
 
 function initCarousels() {
@@ -218,7 +226,7 @@ function initCarousels() {
       gsap.to(track, {
         x: -Math.min(slide.offsetLeft, Math.max(max, 0)),
         duration: 0.9,
-        ease: EASE,
+        ease: RISE,
       });
       timer.restart();
     };
@@ -236,53 +244,88 @@ function initCarousels() {
   });
 }
 
-/** Barras de partículas que crecen; viven solo mientras están en pantalla. */
-function initBars() {
-  document.querySelectorAll<HTMLCanvasElement>("[data-bars]").forEach((canvas) => {
-    const context = canvas.getContext("2d");
-    if (!context) return;
-    const ratio = Math.min(window.devicePixelRatio, 1.5);
-    const { width, height } = canvas.getBoundingClientRect();
-    canvas.width = width * ratio;
-    canvas.height = height * ratio;
-    context.scale(ratio, ratio);
-    context.fillStyle = getComputedStyle(document.documentElement).getPropertyValue(
-      "--color-accent-400",
-    );
+/** Ejecuta `draw` solo mientras el canvas se ve en pantalla. */
+function whileVisible(canvas: HTMLCanvasElement, draw: (seconds: number) => void) {
+  let visible = false;
+  const loop = (time: number) => {
+    if (!visible) return;
+    draw(time / 1000);
+    requestAnimationFrame(loop);
+  };
+  new IntersectionObserver(([entry]) => {
+    const wasVisible = visible;
+    visible = entry.isIntersecting;
+    if (visible && !wasVisible) requestAnimationFrame(loop);
+  }).observe(canvas);
+}
 
-    const BARS = 6;
-    const slot = width / BARS;
-    const points = Array.from({ length: BARS * 800 }, (_, i) => {
-      const bar = i % BARS;
-      const top = height * (0.72 - (bar / (BARS - 1)) * 0.68) + (bar % 2 ? height * 0.07 : 0);
-      const body = height * 0.34;
-      const half = Math.min(slot * 0.2, 14);
-      const wick = Math.random() < 0.16;
-      return {
-        x: slot * (bar + 0.5) + (Math.random() * 2 - 1) * (wick ? 2 : half),
-        y: top + Math.random() * (body + (wick ? 50 : 0)) - (wick ? 26 : 0),
-        phase: Math.random() * Math.PI * 2,
-        speed: 0.6 + Math.random() * 1.4,
-      };
-    });
+function prepare2d(canvas: HTMLCanvasElement, color: string) {
+  const context = canvas.getContext("2d");
+  if (!context) return null;
+  const ratio = Math.min(window.devicePixelRatio, 1.5);
+  const { width, height } = canvas.getBoundingClientRect();
+  canvas.width = width * ratio;
+  canvas.height = height * ratio;
+  context.scale(ratio, ratio);
+  context.fillStyle = getComputedStyle(document.documentElement).getPropertyValue(color);
+  return { context, width, height };
+}
 
-    let visible = false;
-    const draw = (time: number) => {
-      if (!visible) return;
-      const t = time / 1000;
-      context.clearRect(0, 0, width, height);
-      for (const point of points) {
-        const wave = Math.sin(t * point.speed + point.phase);
-        context.globalAlpha = 0.3 + 0.7 * Math.abs(wave);
-        context.fillRect(point.x, point.y + wave * 3, 1.8, 1.8);
-      }
-      requestAnimationFrame(draw);
+/** Versión 2D de las velas, para celular y equipos sin WebGL. */
+function drawBars2d(canvas: HTMLCanvasElement) {
+  const ready = prepare2d(canvas, "--color-accent-400");
+  if (!ready) return;
+  const { context, width, height } = ready;
+  const BARS = 6;
+  const slot = width / BARS;
+  const points = Array.from({ length: BARS * 800 }, (_, i) => {
+    const bar = i % BARS;
+    const top = height * (0.72 - (bar / (BARS - 1)) * 0.68) + (bar % 2 ? height * 0.07 : 0);
+    const half = Math.min(slot * 0.2, 14);
+    const wick = Math.random() < 0.16;
+    return {
+      x: slot * (bar + 0.5) + (Math.random() * 2 - 1) * (wick ? 2 : half),
+      y: top + Math.random() * (height * 0.34 + (wick ? 50 : 0)) - (wick ? 26 : 0),
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.6 + Math.random() * 1.4,
     };
-    new IntersectionObserver(([entry]) => {
-      const wasVisible = visible;
-      visible = entry.isIntersecting;
-      if (visible && !wasVisible) requestAnimationFrame(draw);
-    }).observe(canvas);
+  });
+  whileVisible(canvas, (t) => {
+    context.clearRect(0, 0, width, height);
+    for (const point of points) {
+      const wave = Math.sin(t * point.speed + point.phase);
+      context.globalAlpha = 0.3 + 0.7 * Math.abs(wave);
+      context.fillRect(point.x, point.y + wave * 3, 1.8, 1.8);
+    }
+  });
+}
+
+/** Orbe de partículas que gira. */
+function initOrbs() {
+  document.querySelectorAll<HTMLCanvasElement>("[data-orb]").forEach((canvas) => {
+    const ready = prepare2d(canvas, "--color-violet-400");
+    if (!ready) return;
+    const { context, width, height } = ready;
+    const COUNT = 900;
+    const GOLDEN = Math.PI * (3 - Math.sqrt(5));
+    const radius = Math.min(width, height) * 0.46;
+    whileVisible(canvas, (t) => {
+      context.clearRect(0, 0, width, height);
+      for (let i = 0; i < COUNT; i += 1) {
+        const y = 1 - (i / (COUNT - 1)) * 2;
+        const ring = Math.sqrt(1 - y * y);
+        const angle = GOLDEN * i + t * 0.35;
+        const z = Math.sin(angle) * ring;
+        const wobble = 1 + Math.sin(t * 1.1 + i * 0.04) * 0.04;
+        context.globalAlpha = 0.12 + 0.88 * ((z + 1) / 2) ** 2;
+        context.fillRect(
+          width / 2 + Math.cos(angle) * ring * radius * wobble,
+          height / 2 + y * radius * wobble,
+          1.8,
+          1.8,
+        );
+      }
+    });
   });
 }
 
@@ -294,12 +337,28 @@ function hasWebGL() {
   }
 }
 
+const canUse3d = () => window.innerWidth >= 1024 && hasWebGL();
+
+async function initCandles() {
+  const canvases = [...document.querySelectorAll<HTMLCanvasElement>("[data-bars]")];
+  if (!canvases.length) return;
+  if (!canUse3d()) {
+    canvases.forEach(drawBars2d);
+    return;
+  }
+  const { startCandles } = await import("./scene");
+  canvases.forEach(startCandles);
+}
+
 async function initScene() {
   const canvas = document.querySelector<HTMLCanvasElement>("[data-scene]");
-  if (!canvas || window.innerWidth < 1024 || !hasWebGL()) return;
+  if (!canvas || !canUse3d()) return;
 
   // Three.js llega aparte: en celular nunca se descarga.
   const { sceneState, startScene } = await import("./scene");
+  const isHome = Boolean(document.querySelector("#g-hold"));
+  // Fuera de la portada la escena aparece solo al llegar a los pasos.
+  if (!isHome) Object.assign(sceneState, { opacity: 0, mix: 0, y: 0, scale: 0.95, spin: 0 });
   await startScene(canvas);
   document.documentElement.classList.add("has-scene");
   gsap.fromTo(canvas, { opacity: 0 }, { opacity: 1, duration: 1.2 });
@@ -341,10 +400,10 @@ async function initScene() {
     "#g-process",
     "top 90%",
     "top top",
-    { mix: 1, opacity: 0.12, y: -0.12, scale: 1.08 },
-    { mix: 0, opacity: 1, y: 0, scale: 0.95 },
+    isHome ? { mix: 1, opacity: 0.12, y: -0.12, scale: 1.08 } : { opacity: 0 },
+    isHome ? { mix: 0, opacity: 1, y: 0, scale: 0.95 } : { opacity: 1 },
   );
-  segment("#g-why", "top 90%", "top 40%", { opacity: 1 }, { opacity: 0 });
+  segment(isHome ? "#g-why" : ".final", "top 90%", "top 40%", { opacity: 1 }, { opacity: 0 });
   ScrollTrigger.refresh();
 }
 
@@ -360,17 +419,17 @@ if (prefersReducedMotion()) {
   window.__motion = true;
   initLenis();
   initSparkles();
-  initSpotlight();
-  initMagnetic();
+  initPointerEffects();
   document.fonts.ready.then(() => {
-    initSplits();
     initPageEntrance();
+    initHeadings();
     initReveals();
     initCounters();
     initProcess();
     initCarousels();
-    initBars();
+    initOrbs();
     ScrollTrigger.refresh();
+    void initCandles();
     void initScene();
   });
 }

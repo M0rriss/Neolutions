@@ -14,6 +14,15 @@ html {
   scroll-padding-top: calc(var(--header-height) + var(--space-4));
 }
 
+/* La barra de scroll va oculta: el avance se percibe con la página */
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  scrollbar-width: none;
+}
+
 html:has(dialog[open]) {
   overflow: hidden;
 }
@@ -120,6 +129,10 @@ a {
 }
 
 main {
+  position: relative;
+}
+
+main > * {
   position: relative;
 }
 
@@ -295,29 +308,59 @@ footer {
   opacity: 1;
 }
 
-/* Barrido de luz en el botón principal */
+/* Botón principal: metal claro con luz y anillo que siguen al cursor */
+@property --lx {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 24%;
+}
+
+.btn.btn--primary.btn--primary,
 .btn--primary {
   position: relative;
-  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background:
+    radial-gradient(42% 170% at var(--lx) 50%, #ffffff, var(--color-mint) 45%, transparent 100%),
+    var(--color-metal);
+  color: var(--color-text-on-accent);
+  transition:
+    --lx 350ms ease,
+    box-shadow var(--transition-base);
 }
 
-.btn--primary::after {
+.btn--primary::before {
   content: "";
   position: absolute;
-  inset: 0 auto 0 0;
-  width: 42%;
-  background: linear-gradient(100deg, transparent, var(--color-accent-400), transparent);
-  opacity: 0.5;
+  inset: -4px;
+  border: 2px solid var(--color-accent-400);
+  border-radius: inherit;
+  box-shadow:
+    0 0 14px 1px var(--color-accent-400),
+    inset 0 0 8px var(--color-accent-500);
+  -webkit-mask-image: radial-gradient(70% 240% at var(--lx) 50%, #000 25%, transparent 100%);
+  mask-image: radial-gradient(70% 240% at var(--lx) 50%, #000 25%, transparent 100%);
+  opacity: 0.9;
   pointer-events: none;
-  transform: translateX(-120%);
-  animation: sheen 3.6s ease-in-out infinite;
+  transition: opacity var(--transition-base);
 }
 
-@keyframes sheen {
-  60%,
-  100% {
-    transform: translateX(260%);
-  }
+.btn--primary:hover::before {
+  opacity: 1;
+}
+
+.btn.btn--secondary.btn--secondary {
+  border: 1px solid var(--color-card-border-solid);
+  background: linear-gradient(100deg, var(--color-brand-900) 45%, var(--color-item));
+  color: var(--color-text);
+  transition:
+    border-color var(--transition-base),
+    box-shadow var(--transition-base),
+    background-color var(--transition-base);
+}
+
+.btn.btn--secondary.btn--secondary:hover {
+  border-color: var(--color-accent-400);
+  box-shadow: 0 0 18px -6px var(--color-accent-400);
 }
 
 @media (prefers-reduced-motion: reduce) {

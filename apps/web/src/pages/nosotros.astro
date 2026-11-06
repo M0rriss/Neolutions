@@ -1,5 +1,6 @@
 ---
 import FinalCta from "@/components/sections/FinalCta.astro";
+import GlobeStage from "@/components/sections/GlobeStage.astro";
 import PageHero from "@/components/sections/PageHero.astro";
 import Process from "@/components/sections/Process.astro";
 import Button from "@/components/ui/Button.astro";
@@ -24,6 +25,7 @@ const initials = (name: string) =>
 ---
 
 <PageLayout title={about.title} description={about.description}>
+  <GlobeStage />
   <PageHero badge={about.eyebrow} title={about.headline} text={about.intro}>
     <div class="actions">
       <WhatsAppButton size="lg" origen="nosotros" />

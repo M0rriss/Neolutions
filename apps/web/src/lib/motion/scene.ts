@@ -17,6 +17,8 @@ const vertex = /* glsl */ `
   uniform float uTime;
   uniform float uMix;
   uniform float uSize;
+  uniform vec2 uPointer;
+  uniform float uAspect;
   varying float vAlpha;
   varying float vKind;
 
@@ -55,6 +57,12 @@ const vertex = /* glsl */ `
     vKind = aKind;
     gl_PointSize = size / -view.z;
     gl_Position = projectionMatrix * view;
+
+    // Los puntos se apartan del cursor
+    vec2 ndc = gl_Position.xy / gl_Position.w;
+    vec2 delta = (ndc - uPointer) * vec2(uAspect, 1.0);
+    float reach = smoothstep(0.34, 0.0, length(delta));
+    gl_Position.xy += normalize(delta + 0.0001) * reach * 0.09 * gl_Position.w / vec2(uAspect, 1.0);
   }
 `;
 
@@ -188,6 +196,8 @@ export async function startScene(canvas: HTMLCanvasElement) {
     uTime: { value: 0 },
     uMix: { value: 0 },
     uOpacity: { value: 1 },
+    uPointer: { value: new THREE.Vector2(9, 9) },
+    uAspect: { value: 1 },
     uSize: { value: 13.5 },
     uColor: { value: new THREE.Color("#12d6bd") },
     uHot: { value: new THREE.Color("#ffffff") },
@@ -207,6 +217,13 @@ export async function startScene(canvas: HTMLCanvasElement) {
   const points = new THREE.Points(geometry, material);
   points.frustumCulled = false;
   scene.add(points);
+
+  const mirrorMaterial = material.clone();
+  mirrorMaterial.uniforms = { ...uniforms, uOpacity: { value: 0.09 } };
+  mirrorMaterial.side = THREE.DoubleSide;
+  const mirror = new THREE.Points(geometry, mirrorMaterial);
+  mirror.frustumCulled = false;
+  scene.add(mirror);
 
   // Columnas de datos del inicio: no giran con el globo
   const columnPosition = new Float32Array(COLUMN_POINTS * 3);
@@ -251,16 +268,19 @@ export async function startScene(canvas: HTMLCanvasElement) {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     uniforms.uSize.value = 13.5 * pixelRatio * (window.innerHeight / 900);
+    uniforms.uAspect.value = camera.aspect;
   };
   resize();
   window.addEventListener("resize", resize);
 
   const pointer = { x: 0, y: 0 };
+  const smooth = { x: 0, y: 0, active: 0 };
   window.addEventListener(
     "pointermove",
     (event) => {
       pointer.x = (event.clientX / window.innerWidth - 0.5) * 2;
       pointer.y = (event.clientY / window.innerHeight - 0.5) * 2;
+      smooth.active = 1;
     },
     { passive: true },
   );
@@ -276,8 +296,15 @@ export async function startScene(canvas: HTMLCanvasElement) {
       return;
     }
     const time = clock.getElapsedTime();
-    tiltX = lerp(tiltX, pointer.y * 0.12, 0.05);
-    tiltY = lerp(tiltY, pointer.x * 0.18, 0.05);
+    tiltX = lerp(tiltX, pointer.y * 0.3, 0.06);
+    tiltY = lerp(tiltY, pointer.x * 0.5, 0.06);
+    smooth.x = lerp(smooth.x, pointer.x, 0.14);
+    smooth.y = lerp(smooth.y, pointer.y, 0.14);
+    if (smooth.active) uniforms.uPointer.value.set(smooth.x, -smooth.y);
+    (canvas.parentElement as HTMLElement).style.setProperty(
+      "--scene-opacity",
+      String(sceneState.opacity),
+    );
     const { mix, y, scale, opacity, spin } = sceneState;
     const sway = Math.sin(time * 0.16) * 0.26;
     points.rotation.y =
@@ -285,13 +312,129 @@ export async function startScene(canvas: HTMLCanvasElement) {
     points.rotation.x = lerp(LIMA_ROTATION.x, -0.62 + Math.cos(time * 0.4) * 0.08, mix) + tiltX;
     points.rotation.z = lerp(0, 0.12, mix);
     points.position.y = y;
+    points.position.x = tiltY * 0.25;
     points.scale.setScalar(scale);
+    // Reflejo bajo el globo, solo cuando está centrado y a tamaño de pasos
+    mirror.visible = mix < 0.5 && scale < 1.2;
+    mirror.rotation.copy(points.rotation);
+    mirror.position.set(points.position.x, y - scale * 2.02, 0);
+    mirror.scale.set(scale, -scale * 0.5, scale);
     const inHero = THREE.MathUtils.clamp((-y - 0.9) / 1.2, 0, 1);
     columns.visible = inHero > 0.01;
     columnMaterial.uniforms.uOpacity.value = inHero * 0.75;
     uniforms.uTime.value = time;
     uniforms.uMix.value = mix;
     uniforms.uOpacity.value = opacity;
+    mirrorMaterial.uniforms.uOpacity.value = opacity * 0.09;
+    renderer.render(scene, camera);
+  });
+}
+
+const candleVertex = /* glsl */ `
+  attribute float aSeed;
+  uniform float uTime;
+  uniform float uSize;
+  varying float vAlpha;
+
+  void main() {
+    vec3 point = position;
+    point += normalize(position + 0.001) * sin(uTime * (0.7 + aSeed) + aSeed * 30.0) * 0.012;
+    vec4 view = modelViewMatrix * vec4(point, 1.0);
+    vAlpha = 0.2 + 0.55 * abs(sin(uTime * (0.5 + aSeed) + aSeed * 20.0));
+    gl_PointSize = uSize * (0.7 + aSeed * 0.6) / -view.z;
+    gl_Position = projectionMatrix * view;
+  }
+`;
+
+const candleFragment = /* glsl */ `
+  uniform vec3 uColor;
+  varying float vAlpha;
+
+  void main() {
+    float dot = smoothstep(0.5, 0.05, length(gl_PointCoord - 0.5));
+    gl_FragColor = vec4(uColor, dot * vAlpha);
+  }
+`;
+
+/** Velas de partículas que suben: el cierre de cada página. */
+export function startCandles(canvas: HTMLCanvasElement) {
+  const CANDLES = 6;
+  const PER_CANDLE = 1500;
+  const total = CANDLES * PER_CANDLE;
+  const position = new Float32Array(total * 3);
+  const seed = new Float32Array(total);
+  for (let i = 0; i < total; i += 1) {
+    const candle = i % CANDLES;
+    const x = (candle - (CANDLES - 1) / 2) * 0.72;
+    const center = -0.85 + (candle / (CANDLES - 1)) * 1.8 + (candle % 2 ? -0.16 : 0);
+    const wick = Math.random() < 0.14;
+    const angle = Math.random() * Math.PI * 2;
+    const radius = wick ? 0.02 : 0.15 * Math.sqrt(0.55 + Math.random() * 0.45);
+    const height = (wick ? 1.05 : 0.72) * (Math.random() - 0.5);
+    position.set([x + Math.cos(angle) * radius, center + height, Math.sin(angle) * radius], i * 3);
+    seed[i] = Math.random();
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(position, 3));
+  geometry.setAttribute("aSeed", new THREE.BufferAttribute(seed, 1));
+  const material = new THREE.ShaderMaterial({
+    vertexShader: candleVertex,
+    fragmentShader: candleFragment,
+    uniforms: {
+      uTime: { value: 0 },
+      uSize: { value: 14 },
+      uColor: { value: new THREE.Color("#12d6bd") },
+    },
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 20);
+  camera.position.z = 6;
+  const points = new THREE.Points(geometry, material);
+  points.frustumCulled = false;
+  scene.add(points);
+
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    alpha: true,
+    antialias: false,
+    powerPreference: "low-power",
+  });
+  const ratio = Math.min(window.devicePixelRatio, 1.5);
+  renderer.setPixelRatio(ratio);
+  const { width, height } = canvas.getBoundingClientRect();
+  renderer.setSize(width, height, false);
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+  material.uniforms.uSize.value = 14 * ratio * (height / 350);
+
+  const pointer = { x: 0, y: 0 };
+  window.addEventListener(
+    "pointermove",
+    (event) => {
+      pointer.x = (event.clientX / window.innerWidth - 0.5) * 2;
+      pointer.y = (event.clientY / window.innerHeight - 0.5) * 2;
+    },
+    { passive: true },
+  );
+
+  const clock = new THREE.Clock();
+  let visible = false;
+  new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+  }).observe(canvas);
+  renderer.setAnimationLoop(() => {
+    if (!visible) return;
+    const time = clock.getElapsedTime();
+    points.rotation.y = THREE.MathUtils.lerp(
+      points.rotation.y,
+      Math.sin(time * 0.3) * 0.32 + pointer.x * 0.35,
+      0.05,
+    );
+    points.rotation.x = THREE.MathUtils.lerp(points.rotation.x, pointer.y * 0.16, 0.05);
+    material.uniforms.uTime.value = time;
     renderer.render(scene, camera);
   });
 }

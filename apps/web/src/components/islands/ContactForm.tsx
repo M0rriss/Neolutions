@@ -131,7 +131,7 @@ export default function ContactForm({ services, defaultService = "" }: Props) {
         </div>
       )}
 
-      <button className={styles.submit} type="submit" disabled={isSubmitting}>
+      <button className={`${styles.submit} btn--primary`} type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Enviando..." : "Enviar solicitud"}
       </button>
     </form>

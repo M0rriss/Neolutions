@@ -82,17 +82,7 @@
 }
 
 .submit {
-  position: relative;
-  overflow: hidden;
-  border: 0;
   border-radius: var(--radius-pill);
-  background: var(--gradient-gloss);
-  box-shadow: 0 0 16px -2px var(--color-accent-400);
-  color: var(--color-text-on-accent);
-}
-
-.submit:hover:not(:disabled) {
-  box-shadow: var(--shadow-accent);
 }
 
 .submit:disabled {

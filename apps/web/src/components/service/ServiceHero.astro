@@ -4,7 +4,9 @@ import type { CollectionEntry } from "astro:content";
 import Badge from "@/components/ui/Badge.astro";
 import Button from "@/components/ui/Button.astro";
 import Container from "@/components/ui/Container.astro";
+import ParticleFigure from "@/components/ui/ParticleFigure.astro";
 import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
+import { SERVICE_FIGURE } from "@/lib/motion/particleFigures";
 
 interface Props {
   servicio: CollectionEntry<"servicios">;
@@ -41,8 +43,8 @@ const { data, id } = servicio;
       </div>
     </div>
 
-    <div class="panel-beam mock reveal" aria-hidden="true">
-      {data.image ? (
+    {data.image ? (
+      <div class="panel-beam mock reveal" aria-hidden="true">
         <Image
           src={data.image}
           alt=""
@@ -51,10 +53,12 @@ const { data, id } = servicio;
           loading="eager"
           fetchpriority="high"
         />
-      ) : (
-        <img src={`/images/servicios/${id}.svg`} alt="" width="1030" height="539" />
-      )}
-    </div>
+      </div>
+    ) : (
+      <div class="figure">
+        <ParticleFigure name={SERVICE_FIGURE[id] ?? "cpu"} />
+      </div>
+    )}
 
     <ul class="pills reveal">
       {data.benefits.map((benefit) => (
@@ -106,7 +110,7 @@ const { data, id } = servicio;
     padding-bottom: 0.14em;
     margin-bottom: -0.14em;
     font-size: var(--hero-title-size);
-    font-weight: var(--weight-regular);
+    font-weight: var(--weight-heading);
     line-height: var(--hero-title-leading);
   }
 
@@ -138,7 +142,16 @@ const { data, id } = servicio;
     height: auto;
   }
 
+  /* Solo las partículas sobre el fondo oscuro, sin marco */
+  .figure {
+    height: clamp(20rem, 40vw, 36rem);
+    margin-block: var(--space-5);
+  }
+
+  /* Por encima del panel: con el parallax el panel baja y las taparía */
   .pills {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;

@@ -68,7 +68,7 @@ const { service } = Astro.props;
     margin-bottom: -0.14em;
     font-family: var(--font-display);
     font-size: var(--text-4xl);
-    font-weight: var(--weight-regular);
+    font-weight: var(--weight-heading);
     line-height: var(--leading-tight);
   }
 
@@ -83,6 +83,13 @@ const { service } = Astro.props;
 
   .steps {
     position: relative;
+  }
+
+  /* En pantallas angostas el planeta pasa entre el texto y los pasos */
+  @media (max-width: 1023px) {
+    .layout {
+      gap: 66vw;
+    }
   }
 
   .list {
@@ -111,9 +118,10 @@ const { service } = Astro.props;
     border-radius: var(--radius-pill);
     background:
       linear-gradient(
-        transparent calc(var(--band) - 16%),
-        color-mix(in srgb, var(--color-mint) 85%, transparent) var(--band),
-        transparent calc(var(--band) + 16%)
+        transparent calc(var(--band) - 14%),
+        color-mix(in srgb, var(--color-mint) 80%, transparent) calc(var(--band) - 2%),
+        color-mix(in srgb, var(--color-mint) 80%, transparent) calc(var(--band) + 2%),
+        transparent calc(var(--band) + 14%)
       ),
       linear-gradient(var(--color-rail-top), var(--color-rail-mid) 55%, var(--color-rail-end));
   }
@@ -136,7 +144,8 @@ const { service } = Astro.props;
     height: var(--marker);
     border-radius: 50%;
     background: radial-gradient(circle at 50% 35%, #ffffff, #d7dae0);
-    box-shadow: 0 0 10px 1px color-mix(in srgb, var(--color-accent-500) 35%, transparent);
+    box-shadow: 0 0 calc(10px + var(--glow, 0) * 18px) calc(1px + var(--glow, 0) * 5px)
+      color-mix(in srgb, var(--color-accent-500) calc(35% + var(--glow, 0) * 50%), transparent);
     color: var(--color-brand-900);
     font-size: var(--text-sm);
     line-height: 1;

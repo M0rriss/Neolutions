@@ -25,7 +25,7 @@ const featured = Math.floor(serviceGroups.length / 2);
           <span class="halo" aria-hidden="true"></span>
           <span class="glow" aria-hidden="true"></span>
           <div class="head">
-            <h3 class="metal">{group.title}</h3>
+            <h3 class="metal" title={group.title}>{group.short}</h3>
             {index === featured && (
               <span class="tag">
                 <Icon name="spark" size={12} />
@@ -120,8 +120,8 @@ const featured = Math.floor(serviceGroups.length / 2);
     top: 0;
     left: 10%;
     width: 80%;
-    height: var(--plan-edge, 5px);
-    background: radial-gradient(50% 100% at 50% 50%, var(--color-mint), var(--color-accent-400) 45%, transparent);
+    height: 3px;
+    background: radial-gradient(50% 100% at 50% 50%, #ffffff, var(--color-accent-400) 40%, transparent);
     opacity: 0;
     transition: opacity 800ms ease-in 150ms;
   }
@@ -129,18 +129,27 @@ const featured = Math.floor(serviceGroups.length / 2);
   /* Elipse detrás de la tarjeta: su luz asoma por encima del borde */
   .halo {
     position: absolute;
-    top: 1.3%;
-    left: 15%;
-    z-index: -1;
-    width: 70%;
-    height: 5.7%;
-    border-radius: 50%;
-    box-shadow:
-      inset 0 2px 20px 0 var(--color-accent-500),
-      0 -10px 50px 1px var(--color-accent-500);
+    bottom: 100%;
+    left: 0;
+    width: 100%;
+    height: 8rem;
+    overflow: hidden;
     opacity: 0;
     pointer-events: none;
     transition: opacity 800ms ease-in 150ms;
+  }
+
+  .halo::after {
+    content: "";
+    position: absolute;
+    right: 15%;
+    bottom: -1.4rem;
+    left: 15%;
+    height: 1.4rem;
+    border-radius: 50%;
+    box-shadow:
+      0 0 26px 6px var(--color-accent-400),
+      0 -12px 60px 8px var(--color-accent-500);
   }
 
   .plan:hover .edge-hover,
@@ -174,8 +183,6 @@ const featured = Math.floor(serviceGroups.length / 2);
     align-items: flex-start;
     justify-content: space-between;
     gap: var(--space-2);
-    min-height: 2.6em;
-    font-size: var(--text-2xl);
   }
 
   h3 {
@@ -253,10 +260,6 @@ const featured = Math.floor(serviceGroups.length / 2);
       gap: 1.05vw;
       padding: 3.24vw 1.7vw 3.72vw;
       border-radius: 1.4vw;
-    }
-
-    .head {
-      font-size: 1.9125vw;
     }
 
     h3 {

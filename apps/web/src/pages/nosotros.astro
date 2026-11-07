@@ -1,6 +1,7 @@
 ---
 import FinalCta from "@/components/sections/FinalCta.astro";
 import GlobeStage from "@/components/sections/GlobeStage.astro";
+import ParticleFigure from "@/components/ui/ParticleFigure.astro";
 import PageHero from "@/components/sections/PageHero.astro";
 import Process from "@/components/sections/Process.astro";
 import Button from "@/components/ui/Button.astro";
@@ -30,13 +31,15 @@ const initials = (name: string) =>
     badge={about.eyebrow}
     title={about.headline}
     text={about.intro}
-    image="/images/showcase/soporte.svg"
   >
     <div class="actions">
       <WhatsAppButton size="lg" origen="nosotros" />
       <Button variant="secondary" size="lg" href="/servicios">
         Ver servicios
       </Button>
+    </div>
+    <div class="hero-figure" slot="after">
+      <ParticleFigure name="network" />
     </div>
   </PageHero>
 
@@ -167,6 +170,11 @@ const initials = (name: string) =>
 </PageLayout>
 
 <style>
+  .hero-figure {
+    height: clamp(16rem, 30vw, 26rem);
+    margin-top: var(--space-6);
+  }
+
   .centered {
     text-align: center;
   }

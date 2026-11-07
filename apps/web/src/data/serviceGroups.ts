@@ -5,6 +5,7 @@ export const serviceGroups = [
   {
     id: "soporte-infraestructura",
     title: "Soporte e infraestructura",
+    short: "Soporte",
     description: "Equipos y redes funcionando para que tu negocio no se detenga.",
     icon: "support",
     whatsappMessage: "Hola Neolutions, quiero cotizar soporte e infraestructura para mi negocio.",
@@ -12,6 +13,7 @@ export const serviceGroups = [
   {
     id: "seguridad",
     title: "Seguridad",
+    short: "Seguridad",
     description: "Vigila tu local y revisa todo desde el celular.",
     icon: "camera",
     whatsappMessage: "Hola Neolutions, quiero cotizar seguridad para mi negocio.",
@@ -19,6 +21,7 @@ export const serviceGroups = [
   {
     id: "desarrollo-digital",
     title: "Desarrollo y marketing digital",
+    short: "Digital",
     description: "Web, apps y sistemas para vender más y trabajar mejor.",
     icon: "web",
     whatsappMessage:

@@ -25,12 +25,14 @@ import { hero } from "@/data/home";
 
     <img
       class="fallback"
-      src="/images/hero/red-estatica.jpg"
+      data-src="/images/hero/red-estatica.jpg"
       alt=""
       width="840"
       height="840"
-      loading="lazy"
     />
+    <noscript>
+      <img class="fallback" src="/images/hero/red-estatica.jpg" alt="" width="840" height="840" />
+    </noscript>
 
     <div class="panel-beam console" aria-hidden="true">
       <picture>
@@ -45,8 +47,10 @@ import { hero } from "@/data/home";
   .hero {
     margin-top: calc(-1 * var(--header-height));
     padding-top: calc(var(--header-height) + var(--space-6));
-    /* Reserva el recorrido del parallax para que el panel no pise la sección siguiente */
-    padding-bottom: var(--parallax-reserve);
+    /* Una sola pantalla en todo tamaño: el panel solo asoma por abajo */
+    position: relative;
+    height: 100svh;
+    padding-bottom: 0;
     background: radial-gradient(
       70rem 30rem at 50% -8%,
       color-mix(in srgb, var(--color-accent-500) 26%, transparent),
@@ -66,12 +70,11 @@ import { hero } from "@/data/home";
   h1 {
     font-family: var(--font-display);
     font-size: var(--hero-title-size);
-    font-weight: var(--weight-regular);
+    font-weight: var(--weight-heading);
     /* El degradado recorta el texto a su caja: sin este aire se corta la g */
     padding-bottom: 0.14em;
     margin-bottom: -0.14em;
     line-height: var(--hero-title-leading);
-    letter-spacing: -0.02em;
   }
 
   .highlight {
@@ -98,19 +101,49 @@ import { hero } from "@/data/home";
     font-size: var(--hero-button-font);
   }
 
+  /* El texto ocupa hasta donde empieza el panel */
+  .copy {
+    align-content: start;
+    min-height: calc(var(--hero-frame-top) - var(--header-height) - var(--space-6));
+  }
+
   .fallback {
-    width: min(100%, 26rem);
-    height: auto;
-    margin: var(--space-6) auto 0;
+    position: absolute;
+    top: 58svh;
+    left: 50%;
+    width: auto;
+    height: 26svh;
+    margin: 0;
+    object-fit: contain;
+    transform: translateX(-50%);
   }
 
   :global(.has-scene) .fallback {
     visibility: hidden;
   }
 
+  /* Sin movimiento nada se desplaza: la portada vuelve a su flujo normal */
+  :global(.no-motion) .hero {
+    height: auto;
+    padding-bottom: var(--space-7);
+  }
+
+  :global(.no-motion) .copy {
+    min-height: 0;
+  }
+
+  :global(.no-motion) .fallback {
+    position: static;
+    display: block;
+    width: min(100%, 26rem);
+    height: auto;
+    margin: var(--space-6) auto 0;
+    transform: none;
+  }
+
   .console {
     width: var(--hero-frame-width);
-    margin: var(--space-5) auto 0;
+    margin: 0 auto;
     overflow: hidden;
     border-width: var(--hero-frame-border);
     border-radius: var(--hero-frame-radius);
@@ -128,34 +161,17 @@ import { hero } from "@/data/home";
   }
 
   @media (min-width: 1024px) {
-    .hero {
-      position: relative;
-    }
-
     .hero :global(.container) {
       max-width: none;
     }
 
-    /* El texto ocupa hasta donde empieza el panel: misma altura relativa en toda pantalla */
-    .copy {
-      align-content: start;
-      min-height: calc(var(--hero-frame-top) - var(--header-height) - var(--space-6));
-    }
-
     .console {
-      margin-top: 0;
       margin-inline: calc((100% - var(--hero-frame-width)) / 2);
     }
 
     .fallback {
-      position: absolute;
       top: 42svh;
-      left: 50%;
-      width: auto;
       height: 34svh;
-      margin: 0;
-      object-fit: contain;
-      transform: translateX(-50%);
     }
 
     :global(.has-scene) .fallback {

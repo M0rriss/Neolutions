@@ -2,6 +2,7 @@
 import Button from "@/components/ui/Button.astro";
 import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
 import { mainNav } from "@/data/navigation";
+import { cleanPath } from "@/lib/seo";
 import { getServices } from "@/lib/services";
 import Logo from "./Logo.astro";
 import MobileMenu from "./MobileMenu.astro";
@@ -9,7 +10,7 @@ import NavMenu from "./NavMenu.astro";
 
 const services = await getServices();
 const serviceLinks = services.map((s) => ({ label: s.data.title, href: `/servicios/${s.id}` }));
-const current = Astro.url.pathname.replace(/\/$/, "") || "/";
+const current = cleanPath(Astro.url.pathname);
 const items = mainNav.map((item, index) => ({
   ...item,
   id: `menu-${index}`,

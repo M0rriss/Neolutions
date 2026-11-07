@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { absoluteUrl, jsonLdString, pageTitle } from "./seo";
+import { absoluteUrl, cleanPath, jsonLdString, pageTitle } from "./seo";
 
 describe("pageTitle", () => {
   it("agrega la marca cuando cabe", () => {
@@ -22,5 +22,19 @@ describe("absoluteUrl", () => {
 describe("jsonLdString", () => {
   it("no permite cerrar el script", () => {
     expect(jsonLdString({ a: "</script>" })).not.toContain("</script>");
+  });
+});
+
+describe("cleanPath", () => {
+  it("quita .html e index que genera build.format file", () => {
+    expect(cleanPath("/index.html")).toBe("/");
+    expect(cleanPath("/ayuda.html")).toBe("/ayuda");
+    expect(cleanPath("/servicios/soporte-tecnico.html")).toBe("/servicios/soporte-tecnico");
+  });
+
+  it("deja igual las rutas del servidor de desarrollo", () => {
+    expect(cleanPath("/")).toBe("/");
+    expect(cleanPath("/legal/")).toBe("/legal");
+    expect(cleanPath("/legal/cookies")).toBe("/legal/cookies");
   });
 });

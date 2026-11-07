@@ -1,6 +1,7 @@
 ---
 import Container from "@/components/ui/Container.astro";
 import { legalNav } from "@/data/navigation";
+import { cleanPath } from "@/lib/seo";
 import PageLayout from "./PageLayout.astro";
 
 interface Props {
@@ -9,7 +10,7 @@ interface Props {
   updated: string;
 }
 const { title, description, updated } = Astro.props;
-const current = Astro.url.pathname.replace(/\/$/, "");
+const current = cleanPath(Astro.url.pathname);
 ---
 
 <PageLayout title={title} description={description}>

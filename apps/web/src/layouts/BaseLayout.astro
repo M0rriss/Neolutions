@@ -1,6 +1,6 @@
 ---
 import "@/styles/global.css";
-import { absoluteUrl, jsonLdString, organizationJsonLd, pageTitle } from "@/lib/seo";
+import { absoluteUrl, cleanPath, jsonLdString, organizationJsonLd, pageTitle } from "@/lib/seo";
 
 export interface Props {
   title: string;
@@ -24,7 +24,7 @@ const {
 } = Astro.props;
 
 const base = Astro.site ?? Astro.url;
-const canonical = absoluteUrl(Astro.url.pathname, base);
+const canonical = absoluteUrl(cleanPath(Astro.url.pathname), base);
 const fullTitle = pageTitle(title);
 const imageUrl = absoluteUrl(image, base);
 const structured = [organizationJsonLd(base), ...jsonLd];

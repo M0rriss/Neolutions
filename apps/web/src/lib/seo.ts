@@ -9,6 +9,18 @@ export function pageTitle(title: string): string {
   return full.length <= MAX_TITLE ? full : title;
 }
 
+/**
+ * Ruta pública de la página. Con build.format "file", Astro.url.pathname trae
+ * "/ayuda.html" o "/index.html" al compilar; el sitio publica "/ayuda" y "/".
+ */
+export function cleanPath(pathname: string): string {
+  const path = pathname
+    .replace(/\.html$/, "")
+    .replace(/\/index$/, "")
+    .replace(/\/$/, "");
+  return path || "/";
+}
+
 export function absoluteUrl(path: string, base: string | URL): string {
   const url = new URL(path, base).href;
   return url.length > new URL(base).origin.length + 1

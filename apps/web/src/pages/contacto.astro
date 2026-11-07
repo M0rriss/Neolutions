@@ -1,4 +1,5 @@
 ---
+import ParticleFigure from "@/components/ui/ParticleFigure.astro";
 import ContactForm from "@/components/islands/ContactForm";
 import Button from "@/components/ui/Button.astro";
 import Container from "@/components/ui/Container.astro";
@@ -76,6 +77,9 @@ const channels = [
               <IconBook size={20} />
             </a>
           </div>
+          <div class="contact-figure">
+            <ParticleFigure name="chat" />
+          </div>
         </div>
         <div class="panel">
           <ContactForm client:visible services={services} />
@@ -135,6 +139,17 @@ const channels = [
 </PageLayout>
 
 <style>
+  .contact-figure {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .contact-figure {
+      display: block;
+      height: 16rem;
+    }
+  }
+
   .contact {
     margin-top: calc(-1 * var(--header-height));
     padding-block: calc(var(--header-height) + var(--space-6)) var(--space-8);
@@ -156,7 +171,7 @@ const channels = [
   h1 {
     font-family: var(--font-display);
     font-size: var(--text-4xl);
-    font-weight: var(--weight-regular);
+    font-weight: var(--weight-heading);
   }
 
   .text {
@@ -289,7 +304,7 @@ const channels = [
   h2 {
     font-family: var(--font-display);
     font-size: var(--text-3xl);
-    font-weight: var(--weight-regular);
+    font-weight: var(--weight-heading);
   }
 
   .actions {

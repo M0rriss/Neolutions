@@ -1,4 +1,5 @@
 import { gsap, ScrollTrigger } from "./gsap";
+import { breathe, firstChance, nearScreen, showFallback } from "./idle";
 import { initLenis } from "./lenis";
 import { prefersReducedMotion } from "./reducedMotion";
 
@@ -29,7 +30,14 @@ function initHeadings() {
     const parts = group ? [...group.children] : [heading];
     parts.forEach((part, index) => riseIn(part, index * 0.09, heading));
   });
+  // Bloques cuyo texto entra en cascada mientras su fondo queda quieto
+  document.querySelectorAll<HTMLElement>("[data-rise]").forEach((block) => {
+    [...block.children].forEach((part, index) => riseIn(part, index * 0.09, block));
+  });
 }
+
+/** Una sección se fija solo si cabe entera en la pantalla; si no, debe poder leerse completa. */
+const fitsScreen = (section: HTMLElement) => section.offsetHeight <= window.innerHeight + 4;
 
 /** Entrada de la primera pantalla: cada pieza llega escalonada al cargar. */
 function initPageEntrance() {
@@ -53,23 +61,41 @@ function initPageEntrance() {
       { y: 240, opacity: 0 },
       { y: 0, opacity: 1, duration: 1.1, ease: RISE, delay: 0.25 },
     );
+    // El panel de la portada solo asoma: baja acelerando mientras el planeta sube
+    const peek = mock.matches(".console");
     // Inicio explícito: con gsap.to tomaría los 240 px de la entrada y saltaría al primer scroll.
     gsap.fromTo(
       mock,
       { y: 0 },
       {
-        y: 120,
-        ease: "none",
+        y: () => (peek ? window.innerHeight * 0.75 : 120),
+        ease: peek ? (t: number) => t ** 1.4 : "none",
         immediateRender: false,
-        scrollTrigger: { trigger: first, start: "top top", end: "bottom top", scrub: 0.6 },
+        scrollTrigger: {
+          trigger: first,
+          start: "top top",
+          end: () => (peek ? `+=${window.innerHeight * 0.33}` : "bottom top"),
+          scrub: 0.6,
+          invalidateOnRefresh: true,
+        },
       },
     );
-    gsap.to(first.querySelector(".copy"), {
-      y: -70,
-      opacity: 0,
-      ease: "none",
-      scrollTrigger: { trigger: first, start: "top top", end: "45% top", scrub: 0.6 },
-    });
+    if (peek) {
+      // Ya fuera de pantalla: se oculta para que no reaparezca al seguir bajando
+      ScrollTrigger.create({
+        trigger: first,
+        start: () => `top+=${window.innerHeight * 0.45} top`,
+        onEnter: () => gsap.set(mock, { visibility: "hidden" }),
+        onLeaveBack: () => gsap.set(mock, { visibility: "visible" }),
+      });
+    } else {
+      gsap.to(first.querySelector(".copy"), {
+        y: -70,
+        opacity: 0,
+        ease: "none",
+        scrollTrigger: { trigger: first, start: "top top", end: "45% top", scrub: 0.6 },
+      });
+    }
   }
 }
 
@@ -98,7 +124,8 @@ function initReveals() {
     onEnter: (batch) => {
       batch.forEach((item, index) => {
         const side = (item as HTMLElement).dataset.slide;
-        const from = side ? { x: side === "left" ? -60 : 60, y: 0 } : { x: 0, y: 40 };
+        const rise = item.matches("tr") ? 0 : 40;
+        const from = side ? { x: side === "left" ? -60 : 60, y: 0 } : { x: 0, y: rise };
         gsap.fromTo(
           item,
           { ...from, opacity: 0 },
@@ -137,18 +164,67 @@ function initCounters() {
 function initStats() {
   const section = document.querySelector<HTMLElement>("#g-stats");
   const rows = section ? gsap.utils.toArray<HTMLElement>("[data-stat]") : [];
-  if (!section || !rows.length) return;
+  if (!section || !rows.length || !fitsScreen(section)) return;
 
-  gsap.matchMedia().add("(min-width: 1024px)", () => {
-    gsap.set(rows.slice(1), { opacity: 0.25 });
-    const timeline = gsap.timeline({
-      scrollTrigger: { trigger: section, start: "top top", end: "+=150%", pin: true, scrub: 0.6 },
-    });
-    rows.slice(1).forEach((row, index) => {
-      timeline.to(row, { opacity: 1, duration: 0.3, ease: "none" }, index * 0.6);
-    });
-    // Tramo final con todas encendidas, antes de soltar la sección.
-    timeline.to({}, { duration: 0.5 });
+  // Se monta sobre el final del hero: aparece en su sitio, no sube desde abajo de la pantalla
+  gsap.set(section, { marginTop: "-35svh" });
+  gsap.set(rows, { opacity: 0 });
+  const timeline = gsap.timeline({
+    scrollTrigger: { trigger: section, start: "top top", end: "+=91%", pin: true, scrub: 0.6 },
+  });
+  const content = Array.from(section.children);
+  timeline.fromTo(content, { opacity: 0 }, { opacity: 1, duration: 0.24, ease: "none" }, 0);
+  // Las filas se encienden una tras otra
+  rows.forEach((row, index) => {
+    timeline.to(row, { opacity: 1, duration: 0.1, ease: "none" }, 0.13 + index * 0.072);
+  });
+  // Se apaga antes de soltarse: el planeta queda solo y luego se deshace
+  timeline.to(content, { opacity: 0, duration: 0.2, ease: "none" }, 0.8);
+}
+
+/** Accesos: sus piezas las mueve el scroll, no las entradas por tiempo. */
+function claimServices() {
+  const section = document.querySelector<HTMLElement>("#g-services");
+  if (!section) return;
+  section.querySelector("h2")?.removeAttribute("data-split");
+  section.querySelectorAll<HTMLElement>(".reveal").forEach((tile) => {
+    tile.classList.remove("reveal");
+    tile.dataset.tile = "";
+  });
+}
+
+/**
+ * Accesos: la sección espera fija sobre la pantalla vacía mientras el planeta se deshace;
+ * el título aparece en su sitio y las tarjetas entran por filas con el scroll.
+ */
+function initServices() {
+  const section = document.querySelector<HTMLElement>("#g-services");
+  if (!section) return;
+
+  const title = section.querySelector<HTMLElement>("h2");
+  const tiles = gsap.utils.toArray<HTMLElement>(section.querySelectorAll("[data-tile]"));
+
+  gsap.set(section, { marginTop: "-100svh" });
+  const timeline = gsap.timeline({
+    scrollTrigger: { trigger: section, start: "top top", end: "+=133%", pin: true, scrub: 0.6 },
+  });
+  if (title) {
+    timeline.fromTo(title, { opacity: 0 }, { opacity: 1, duration: 0.09, ease: "none" }, 0.71);
+  }
+  tiles.forEach((tile) => {
+    const row = tile.matches("li")
+      ? Array.from(tile.parentElement?.children ?? []).indexOf(tile)
+      : 3;
+    const side = tile.dataset.slide;
+    // En pantallas angostas solo sube: desplazar a los lados recortaría las tarjetas
+    const wide = window.innerWidth >= 1024;
+    const x = side && wide ? (side === "left" ? -60 : 60) : 0;
+    timeline.fromTo(
+      tile,
+      { x, y: x ? 0 : 40, opacity: 0 },
+      { x: 0, y: 0, opacity: 1, duration: 0.1, ease: "none" },
+      0.76 + row * 0.06,
+    );
   });
 }
 
@@ -159,17 +235,22 @@ function initShowcase() {
   const shots = gsap.utils.toArray<HTMLElement>("[data-shot]");
   const features = gsap.utils.toArray<HTMLElement>("[data-feature]");
 
-  gsap.matchMedia().add("(min-width: 1024px)", () => {
-    gsap.set(features.slice(1), { opacity: 0.2 });
-    const timeline = gsap.timeline({
-      scrollTrigger: { trigger: section, start: "top top", end: "+=200%", pin: true, scrub: 0.6 },
-    });
-    shots.slice(1).forEach((shot, index) => {
-      timeline.to(shot, { opacity: 1, duration: 0.5, ease: "none" }, index + 0.5);
-      timeline.to(features[index + 1], { opacity: 1, duration: 0.5, ease: "none" }, index + 0.5);
-    });
-    timeline.to({}, { duration: 0.5 });
+  gsap.set(features.slice(1), { opacity: 0.2 });
+  const pin = fitsScreen(section);
+  const timeline = gsap.timeline({
+    scrollTrigger: {
+      trigger: section,
+      start: pin ? "top top" : "top 40%",
+      end: pin ? "+=200%" : "bottom 80%",
+      pin,
+      scrub: 0.6,
+    },
   });
+  shots.slice(1).forEach((shot, index) => {
+    timeline.to(shot, { opacity: 1, duration: 0.5, ease: "none" }, index + 0.5);
+    timeline.to(features[index + 1], { opacity: 1, duration: 0.5, ease: "none" }, index + 0.5);
+  });
+  timeline.to({}, { duration: 0.5 });
 }
 
 /** Pasos: una banda de luz recorre el riel y solo el paso activo se enciende. */
@@ -179,27 +260,50 @@ function initProcess() {
   const steps = section ? gsap.utils.toArray<HTMLElement>("[data-step]") : [];
   if (!section || !band) return;
 
-  gsap.matchMedia().add("(min-width: 1024px)", () => {
-    // Número y etiqueta siguen encendidos: solo se atenúan título y descripción.
-    const textOf = (step: HTMLElement) => step.querySelectorAll("h3, .text");
-    steps.slice(1).forEach((step) => gsap.set(textOf(step), { opacity: 0.4 }));
-    const timeline = gsap.timeline({
-      scrollTrigger: { trigger: section, start: "top top", end: "+=180%", pin: true, scrub: 0.6 },
-    });
-    timeline.fromTo(
-      band,
-      { "--band": "-16%" },
-      { "--band": "116%", ease: "none", duration: steps.length },
-      0,
-    );
-    steps.forEach((step, index) => {
-      if (index > 0) {
-        timeline.to(textOf(step), { opacity: 1, duration: 0.3, ease: "none" }, index - 0.15);
-      }
-      if (index < steps.length - 1) {
-        timeline.to(textOf(step), { opacity: 0.4, duration: 0.3, ease: "none" }, index + 0.7);
-      }
-    });
+  // Número y etiqueta siguen encendidos: solo se atenúan título y descripción.
+  const textOf = (step: HTMLElement) => step.querySelectorAll("h3, .text");
+  steps.forEach((step) => gsap.set(textOf(step), { opacity: 0.4 }));
+  // En pantallas angostas la sección se desplaza junto con el planeta
+  const pin = fitsScreen(section) && window.innerWidth >= 1024;
+  const timeline = gsap.timeline({
+    scrollTrigger: {
+      trigger: section,
+      start: pin ? "top top" : "top 55%",
+      end: pin ? "+=100%" : "bottom 70%",
+      pin,
+      scrub: 0.6,
+    },
+  });
+  const BAND_START = -16;
+  const BAND_END = 116;
+  timeline.fromTo(
+    band,
+    { "--band": `${BAND_START}%` },
+    { "--band": `${BAND_END}%`, ease: "none", duration: 1 },
+    0,
+  );
+
+  // Momento del recorrido en que la banda llega a cada número
+  const rail = band.getBoundingClientRect();
+  const numbers = steps.map((step) => step.querySelector<HTMLElement>(".number"));
+  const arrivals = numbers.map((number) => {
+    const box = number?.getBoundingClientRect();
+    const center = box ? box.top + box.height / 2 : rail.top;
+    const percent = ((center - rail.top) / rail.height) * 100;
+    return (percent - BAND_START) / (BAND_END - BAND_START);
+  });
+
+  steps.forEach((step, index) => {
+    const arrival = arrivals[index];
+    // Cada paso sigue encendido hasta que la banda llega al siguiente
+    const leave = arrivals[index + 1] ?? 0.95;
+    timeline.to(textOf(step), { opacity: 1, duration: 0.04, ease: "none" }, arrival - 0.03);
+    timeline.to(textOf(step), { opacity: 0.4, duration: 0.04, ease: "none" }, leave - 0.03);
+    const number = numbers[index];
+    if (number) {
+      timeline.to(number, { "--glow": 1, duration: 0.04, ease: "none" }, arrival - 0.04);
+      timeline.to(number, { "--glow": 0, duration: 0.06, ease: "none" }, arrival + 0.03);
+    }
   });
 }
 
@@ -264,33 +368,28 @@ function prepare2d(canvas: HTMLCanvasElement, color: string) {
   return { context, width, height };
 }
 
-/** Versión 2D de las velas, para celular y equipos sin WebGL. */
-function drawBars2d(canvas: HTMLCanvasElement) {
+/** Versión 2D de las figuras, fija, para movimiento reducido y equipos sin WebGL. */
+async function drawFigure2d(canvas: HTMLCanvasElement) {
+  const { figurePoints } = await import("./particleFigures");
   const ready = prepare2d(canvas, "--color-accent-400");
   if (!ready) return;
   const { context, width, height } = ready;
-  const BARS = 6;
-  const slot = width / BARS;
-  const points = Array.from({ length: BARS * 800 }, (_, i) => {
-    const bar = i % BARS;
-    const top = height * (0.72 - (bar / (BARS - 1)) * 0.68) + (bar % 2 ? height * 0.07 : 0);
-    const half = Math.min(slot * 0.2, 14);
-    const wick = Math.random() < 0.16;
-    return {
-      x: slot * (bar + 0.5) + (Math.random() * 2 - 1) * (wick ? 2 : half),
-      y: top + Math.random() * (height * 0.34 + (wick ? 50 : 0)) - (wick ? 26 : 0),
-      phase: Math.random() * Math.PI * 2,
-      speed: 0.6 + Math.random() * 1.4,
-    };
-  });
-  whileVisible(canvas, (t) => {
-    context.clearRect(0, 0, width, height);
-    for (const point of points) {
-      const wave = Math.sin(t * point.speed + point.phase);
-      context.globalAlpha = 0.3 + 0.7 * Math.abs(wave);
-      context.fillRect(point.x, point.y + wave * 3, 1.8, 1.8);
-    }
-  });
+  const name = canvas.dataset.figure as Parameters<typeof figurePoints>[0];
+  const { position, count, tilt } = figurePoints(name, 0.5);
+  const scale = Math.min(width, height) / 2.9;
+  const [sinZ, cosZ] = [Math.sin(tilt.z), Math.cos(tilt.z)];
+  const flatten = Math.cos(tilt.x);
+  for (let i = 0; i < count; i += 1) {
+    const x = position[i * 3];
+    const y = position[i * 3 + 1];
+    context.globalAlpha = 0.35 + Math.random() * 0.65;
+    context.fillRect(
+      width / 2 + (x * cosZ - y * sinZ) * scale,
+      height / 2 - (x * sinZ + y * cosZ) * flatten * scale,
+      1.4,
+      1.4,
+    );
+  }
 }
 
 /** Orbe de partículas que gira. */
@@ -322,44 +421,84 @@ function initOrbs() {
   });
 }
 
+let webglSupport: boolean | null = null;
+
 function hasWebGL() {
+  if (webglSupport !== null) return webglSupport;
   try {
-    return Boolean(document.createElement("canvas").getContext("webgl2"));
+    const context = document.createElement("canvas").getContext("webgl2");
+    webglSupport = Boolean(context);
+    // Solo era una prueba: libera el contexto, el navegador admite pocos a la vez
+    context?.getExtension("WEBGL_lose_context")?.loseContext();
   } catch {
-    return false;
+    webglSupport = false;
   }
+  return webglSupport;
 }
 
-const canUse3d = () => window.innerWidth >= 1024 && hasWebGL();
+/** Respeta el ahorro de datos y las conexiones muy lentas: ahí se queda la imagen fija. */
+function canUse3d() {
+  const { connection } = navigator as Navigator & {
+    connection?: { saveData?: boolean; effectiveType?: string };
+  };
+  if (connection?.saveData || connection?.effectiveType?.includes("2g")) return false;
+  return hasWebGL();
+}
 
-async function initCandles() {
-  const canvases = [...document.querySelectorAll<HTMLCanvasElement>("[data-bars]")];
-  if (!canvases.length) return;
-  if (!canUse3d()) {
-    canvases.forEach(drawBars2d);
-    return;
-  }
-  const { startCandles } = await import("./scene");
-  canvases.forEach(startCandles);
+/** Cada figura trae Three.js cuando está a una pantalla de distancia. */
+function initFigures() {
+  document.querySelectorAll<HTMLCanvasElement>("[data-figure]").forEach((canvas) => {
+    void nearScreen(canvas, "100%").then(async () => {
+      if (!canUse3d()) {
+        void drawFigure2d(canvas);
+        return;
+      }
+      const { startFigure } = await import("./figureScene");
+      startFigure(canvas);
+    });
+  });
 }
 
 async function initScene() {
   const canvas = document.querySelector<HTMLCanvasElement>("[data-scene]");
-  if (!canvas || !canUse3d()) return;
+  if (!canvas) return;
+  if (!canUse3d()) {
+    showFallback();
+    return;
+  }
 
-  // Three.js llega aparte: en celular nunca se descarga.
-  const { sceneState, startScene } = await import("./scene");
+  // Portada: en cuanto el navegador se libera o el usuario se mueve.
+  // Subpáginas: el globo solo sale en los pasos, se carga al acercarse a ellos.
   const isHome = Boolean(document.querySelector("#g-stats"));
+  const steps = document.querySelector("#g-process");
+  if (isHome) await firstChance();
+  else if (steps) await nearScreen(steps);
+  else return;
+
+  // Código y datos a la vez: el modelo no espera a que termine de bajar Three.js
+  const loaded = await Promise.all([
+    import("./scene"),
+    fetch("/data/globe.bin").then((response) => response.arrayBuffer()),
+  ]).catch(() => null);
+  if (!loaded) {
+    showFallback();
+    return;
+  }
+  const [{ sceneState, startScene }, landData] = loaded;
   // Fuera de la portada la escena aparece solo al llegar a los pasos.
   if (!isHome) Object.assign(sceneState, { opacity: 0, mix: 0, y: 0, scale: 0.95, spin: 0 });
-  await startScene(canvas);
+  let updatePose: ((delta: number) => void) | null = null;
+  await startScene(canvas, landData, (delta) => updatePose?.(delta));
   document.documentElement.classList.add("has-scene");
   gsap.fromTo(canvas, { opacity: 0 }, { opacity: 1, duration: 1.2 });
 
   // Una sola función del scroll: cada posición da siempre el mismo estado del globo.
   // Evita que varias animaciones escriban la misma propiedad y dejen un resultado distinto
   // según la velocidad del scroll.
-  type Pose = Pick<typeof sceneState, "y" | "scale" | "spin" | "mix" | "opacity">;
+  type Pose = Pick<
+    typeof sceneState,
+    "y" | "scale" | "spin" | "mix" | "opacity" | "floor" | "speed" | "water"
+  >;
   type Stop = { at: number; pose: Pose };
 
   const topOf = (selector: string) => {
@@ -379,32 +518,108 @@ async function initScene() {
   const buildStops = (): Stop[] => {
     const vh = window.innerHeight;
     const stops: Stop[] = [];
+    // En pantallas angostas el planeta se ajusta al ancho
+    const aspect = window.innerWidth / vh;
+    const fit = Math.min(1, 0.23 + 0.79 * aspect);
     const add = (at: number | null, offset: number, pose: Pose) => {
-      if (at !== null) stops.push({ at: at + offset * vh, pose });
+      if (at !== null) {
+        stops.push({ at: at + offset * vh, pose: { ...pose, scale: pose.scale * fit } });
+      }
+    };
+    // Altura visible de la escena en el plano del globo: mover esto equivale a una pantalla
+    const screen = 2 * 5 * Math.tan((22.5 * Math.PI) / 180);
+    const narrow = window.innerWidth < 1024;
+
+    /** Pantallas angostas: el planeta va en el hueco de los pasos y se desplaza con la sección. */
+    const followProcess = (pose: Pose) => {
+      const section = document.querySelector<HTMLElement>("#g-process");
+      const top = topOf("#g-process");
+      if (!section || top === null) return;
+      const copy = section.querySelector(".copy")?.getBoundingClientRect();
+      const list = section.querySelector(".steps")?.getBoundingClientRect();
+      if (!copy || !list) return;
+      const slot = (copy.bottom + list.top) / 2 - section.getBoundingClientRect().top;
+      const sunk = pose.y - pose.floor;
+      const at = (scroll: number, opacity: number) => {
+        const y = (0.5 - (top - scroll + slot) / vh) * screen;
+        add(scroll, 0, { ...pose, y, floor: y - sunk * fit, opacity });
+      };
+      const enter = top - vh;
+      const leave = top + section.offsetHeight;
+      at(enter - 0.1 * vh, 0);
+      at(enter, 0.92);
+      at(leave, 0.92);
+      at(leave + 0.1 * vh, 0);
     };
     if (isHome) {
-      const hero = { y: -1.66, scale: 1.55, spin: -0.75, mix: 0, opacity: 1 };
-      const center = { y: 0.02, scale: 1.3, spin: -0.55, mix: 0, opacity: 1 };
-      const turned = { ...center, spin: -0.35 };
-      const chip = { y: -0.12, scale: 1.08, spin: -0.35, mix: 1, opacity: 1 };
-      const steps = { y: 0, scale: 0.95, spin: 2.2, mix: 0, opacity: 1 };
-      add(topOf("#g-stats"), -0.85, hero);
-      add(topOf("#g-stats"), 0, center);
-      add(endOf("#g-stats"), 0, turned);
-      add(topOf("#g-services"), -0.8, turned);
-      add(topOf("#g-services"), -0.05, chip);
-      add(topOf("#g-table"), -1, chip);
-      add(topOf("#g-table"), -0.6, { ...chip, opacity: 0.04 });
-      add(topOf("#g-process"), -0.5, { ...chip, opacity: 0.04 });
-      add(topOf("#g-process"), 0, steps);
-      add(topOf("#g-showcase"), -0.9, steps);
-      add(topOf("#g-showcase"), -0.4, { ...steps, opacity: 0 });
+      const free = { spin: -0.75, opacity: 1, floor: -9, speed: 0.17, water: 0 };
+      // Al inicio el planeta asoma justo debajo de los botones del hero
+      const actions = document.querySelector(".hero .actions")?.getBoundingClientRect();
+      const copyEnd = actions ? (actions.bottom + window.scrollY) / vh : 0.44;
+      const horizon = Math.min(-0.11, (0.5 - copyEnd) * screen - 0.12);
+      const hero = { ...free, y: horizon - 1.4 * fit, scale: 1.4, mix: 0 };
+      const center = { ...free, y: -0.12, scale: 1.3, mix: 0 };
+      const chip = { ...free, y: -0.12, scale: 1.08, mix: 1 };
+      // En los pasos el planeta gira con el scroll y su base se hunde en el reflejo
+      const steps = {
+        y: 0.12,
+        scale: 0.9,
+        spin: -0.75,
+        mix: 0,
+        opacity: 0.92,
+        floor: -0.55,
+        speed: 0.03,
+        water: 0.45,
+      };
+      const rising = { ...steps, y: steps.y - screen, floor: steps.floor - screen };
+      // El planeta se deshace en una cúpula, se recoge sobre el agua y forma el chip
+      const dome = { ...center, mix: 0.36, floor: -1.1, water: 0.5 };
+      const pool = { ...center, y: 0.35, scale: 0.52, mix: 0.55, floor: -0.3, water: 1.4 };
+      const release = endOf("#g-stats");
+      add(0, 0, hero);
+      // Con el texto encima, en pantallas angostas el planeta se atenúa para poder leer
+      const reading = { ...center, opacity: narrow ? 0.4 : 1 };
+      add(0, 0.55, reading);
+      add(release, -0.1, reading);
+      add(release, 0.05, center);
+      add(release, 0.55, dome);
+      add(release, 0.82, pool);
+      add(release, 1.08, chip);
+      // En angosto las tarjetas van apiladas: el chip se apaga para no cruzarse con ellas
+      const chipEnd = narrow ? endOf("#g-services") : topOf("#g-table");
+      add(chipEnd, narrow ? 0 : -1, chip);
+      add(chipEnd, narrow ? 0.45 : -0.45, { ...chip, opacity: 0 });
+      if (narrow) {
+        followProcess({ ...steps, opacity: 0 });
+      } else {
+        // Oculto cambia de forma; después sube pegado a la sección de pasos
+        add(topOf("#g-process"), -1.1, { ...rising, opacity: 0 });
+        add(topOf("#g-process"), -1, { ...rising, opacity: 0.35 });
+        add(topOf("#g-process"), 0, steps);
+        add(endOf("#g-process"), 0, { ...steps, spin: -0.25 });
+        add(topOf("#g-showcase"), -0.9, { ...steps, spin: -0.2 });
+        add(topOf("#g-showcase"), -0.15, { ...steps, spin: -0.15, opacity: 0 });
+      }
     } else {
-      const on = { y: 0, scale: 0.95, spin: 0, mix: 0, opacity: 1 };
-      add(topOf("#g-process"), -0.9, { ...on, opacity: 0 });
-      add(topOf("#g-process"), 0, on);
-      add(topOf(".final"), -0.9, on);
-      add(topOf(".final"), -0.4, { ...on, opacity: 0 });
+      const on = {
+        y: 0.12,
+        scale: 0.98,
+        spin: 0,
+        mix: 0,
+        opacity: 0.92,
+        floor: -0.55,
+        speed: 0.03,
+        water: 0.45,
+      };
+      if (narrow) {
+        followProcess({ ...on, opacity: 0 });
+      } else {
+        add(topOf("#g-process"), -0.9, { ...on, opacity: 0 });
+        add(topOf("#g-process"), 0, on);
+        add(endOf("#g-process"), 0, { ...on, spin: 0.5 });
+        add(topOf(".final"), -0.9, { ...on, spin: 0.55 });
+        add(topOf(".final"), -0.4, { ...on, spin: 0.6, opacity: 0 });
+      }
     }
     return stops.sort((a, b) => a.at - b.at);
   };
@@ -428,17 +643,20 @@ async function initScene() {
   };
 
   let stops = buildStops();
+  // Arranca ya en su sitio: sin esto el planeta se deslizaría desde la pose de escritorio
+  Object.assign(sceneState, sample(stops, window.scrollY));
   ScrollTrigger.addEventListener("refresh", () => {
     stops = buildStops();
   });
-  gsap.ticker.add(() => {
+  // Suavizado por tiempo real: igual en un monitor de 60 Hz que en uno de 144 Hz
+  updatePose = (delta) => {
     const target = sample(stops, window.scrollY);
     if (!target) return;
+    const follow = 1 - Math.exp(-5.66 * delta);
     for (const key of Object.keys(target) as (keyof Pose)[]) {
-      sceneState[key] += (target[key] - sceneState[key]) * 0.09;
+      sceneState[key] += (target[key] - sceneState[key]) * follow;
     }
-  });
-  ScrollTrigger.refresh();
+  };
 }
 
 declare global {
@@ -449,21 +667,34 @@ declare global {
 
 if (prefersReducedMotion()) {
   document.documentElement.classList.add("no-motion");
+  showFallback();
+  // Con movimiento reducido las figuras quedan quietas, pero se ven
+  document
+    .querySelectorAll<HTMLCanvasElement>("[data-figure]")
+    .forEach((canvas) => void drawFigure2d(canvas));
 } else {
   window.__motion = true;
   initLenis();
-  document.fonts.ready.then(() => {
+  // Por tramos: entre uno y otro el navegador puede pintar y atender al usuario
+  void document.fonts.ready.then(async () => {
     initPageEntrance();
+    await breathe();
+    claimServices();
+    await breathe();
+    // Primero los fijados, en orden de página: ScrollTrigger calcula en el orden de creación,
+    // y todo lo creado antes ignoraría el espacio que añaden y se dispararía demasiado pronto
+    initStats();
+    initServices();
+    initProcess();
+    initShowcase();
+    await breathe();
     initHeadings();
     initReveals();
     initCounters();
-    initStats();
-    initProcess();
-    initShowcase();
     initCarousels();
     initOrbs();
     ScrollTrigger.refresh();
-    void initCandles();
+    initFigures();
     void initScene();
   });
 }

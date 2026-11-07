@@ -1,5 +1,5 @@
 ---
-// Escena fija detrás de la portada. Sin WebGL, en celular o con movimiento reducido no se dibuja.
+// Escena fija detrás de la portada. Sin WebGL o con movimiento reducido no se dibuja.
 ---
 
 <div class="globe-stage" aria-hidden="true">
@@ -12,13 +12,14 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
+    contain: strict;
   }
 
   .globe-stage::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(38rem 32rem at 50% 58%, var(--color-accent-100), transparent 70%);
+    background: var(--color-black);
     opacity: 0;
     transition: opacity var(--transition-base);
   }

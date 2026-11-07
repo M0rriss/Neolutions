@@ -11,17 +11,26 @@ const { class: className } = Astro.props;
 
 <style>
   .card {
-    padding: var(--space-6);
-    border: 1px solid var(--color-card-border);
+    height: 100%;
+    padding: var(--space-5);
+    border: 1px solid var(--color-divider);
     border-radius: var(--radius-card);
-    background: var(--gradient-card);
-    transition:
-      border-color var(--transition-base),
-      transform var(--transition-base);
+    background: radial-gradient(
+      68% 69% at 66% 3%,
+      var(--color-card-top) 19%,
+      var(--color-card-base) 73%
+    );
+    transition: border-color 500ms ease;
   }
 
   .card:hover {
-    border-color: var(--color-accent-500);
-    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--color-accent-500) 55%, transparent);
+  }
+
+  @media (min-width: 1024px) {
+    .card {
+      padding: 1.6vw;
+      border-radius: 1.4vw;
+    }
   }
 </style>

@@ -1,4 +1,5 @@
 ---
+import ParticleFigure from "@/components/ui/ParticleFigure.astro";
 import { getCollection, render } from "astro:content";
 import FinalCta from "@/components/sections/FinalCta.astro";
 import Badge from "@/components/ui/Badge.astro";
@@ -44,6 +45,9 @@ const jsonLd = [
   <section class="help" data-help>
     <Container>
       <div class="inner">
+        <div class="help-figure">
+          <ParticleFigure name="headset" />
+        </div>
         <div class="top">
           <div class="intro">
             <Badge variant="status">Te ayudamos por WhatsApp</Badge>
@@ -163,6 +167,26 @@ const jsonLd = [
 </script>
 
 <style>
+  .help-figure {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .inner {
+      position: relative;
+    }
+
+    .help-figure {
+      position: absolute;
+      top: -7vw;
+      right: -2vw;
+      display: block;
+      width: 22vw;
+      height: 16vw;
+      pointer-events: none;
+    }
+  }
+
   .help {
     margin-top: calc(-1 * var(--header-height));
     padding-block: calc(var(--header-height) + var(--space-7)) var(--space-6);
@@ -190,7 +214,7 @@ const jsonLd = [
   h1 {
     font-family: var(--font-display);
     font-size: var(--text-4xl);
-    font-weight: var(--weight-regular);
+    font-weight: var(--weight-heading);
   }
 
   .intro p {
@@ -295,6 +319,22 @@ const jsonLd = [
     font-weight: var(--weight-semibold);
     cursor: pointer;
     list-style: none;
+  }
+
+  .item {
+    interpolate-size: allow-keywords;
+  }
+
+  .item::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+      block-size 300ms ease,
+      content-visibility 300ms allow-discrete;
+  }
+
+  .item[open]::details-content {
+    block-size: auto;
   }
 
   summary::-webkit-details-marker {

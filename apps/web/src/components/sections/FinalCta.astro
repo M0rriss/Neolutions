@@ -1,6 +1,7 @@
 ---
 import Button from "@/components/ui/Button.astro";
 import Container from "@/components/ui/Container.astro";
+import ParticleFigure from "@/components/ui/ParticleFigure.astro";
 import WhatsAppButton from "@/components/ui/WhatsAppButton.astro";
 import { finalCta } from "@/data/home";
 
@@ -12,9 +13,9 @@ const { service } = Astro.props;
 
 <section class="section final">
   <Container>
-    <div class="panel reveal">
+    <div class="panel">
       <span class="dots" aria-hidden="true"></span>
-      <div class="copy">
+      <div class="copy" data-rise>
         <h2 class="metal">{finalCta.title}</h2>
         <p>{finalCta.text}</p>
         <div class="actions">
@@ -24,7 +25,9 @@ const { service } = Astro.props;
           </Button>
         </div>
       </div>
-      <canvas class="bars" data-bars aria-hidden="true"></canvas>
+      <div class="forms">
+        <ParticleFigure name="cpu" />
+      </div>
     </div>
   </Container>
 </section>
@@ -37,23 +40,32 @@ const { service } = Astro.props;
     align-items: center;
     padding: var(--space-8) var(--space-5) var(--space-6);
     overflow: hidden;
-    border: 1px solid var(--color-border-strong);
     border-radius: var(--radius-card);
     background:
       radial-gradient(
-        40% 34% at 50% 102%,
+        22% 32% at 50% 104%,
         var(--color-mint),
-        var(--color-accent-400) 24%,
-        color-mix(in srgb, var(--color-accent-500) 45%, transparent) 55%,
+        var(--color-accent-400) 34%,
+        color-mix(in srgb, var(--color-accent-500) 50%, transparent) 62%,
         transparent 100%
       ),
       radial-gradient(
-        46% 40% at 0% 0%,
+        38% 62% at 74% 40%,
+        color-mix(in srgb, var(--color-accent-500) 7%, transparent),
+        transparent 100%
+      ),
+      radial-gradient(
+        18% 30% at 56% 96%,
+        color-mix(in srgb, var(--color-accent-500) 30%, transparent),
+        transparent 100%
+      ),
+      radial-gradient(
+        28% 30% at 0% 0%,
         var(--color-accent-400),
         color-mix(in srgb, var(--color-accent-500) 40%, transparent) 45%,
         transparent 100%
       ),
-      var(--color-brand-900);
+      var(--color-panel);
   }
 
   /* Trama de puntos sobre la luz inferior */
@@ -63,7 +75,7 @@ const { service } = Astro.props;
     bottom: 0;
     left: 28%;
     height: 38%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.34) 1px, transparent 1.5px) 0 0 / 12px 12px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 1px, transparent 1.5px) 0 0 / 12px 12px;
     -webkit-mask-image: radial-gradient(closest-side, #000, transparent);
     mask-image: radial-gradient(closest-side, #000, transparent);
     pointer-events: none;
@@ -82,7 +94,7 @@ const { service } = Astro.props;
     margin-bottom: -0.14em;
     font-family: var(--font-display);
     font-size: var(--text-4xl);
-    font-weight: var(--weight-regular);
+    font-weight: var(--weight-heading);
     line-height: var(--leading-tight);
   }
 
@@ -96,10 +108,9 @@ const { service } = Astro.props;
     width: 100%;
   }
 
-  .bars {
+  .forms {
     width: 100%;
     height: 16rem;
-    filter: drop-shadow(0 0 5px var(--color-accent-400)) drop-shadow(0 0 16px color-mix(in srgb, var(--color-accent-400) 60%, transparent));
   }
 
   @media (min-width: 1024px) {
@@ -136,7 +147,7 @@ const { service } = Astro.props;
       font-size: var(--nav-font);
     }
 
-    .bars {
+    .forms {
       position: absolute;
       top: 50%;
       right: 1.35vw;

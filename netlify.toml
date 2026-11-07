@@ -1,0 +1,37 @@
+# Despliegue de apps/web (Astro estático) en Netlify.
+# El base es la raíz: pnpm instala todo el workspace (la web usa @neolutions/design-tokens).
+# La versión de pnpm sale de "packageManager" en package.json (Corepack).
+
+[build]
+  base = "/"
+  command = "pnpm --filter @neolutions/web build"
+  publish = "apps/web/dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+  # Variables públicas: definir en Netlify > Site configuration > Environment variables
+  # (ver .env.example): PUBLIC_SITE_URL, PUBLIC_WHATSAPP_NUMBER, PUBLIC_GA4_ID,
+  # PUBLIC_META_PIXEL_ID, PUBLIC_API_URL.
+
+# Astro genera ayuda.html; sin Pretty URLs Netlify sirve /ayuda tal cual.
+[build.processing.html]
+  pretty_urls = false
+
+# Archivos con hash: se pueden cachear para siempre.
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# public/fonts no lleva hash en el nombre: 30 días, no "immutable".
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"

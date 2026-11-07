@@ -140,8 +140,9 @@
   --nav-item-padding-x: var(--space-3);
   --nav-item-gap: var(--space-1);
   --nav-cta-height: var(--control-md);
-  --logo-mark: 28px;
-  --logo-word: var(--text-xl);
+  /* Alto del logo; el ancho sale de su proporción (≈ 4,76:1). */
+  --logo-height: 30px;
+  --logo-height-footer: 40px;
 
   /* Hero */
   --hero-title-size: var(--text-5xl);
@@ -189,8 +190,8 @@
     --nav-cta-height: max(2.34vw, 30px);
     --nav-cta-padding-x: 1.1vw;
     --nav-cta-gap: 0.8vw;
-    --logo-mark: max(1.75vw, 22px);
-    --logo-word: max(1.19vw, 0.9375rem);
+    --logo-height: max(2.1vw, 30px);
+    --logo-height-footer: max(2.8vw, 40px);
 
     --text-4xl: 3.1875vw;
 

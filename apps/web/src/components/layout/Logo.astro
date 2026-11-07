@@ -1,33 +1,24 @@
 ---
-// TODO: logo provisional, reemplazar por el logo oficial de Neolutions.
+// Logo oficial de Neolutions Tecnology. El SVG va en línea: el nombre usa
+// currentColor (hereda el color del texto) y "Tecnology" el turquesa del logo.
+// Fuente: src/assets/logo/neolutions.svg, generado desde el archivo del cliente.
+import LogoSvg from "../../assets/logo/neolutions.svg";
 ---
 
 <span class="logo">
-  <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true">
-    <path
-      d="M6 26V6l20 20V6"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="4"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-    ></path>
-  </svg>
-  <span class="word">Neolutions</span>
+  <LogoSvg aria-hidden="true" focusable="false" />
 </span>
 
 <style>
   .logo {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
-    color: var(--color-accent-400);
+    color: var(--color-text);
   }
 
-  .word {
-    color: var(--color-text);
-    font-size: var(--text-xl);
-    font-weight: var(--weight-bold);
-    letter-spacing: -0.01em;
+  .logo :global(svg) {
+    display: block;
+    width: auto;
+    height: var(--logo-height);
   }
 </style>
